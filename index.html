@@ -126,6 +126,7 @@
             color: #666;
         }
         
+        /* Стили для балуна кластера */
         .cluster-balloon {
             max-height: 300px;
             overflow-y: auto;
@@ -140,6 +141,12 @@
         
         .cluster-item:last-child {
             border-bottom: none;
+        }
+        
+        .entrances-count {
+            font-size: 12px;
+            color: #666;
+            margin-left: 5px;
         }
     </style>
 </head>
@@ -177,6 +184,7 @@
         <div id="address-panel">
             <div id="panel-header">
                 <h3>Адреса (<span id="address-count">0</span>)</h3>
+                <div>Подъезды: <span id="entrances-count">0</span></div>
             </div>
             <div id="address-list" class="empty-list">Загрузка данных...</div>
             <button id="copy-all" class="copy-button">Копировать список адресов</button>
@@ -189,6 +197,7 @@
         const JSONP_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData&sheet=Filter`;
         
         let map, objectManager, currentAddresses = [];
+        let totalEntrances = 0;
         
         // Обработчик данных из Google Sheets
         window.handleSheetData = function(response) {
@@ -229,6 +238,7 @@
                 '<div><strong>{{object.properties.address}}</strong></div>' +
                 '<div>Статус: {{object.properties.fullStatus}}</div>' +
                 '<div>Район: {{object.properties.district || "не указан"}}</div>' +
+                '<div>Подъездов: {{object.properties.entrances || "не указано"}}</div>' +
                 '</div>' +
                 '{% endfor %}' +
                 '</div>'
@@ -238,11 +248,18 @@
                 clusterize: true,
                 gridSize: 64,
                 clusterDisableClickZoom: true,
-                clusterBalloonContentLayout: ClusterBalloonContentLayout
+                clusterBalloonContentLayout: ClusterBalloonContentLayout,
+                clusterBalloonPanelMaxMapArea: 0
             });
             
             objectManager.clusters.options.set('preset', 'islands#invertedBlueClusterIcons');
             objectManager.objects.options.set('preset', 'islands#circleDotIcon');
+            
+            // Обработчик клика по кластеру
+            objectManager.clusters.events.add('click', function(e) {
+                const cluster = e.get('target');
+                cluster.balloon.open();
+            });
             
             map.geoObjects.add(objectManager);
             
@@ -256,6 +273,7 @@
         function processData(data) {
             const districts = new Set();
             currentAddresses = [];
+            totalEntrances = 0;
             objectManager.removeAll();
             
             resetDistrictFilter();
@@ -268,6 +286,7 @@
                 const latStr = row.c[2]?.v || '';
                 const status = row.c[3]?.v || '';
                 const district = row.c[4]?.v || '';
+                const entrances = row.c[5]?.v ? parseInt(row.c[5].v) || 0 : 0;
                 
                 if (!latStr || !lngStr) return;
                 
@@ -291,8 +310,9 @@
                         fullStatus: status,
                         status: isOccupied ? 'occupied' : 'free',
                         district: district,
+                        entrances: entrances,
                         hintContent: address,
-                        balloonContent: createBalloonContent(address, status, district, isOccupied)
+                        balloonContent: createBalloonContent(address, status, district, isOccupied, entrances)
                     },
                     options: {
                         iconColor: iconColor
@@ -306,8 +326,11 @@
                     status: status,
                     district: district,
                     coordinates: [lng, lat],
-                    isOccupied: isOccupied
+                    isOccupied: isOccupied,
+                    entrances: entrances
                 });
+                
+                totalEntrances += entrances;
             });
             
             populateDistrictFilter(districts);
@@ -345,8 +368,13 @@
         function updateAddressList(addresses) {
             const list = document.getElementById('address-list');
             const count = document.getElementById('address-count');
+            const entrancesCount = document.getElementById('entrances-count');
             
             count.textContent = addresses.length;
+            
+            // Подсчет подъездов для отфильтрованных адресов
+            const filteredEntrances = addresses.reduce((sum, addr) => sum + (addr.entrances || 0), 0);
+            entrancesCount.textContent = filteredEntrances;
             
             if (addresses.length === 0) {
                 list.innerHTML = '<div class="empty-list">Нет адресов, соответствующих фильтрам</div>';
@@ -366,20 +394,32 @@
                     </div>
                     <div class="address-details">
                         Район: ${addr.district || 'не указан'}
+                        ${addr.entrances ? `<span class="entrances-count">Подъездов: ${addr.entrances}</span>` : ''}
                     </div>
                 `;
                 item.addEventListener('click', () => {
-                    map.setCenter(addr.coordinates, { checkZoomRange: true });
+                    // Плавное перемещение к точке с небольшим увеличением
+                    map.panTo(addr.coordinates, {
+                        flying: true,
+                        zoom: 17
+                    }).then(function() {
+                        // После завершения анимации открываем балун
+                        const object = objectManager.objects.getById(addr.id);
+                        if (object) {
+                            objectManager.objects.balloon.open(addr.id);
+                        }
+                    });
                 });
                 list.appendChild(item);
             });
         }
         
-        function createBalloonContent(address, status, district, isOccupied) {
+        function createBalloonContent(address, status, district, isOccupied, entrances) {
             return `
                 <b>Адрес:</b> ${address}<br>
                 <b>Статус:</b> <span class="${isOccupied ? 'status-occupied' : 'status-free'}">${status}</span><br>
-                <b>Район:</b> ${district || 'не указан'}
+                <b>Район:</b> ${district || 'не указан'}<br>
+                ${entrances ? `<b>Подъездов:</b> ${entrances}<br>` : ''}
             `;
         }
         
@@ -438,14 +478,22 @@
             const items = Array.from(document.querySelectorAll('.address-item'));
             if (items.length === 0) return;
             
+            // Получаем заголовки с количеством
+            const addressCount = document.getElementById('address-count').textContent;
+            const entrancesCount = document.getElementById('entrances-count').textContent;
+            
             // Формируем чистый текст
-            const text = items.map(item => {
+            let text = `Адреса (${addressCount})\n`;
+            text += `Подъезды (${entrancesCount})\n\n`;
+            
+            text += items.map(item => {
                 const addr = item.querySelector('strong').textContent.trim();
                 const status = item.querySelector('span').textContent.trim();
                 const district = item.querySelector('.address-details').textContent
-                    .replace('Район:', '').trim();
+                    .replace('Район:', '').replace(/Подъездов: \d+/, '').trim();
+                const entrances = item.querySelector('.entrances-count')?.textContent || '';
                 
-                return `${addr} (${status}${district ? ', ' + district : ''})`;
+                return `${addr} (${status}${district ? ', ' + district : ''}${entrances ? ', ' + entrances : ''})`;
             }).join('\n');
             
             try {
