@@ -16,7 +16,7 @@
             position: absolute;
             top: 10px;
             width: 300px;
-            height: calc(93vh - 20px); /* Уменьшено на 5% */
+            height: calc(90vh - 20px); /* Уменьшено на 10% */
             background: white;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
@@ -165,11 +165,18 @@
             font-size: 12px;
             font-weight: bold;
             transition: background 0.2s;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
             padding: 10px 5px;
             white-space: nowrap;
             flex-shrink: 0;
+            position: relative;
+        }
+        
+        /* Вертикальный текст для кнопок */
+        .panel-toggle span {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            line-height: 1;
         }
         
         #toggle-filters {
@@ -197,6 +204,31 @@
             font-size: 12px;
             color: #666;
             margin-left: 5px;
+        }
+        
+        /* Стили для балуна кластера */
+        .cluster-balloon {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .cluster-balloon::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .cluster-balloon::-webkit-scrollbar-thumb {
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+        
+        .cluster-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cluster-item:last-child {
+            border-bottom: none;
         }
     </style>
 </head>
@@ -236,12 +268,12 @@
                     <button id="apply-filters" class="panel-button">Применить фильтры</button>
                 </div>
             </div>
-            <button id="toggle-filters" class="panel-toggle">Скрыть фильтры</button>
+            <button id="toggle-filters" class="panel-toggle"><span>Скрыть фильтры</span></button>
         </div>
         
         <!-- Блок адресов справа -->
         <div id="address-panel" class="panel">
-            <button id="toggle-addresses" class="panel-toggle">Скрыть адреса</button>
+            <button id="toggle-addresses" class="panel-toggle"><span>Скрыть адреса</span></button>
             <div class="panel-content">
                 <div class="panel-header">
                     <h3>Адреса (<span id="address-count">0</span>)</h3>
@@ -307,7 +339,15 @@
                 '<div>Подъездов: {{object.properties.entrances || "не указано"}}</div>' +
                 '</div>' +
                 '{% endfor %}' +
-                '</div>'
+                '</div>',
+                {
+                    // Ограничиваем размер балуна
+                    build: function() {
+                        this.constructor.superclass.build.call(this);
+                        this._element.style.maxWidth = '400px';
+                        this._element.style.maxHeight = '350px';
+                    }
+                }
             );
             
             objectManager = new ymaps.ObjectManager({
@@ -337,13 +377,13 @@
             document.getElementById('toggle-filters').addEventListener('click', function() {
                 const panel = document.getElementById('filters-panel');
                 panel.classList.toggle('hidden-panel');
-                this.textContent = panel.classList.contains('hidden-panel') ? 'Показать фильтры' : 'Скрыть фильтры';
+                this.querySelector('span').textContent = panel.classList.contains('hidden-panel') ? 'Показать фильтры' : 'Скрыть фильтры';
             });
             
             document.getElementById('toggle-addresses').addEventListener('click', function() {
                 const panel = document.getElementById('address-panel');
                 panel.classList.toggle('hidden-address-panel');
-                this.textContent = panel.classList.contains('hidden-address-panel') ? 'Показать адреса' : 'Скрыть адреса';
+                this.querySelector('span').textContent = panel.classList.contains('hidden-address-panel') ? 'Показать адреса' : 'Скрыть адреса';
             });
             
             loadData();
@@ -585,4 +625,4 @@
         }
     </script>
 </body>
-    </html>
+</html>
