@@ -16,7 +16,8 @@
             position: absolute;
             top: 10px;
             width: 300px;
-            height: calc(90vh - 20px); /* Уменьшено на 10% */
+            max-width: 90vw;
+            height: calc(90vh - 20px);
             background: white;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
@@ -55,16 +56,32 @@
             font-size: 16px;
         }
         
-        .panel-stats {
-            font-size: 12px;
-            color: #666;
+        /* Основная структура панели фильтров */
+        #filters-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
         }
         
-        /* Секции фильтров */
-        .filter-section {
+        /* Фиксированные секции фильтров */
+        .fixed-filter-section {
             padding: 15px;
             border-bottom: 1px solid #eee;
             flex-shrink: 0;
+        }
+        
+        /* Прокручиваемая область для фильтров */
+        .scrollable-filters {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 15px;
+        }
+        
+        /* Секции фильтров внутри прокручиваемой области */
+        .filter-section {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
         }
         
         .filter-section h3 {
@@ -230,6 +247,18 @@
         .cluster-item:last-child {
             border-bottom: none;
         }
+        
+        /* Медиа-запросы для мобильных устройств */
+        @media (max-width: 768px) {
+            .panel {
+                width: 280px;
+                height: calc(95vh - 20px);
+            }
+            
+            .scrollable-filters {
+                padding: 0 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -242,8 +271,9 @@
                 <div class="panel-header">
                     <h3>Фильтры</h3>
                 </div>
-                <div class="panel-main-content">
-                    <div class="filter-section">
+                <div id="filters-content">
+                    <!-- Фиксированная секция статуса -->
+                    <div class="fixed-filter-section">
                         <h3>Статус:</h3>
                         <div class="checkbox-group">
                             <label class="checkbox-item">
@@ -257,10 +287,13 @@
                         </div>
                     </div>
                     
-                    <div class="filter-section">
-                        <h3>Район:</h3>
-                        <div class="checkbox-group" id="districts-container">
-                            <!-- Районы будут добавлены динамически -->
+                    <!-- Прокручиваемая секция районов -->
+                    <div class="scrollable-filters">
+                        <div class="filter-section">
+                            <h3>Район:</h3>
+                            <div class="checkbox-group" id="districts-container">
+                                <!-- Районы будут добавлены динамически -->
+                            </div>
                         </div>
                     </div>
                 </div>
