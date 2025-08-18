@@ -16,7 +16,7 @@
             position: absolute;
             top: 10px;
             width: 300px;
-            height: calc(100vh - 20px);
+            height: calc(90vh - 20px); /* Уменьшено на 10% */
             background: white;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
@@ -197,29 +197,6 @@
             font-size: 12px;
             color: #666;
             margin-left: 5px;
-        }
-        
-        /* Стили для балуна кластера */
-        .cluster-balloon {
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 10px;
-        }
-        
-        .cluster-item {
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .cluster-item:last-child {
-            border-bottom: none;
-        }
-
-        /* Фикс для кнопки копирования */
-        .panel-footer {
-            padding: 0 15px 15px;
-            flex-shrink: 0;
         }
     </style>
 </head>
@@ -608,4 +585,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
