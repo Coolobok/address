@@ -164,6 +164,22 @@
             background: #0b7dda;
         }
         
+        .balloon-copy-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .balloon-copy-button:hover {
+            background: #45a049;
+        }
+        
         .empty-list {
             padding: 10px;
             text-align: center;
@@ -298,9 +314,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="panel-footer">
-                    <button id="apply-filters" class="panel-button">Применить фильтры</button>
-                </div>
             </div>
             <button id="toggle-filters" class="panel-toggle"><span>Скрыть фильтры</span></button>
         </div>
@@ -373,7 +386,8 @@
                 '<div>Подъездов: {{object.properties.entrances || "не указано"}}</div>' +
                 '</div>' +
                 '{% endfor %}' +
-                '</div>',
+                '</div>' +
+                '<button class="balloon-copy-button" onclick="copyAllBalloonAddresses({{properties.geoObjects}})">Копировать все адреса из кластера</button>',
                 {
                     // Ограничиваем размер балуна
                     build: function() {
@@ -404,7 +418,6 @@
             map.geoObjects.add(objectManager);
             
             // Обработчики событий
-            document.getElementById('apply-filters').addEventListener('click', applyFilters);
             document.getElementById('copy-all').addEventListener('click', copyAllAddresses);
             
             // Обработчики для кнопок скрытия/показа панелей
@@ -422,6 +435,49 @@
             
             loadData();
         });
+        
+        // Функция для копирования всех адресов из балуна кластера
+        window.copyAllBalloonAddresses = function(geoObjects) {
+            let text = '';
+            
+            // Формируем текст со всеми адресами из кластера
+            geoObjects.forEach((obj, index) => {
+                const address = obj.properties.address;
+                const status = obj.properties.fullStatus;
+                const district = obj.properties.district;
+                const entrances = obj.properties.entrances;
+                
+                // Добавляем дополнительную информацию, если она есть
+                const details = [];
+                if (status && status !== 'undefined') details.push(status);
+                if (district && district !== 'undefined' && district !== 'не указан') details.push(district);
+                if (entrances && entrances !== 'undefined' && entrances !== 'не указано') details.push(`Подъездов: ${entrances}`);
+                
+                text += `${address}`;
+                if (details.length > 0) {
+                    text += ` (${details.join(', ')})`;
+                }
+                text += '\n';
+            });
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Временное изменение текста кнопки для подтверждения
+                const buttons = document.querySelectorAll('.balloon-copy-button');
+                buttons.forEach(button => {
+                    const originalText = button.textContent;
+                    button.textContent = '✓ Скопировано!';
+                    button.style.background = '#45a049';
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '';
+                    }, 2000);
+                });
+            }).catch(err => {
+                console.error('Ошибка копирования:', err);
+                alert('Не удалось скопировать адреса');
+            });
+        };
         
         function processData(data) {
             const districts = new Set();
@@ -487,33 +543,98 @@
             });
             
             populateDistrictFilter(districts);
-            applyFilters();
+            applyFilters(); // Применяем фильтры сразу после загрузки данных
             
             if (objectManager.objects.getLength() > 0) {
                 map.setBounds(objectManager.getBounds(), { checkZoomRange: true });
             }
         }
         
+        function createBalloonContent(address, status, district, isOccupied, entrances) {
+            return `
+                <b>Адрес:</b> ${address}<br>
+                <b>Статус:</b> <span class="${isOccupied ? 'status-occupied' : 'status-free'}">${status}</span><br>
+                <b>Район:</b> ${district || 'не указан'}<br>
+                ${entrances ? `<b>Подъездов:</b> ${entrances}<br>` : ''}
+                <button class="balloon-copy-button" onclick="copySingleAddress('${address.replace(/'/g, "\\'")}', '${status.replace(/'/g, "\\'")}', '${(district || '').replace(/'/g, "\\'")}', ${entrances || 0})">
+                    Копировать адрес
+                </button>
+            `;
+        }
+        
+        // Функция для копирования одного адреса (для одиночных балунов)
+        window.copySingleAddress = function(address, status, district, entrances) {
+            let text = address;
+            
+            // Добавляем дополнительную информацию, если она есть
+            const details = [];
+            if (status && status !== 'undefined') details.push(status);
+            if (district && district !== 'undefined' && district !== 'не указан') details.push(district);
+            if (entrances && entrances !== 'undefined' && entrances !== 'не указано') details.push(`Подъездов: ${entrances}`);
+            
+            if (details.length > 0) {
+                text += ` (${details.join(', ')})`;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Временное изменение текста кнопки для подтверждения
+                const buttons = document.querySelectorAll('.balloon-copy-button');
+                buttons.forEach(button => {
+                    const originalText = button.textContent;
+                    button.textContent = '✓ Скопировано!';
+                    button.style.background = '#45a049';
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '';
+                    }, 2000);
+                });
+            }).catch(err => {
+                console.error('Ошибка копирования:', err);
+                alert('Не удалось скопировать адрес');
+            });
+        };
+        
         function applyFilters() {
             // Получаем выбранные статусы
             const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
             const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
             
-            // Получаем выбранные районы
+            // Получаем выбранные районы (исключаем "all")
             const districtCheckboxes = document.querySelectorAll('.district-filter:checked');
-            const selectedDistricts = Array.from(districtCheckboxes).map(cb => cb.value);
+            const selectedDistricts = Array.from(districtCheckboxes)
+                .map(cb => cb.value)
+                .filter(value => value !== 'all');
+            
+            // Если ни один статус не выбран - ничего не показываем
+            if (selectedStatuses.length === 0) {
+                objectManager.setFilter(() => false);
+                updateAddressList([]);
+                return;
+            }
+            
+            // Если ни один район не выбран (и "all" тоже не выбран) - ничего не показываем
+            if (selectedDistricts.length === 0 && !document.querySelector('.district-filter[value="all"]').checked) {
+                objectManager.setFilter(() => false);
+                updateAddressList([]);
+                return;
+            }
             
             // Фильтрация карты
-            objectManager.setFilter(obj => 
-                (selectedStatuses.length === 0 || selectedStatuses.includes(obj.properties.status)) &&
-                (selectedDistricts.length === 0 || selectedDistricts.includes(obj.properties.district))
-            );
+            objectManager.setFilter(obj => {
+                const statusMatch = selectedStatuses.includes(obj.properties.status);
+                const districtMatch = selectedDistricts.length === 0 || selectedDistricts.includes(obj.properties.district);
+                
+                return statusMatch && districtMatch;
+            });
             
             // Фильтрация списка
-            const filtered = currentAddresses.filter(addr => 
-                (selectedStatuses.length === 0 || selectedStatuses.includes(addr.isOccupied ? 'occupied' : 'free')) &&
-                (selectedDistricts.length === 0 || selectedDistricts.includes(addr.district))
-            );
+            const filtered = currentAddresses.filter(addr => {
+                const statusMatch = selectedStatuses.includes(addr.isOccupied ? 'occupied' : 'free');
+                const districtMatch = selectedDistricts.length === 0 || selectedDistricts.includes(addr.district);
+                
+                return statusMatch && districtMatch;
+            });
             
             updateAddressList(filtered);
         }
@@ -567,15 +688,6 @@
             });
         }
         
-        function createBalloonContent(address, status, district, isOccupied, entrances) {
-            return `
-                <b>Адрес:</b> ${address}<br>
-                <b>Статус:</b> <span class="${isOccupied ? 'status-occupied' : 'status-free'}">${status}</span><br>
-                <b>Район:</b> ${district || 'не указан'}<br>
-                ${entrances ? `<b>Подъездов:</b> ${entrances}<br>` : ''}
-            `;
-        }
-        
         function resetDistrictFilter() {
             document.getElementById('districts-container').innerHTML = '';
             
@@ -587,6 +699,9 @@
                 <span>Все районы</span>
             `;
             document.getElementById('districts-container').appendChild(allDistrictsItem);
+            
+            // Добавляем обработчик события изменения
+            allDistrictsItem.querySelector('input').addEventListener('change', applyFilters);
         }
         
         function populateDistrictFilter(districts) {
@@ -601,6 +716,9 @@
                     <span>${district}</span>
                 `;
                 container.appendChild(item);
+                
+                // Добавляем обработчик события изменения
+                item.querySelector('input').addEventListener('change', applyFilters);
             });
             
             // Обработчик для чекбокса "Все районы"
@@ -611,6 +729,7 @@
                 districtCheckboxes.forEach(cb => {
                     cb.checked = this.checked;
                 });
+                applyFilters(); // Применяем фильтры сразу
             });
             
             // Обработчики для чекбоксов районов
@@ -623,7 +742,13 @@
                         const allChecked = Array.from(districtCheckboxes).every(c => c.checked);
                         allDistrictsCheckbox.checked = allChecked;
                     }
+                    applyFilters(); // Применяем фильтры сразу
                 });
+            });
+            
+            // Добавляем обработчики для чекбоксов статуса
+            document.querySelectorAll('.status-filter').forEach(checkbox => {
+                checkbox.addEventListener('change', applyFilters);
             });
         }
         
