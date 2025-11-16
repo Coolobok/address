@@ -265,6 +265,37 @@
             border-bottom: none;
         }
         
+        /* Стили для уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            transition: transform 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .notification.error {
+            background: #F44336;
+        }
+        
+        .notification-icon {
+            font-size: 18px;
+        }
+        
         /* Медиа-запросы для мобильных устройств */
         @media (max-width: 768px) {
             .panel {
@@ -275,12 +306,23 @@
             .scrollable-filters {
                 padding: 0 10px;
             }
+            
+            .notification {
+                width: 90%;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
     <div id="map-container">
         <div id="map"></div>
+        
+        <!-- Уведомление -->
+        <div id="notification" class="notification">
+            <span class="notification-icon">✓</span>
+            <span id="notification-text">Данные скопированы в буфер обмена!</span>
+        </div>
         
         <!-- Блок фильтров слева -->
         <div id="filters-panel" class="panel">
@@ -343,6 +385,21 @@
         
         let map, objectManager, currentAddresses = [];
         let totalEntrances = 0;
+        let currentClusterObjects = [];
+        
+        // Функция для показа уведомления
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            
+            notificationText.textContent = message;
+            notification.className = 'notification' + (isError ? ' error' : '');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
         
         // Обработчик данных из Google Sheets
         window.handleSheetData = function(response) {
@@ -387,13 +444,26 @@
                 '</div>' +
                 '{% endfor %}' +
                 '</div>' +
-                '<button class="balloon-copy-button" onclick="copyAllBalloonAddresses({{properties.geoObjects}})">Копировать все адреса из кластера</button>',
+                '<button class="balloon-copy-button" onclick="window.copyCurrentClusterAddresses()">Копировать все адреса из кластера</button>',
                 {
                     // Ограничиваем размер балуна
                     build: function() {
-                        this.constructor.superclass.build.call(this);
+                        ClusterBalloonContentLayout.superclass.build.call(this);
                         this._element.style.maxWidth = '400px';
                         this._element.style.maxHeight = '350px';
+                        
+                        // Сохраняем объекты кластера в глобальной переменной
+                        const clusterObjects = this.getData().object.properties.geoObjects;
+                        if (clusterObjects && clusterObjects.length > 0) {
+                            window.currentClusterObjects = clusterObjects;
+                            console.log('Сохранены объекты кластера:', clusterObjects.length);
+                        }
+                    },
+                    
+                    // Очищаем при закрытии балуна
+                    clear: function() {
+                        window.currentClusterObjects = [];
+                        ClusterBalloonContentLayout.superclass.clear.call(this);
                     }
                 }
             );
@@ -409,9 +479,16 @@
             objectManager.clusters.options.set('preset', 'islands#invertedBlueClusterIcons');
             objectManager.objects.options.set('preset', 'islands#circleDotIcon');
             
-            // Обработчик клика по кластеру
+            // Обработчик клика по кластеру - сохраняем объекты кластера
             objectManager.clusters.events.add('click', function(e) {
                 const cluster = e.get('target');
+                const clusterObjects = cluster.properties.geoObjects;
+                
+                if (clusterObjects && clusterObjects.length > 0) {
+                    window.currentClusterObjects = clusterObjects;
+                    console.log('Объекты кластера сохранены:', clusterObjects.length);
+                }
+                
                 cluster.balloon.open();
             });
             
@@ -436,12 +513,19 @@
             loadData();
         });
         
-        // Функция для копирования всех адресов из балуна кластера
-        window.copyAllBalloonAddresses = function(geoObjects) {
+        // Функция для копирования всех адресов из текущего кластера
+        window.copyCurrentClusterAddresses = function() {
+            console.log('Текущие объекты кластера:', window.currentClusterObjects);
+            
+            if (!window.currentClusterObjects || window.currentClusterObjects.length === 0) {
+                showNotification('Нет адресов для копирования', true);
+                return;
+            }
+            
             let text = '';
             
             // Формируем текст со всеми адресами из кластера
-            geoObjects.forEach((obj, index) => {
+            window.currentClusterObjects.forEach((obj, index) => {
                 const address = obj.properties.address;
                 const status = obj.properties.fullStatus;
                 const district = obj.properties.district;
@@ -451,7 +535,7 @@
                 const details = [];
                 if (status && status !== 'undefined') details.push(status);
                 if (district && district !== 'undefined' && district !== 'не указан') details.push(district);
-                if (entrances && entrances !== 'undefined' && entrances !== 'не указано') details.push(`Подъездов: ${entrances}`);
+                if (entrances && entrances !== 'undefined' && entrances !== 'не указано' && entrances !== 0) details.push(`Подъездов: ${entrances}`);
                 
                 text += `${address}`;
                 if (details.length > 0) {
@@ -473,9 +557,12 @@
                         button.style.background = '';
                     }, 2000);
                 });
+                
+                // Показываем уведомление
+                showNotification(`Скопировано ${window.currentClusterObjects.length} адресов из кластера`);
             }).catch(err => {
                 console.error('Ошибка копирования:', err);
-                alert('Не удалось скопировать адреса');
+                showNotification('Не удалось скопировать адреса', true);
             });
         };
         
@@ -570,7 +657,7 @@
             const details = [];
             if (status && status !== 'undefined') details.push(status);
             if (district && district !== 'undefined' && district !== 'не указан') details.push(district);
-            if (entrances && entrances !== 'undefined' && entrances !== 'не указано') details.push(`Подъездов: ${entrances}`);
+            if (entrances && entrances !== 'undefined' && entrances !== 'не указано' && entrances !== 0) details.push(`Подъездов: ${entrances}`);
             
             if (details.length > 0) {
                 text += ` (${details.join(', ')})`;
@@ -589,9 +676,12 @@
                         button.style.background = '';
                     }, 2000);
                 });
+                
+                // Показываем уведомление
+                showNotification('Адрес скопирован в буфер обмена');
             }).catch(err => {
                 console.error('Ошибка копирования:', err);
-                alert('Не удалось скопировать адрес');
+                showNotification('Не удалось скопировать адрес', true);
             });
         };
         
@@ -776,10 +866,10 @@
             
             try {
                 await navigator.clipboard.writeText(text);
-                alert('Список адресов скопирован в буфер обмена!');
+                showNotification(`Список из ${items.length} адресов скопирован в буфер обмена!`);
             } catch (err) {
                 console.error('Ошибка копирования:', err);
-                alert('Не удалось скопировать список адресов');
+                showNotification('Не удалось скопировать список адресов', true);
             }
         }
     </script>
