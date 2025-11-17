@@ -20,71 +20,84 @@
             width: 350px;
             max-width: 90vw;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
             z-index: 1000;
             overflow: hidden;
+            max-height: 95vh;
+            border: 1px solid #e1e5e9;
         }
         
-        /* Заголовок панели (всегда видимый) */
+        /* Заголовок панели - СИНИЙ КАК МАРКЕРЫ */
         .panel-header {
-            padding: 15px 60px 15px 20px; /* Увеличили правый отступ для большей кнопки */
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+            padding: 18px 60px 18px 20px;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            border-bottom: 1px solid #1565C0;
             position: relative;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
+            color: white;
         }
         
         .panel-header:hover {
-            background: #e9ecef;
+            background: linear-gradient(135deg, #1976D2, #1565C0);
         }
         
         .panel-header h3 {
-            margin: 0 0 5px 0;
-            font-size: 16px;
-            color: #333;
+            margin: 0 0 6px 0;
+            font-size: 17px;
+            color: white;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         
         .panel-stats {
-            font-size: 12px;
-            color: #666;
+            font-size: 13px;
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
         }
         
-        /* Кнопка сворачивания/разворачивания - УВЕЛИЧЕНА */
+        /* Кнопка сворачивания/разворачивания */
         .toggle-button {
             position: absolute;
             top: 50%;
             right: 15px;
             transform: translateY(-50%);
-            width: 32px; /* Было 24px */
-            height: 32px; /* Было 24px */
-            background: none;
+            width: 34px;
+            height: 34px;
+            background: rgba(255,255,255,0.2);
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px; /* Было 16px */
-            color: #666;
-            transition: transform 0.3s ease;
-            border-radius: 4px;
+            font-size: 20px;
+            color: white;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            backdrop-filter: blur(10px);
         }
         
         .toggle-button:hover {
-            background: #e9ecef;
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-50%) scale(1.05);
         }
         
         .collapsed .toggle-button {
             transform: translateY(-50%) rotate(180deg);
         }
         
+        .collapsed .toggle-button:hover {
+            transform: translateY(-50%) rotate(180deg) scale(1.05);
+        }
+        
         /* Основное содержимое панели */
         .panel-content {
-            max-height: 70vh;
+            max-height: calc(95vh - 80px);
             transition: max-height 0.3s ease, opacity 0.3s ease;
             overflow: hidden;
             opacity: 1;
+            background: #fafbfc;
         }
         
         .collapsed .panel-content {
@@ -95,39 +108,43 @@
         /* Вкладки */
         .tabs {
             display: flex;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(to bottom, #f8f9fa, #f1f3f5);
+            border-bottom: 2px solid #e9ecef;
         }
         
         .tab {
             flex: 1;
-            padding: 12px;
+            padding: 14px;
             text-align: center;
             background: none;
             border: none;
             cursor: pointer;
             font-size: 14px;
             color: #666;
-            transition: all 0.2s;
-            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
         }
         
         .tab.active {
             color: #2196F3;
             border-bottom-color: #2196F3;
             background: white;
+            box-shadow: 0 -2px 8px rgba(33, 150, 243, 0.1);
         }
         
         .tab:hover {
             background: #e9ecef;
+            color: #333;
         }
         
         /* Содержимое вкладок */
         .tab-content {
             display: none;
             flex-direction: column;
+            height: calc(95vh - 220px);
             overflow: hidden;
-            height: calc(70vh - 120px);
+            background: white;
         }
         
         .tab-content.active {
@@ -138,162 +155,239 @@
         .filters-content {
             display: flex;
             flex-direction: column;
-            flex: 1;
-            overflow: hidden;
+            height: 100%;
+            background: white;
         }
         
         /* Фиксированные секции фильтров */
         .fixed-filter-section {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
+            padding: 22px;
+            border-bottom: 1px solid #f0f0f0;
             flex-shrink: 0;
+            background: white;
         }
         
         /* Статусы в одну строку */
         .status-filters {
             display: flex;
-            gap: 20px;
+            gap: 24px;
             align-items: center;
         }
         
         .status-filter-group {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
         
         .status-filter-group label {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
         }
         
-        .status-free { color: #4CAF50; }
-        .status-occupied { color: #F44336; }
+        .status-filter-group label:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .status-free { 
+            color: #4CAF50; 
+            font-weight: 600;
+        }
+        
+        .status-occupied { 
+            color: #F44336; 
+            font-weight: 600;
+        }
         
         /* Прокручиваемая область для фильтров */
         .scrollable-filters {
             flex: 1;
             overflow-y: auto;
-            padding: 0 20px;
+            padding: 0 22px;
+            background: white;
         }
         
-        /* Секции фильтров - УБРАЛИ ЗАГОЛОВОК */
+        /* Секции фильтров */
         .filter-section {
-            padding: 20px 0;
-            border-bottom: 1px solid #eee;
+            padding: 22px 0;
+            border-bottom: 1px solid #f0f0f0;
         }
-        
-        /* Убрали заголовок h3 для районов */
         
         .checkbox-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             cursor: pointer;
-            padding: 4px 0;
+            padding: 8px 0;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .checkbox-item:hover {
+            background-color: #f8f9fa;
         }
         
         .checkbox-item input {
             margin: 0;
+            transform: scale(1.1);
         }
         
         /* Список адресов */
         .address-list {
-            flex: 1;
             overflow-y: auto;
-            padding: 15px;
+            padding: 18px;
+            height: 100%;
+            background: white;
         }
         
         .address-item {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
+            padding: 14px;
+            border-bottom: 1px solid #f0f0f0;
             cursor: pointer;
-            transition: background 0.2s;
-            border-radius: 4px;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            border: 1px solid transparent;
         }
         
         .address-item:hover {
             background: #f8f9fa;
+            border-color: #e9ecef;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
         
         .address-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         
         .address-details {
-            font-size: 12px;
+            font-size: 13px;
             color: #666;
-            line-height: 1.4;
+            line-height: 1.5;
         }
         
-        /* Кнопка копирования внизу */
+        /* Кнопка копирования внизу - СИНЯЯ */
         .panel-footer {
-            padding: 20px;
-            border-top: 1px solid #e9ecef;
-            flex-shrink: 0;
+            padding: 22px;
+            border-top: 2px solid #f0f0f0;
+            background: linear-gradient(to bottom, #fafbfc, #f8f9fa);
         }
         
         .copy-button {
             width: 100%;
-            background: #4CAF50;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 14px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         
         .copy-button:hover {
-            background: #45a049;
+            background: linear-gradient(135deg, #1976D2, #1565C0);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+        }
+        
+        .copy-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+        }
+        
+        /* Кнопки в балунах - СИНИЕ */
+        .balloon-copy-button {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            width: 100%;
+            margin-top: 12px;
+        }
+        
+        .balloon-copy-button:hover {
+            background: linear-gradient(135deg, #1976D2, #1565C0);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+        }
+        
+        .balloon-copy-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
         }
         
         .empty-list {
-            padding: 40px 20px;
+            padding: 50px 22px;
             text-align: center;
-            color: #666;
+            color: #888;
             font-size: 14px;
+            background: white;
         }
         
         .entrances-count {
             font-size: 12px;
-            color: #666;
-            margin-left: 5px;
+            color: #888;
+            margin-left: 6px;
+            font-weight: 500;
         }
         
         /* Стили для балуна кластера */
         .cluster-balloon {
             max-height: 300px;
             overflow-y: auto;
-            padding-right: 5px;
+            padding-right: 8px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        
+        .cluster-balloon h2 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            color: #333;
+            font-weight: 600;
         }
         
         .cluster-balloon::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
         
         .cluster-balloon::-webkit-scrollbar-thumb {
             background-color: rgba(0,0,0,0.2);
-            border-radius: 3px;
+            border-radius: 4px;
         }
         
         .cluster-item {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
         }
         
         .cluster-item:last-child {
@@ -306,17 +400,19 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%) translateY(-100px);
-            background: #4CAF50;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
             color: white;
-            padding: 12px 24px;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 16px 28px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
             z-index: 10000;
-            transition: transform 0.3s ease;
-            font-size: 14px;
+            transition: transform 0.4s ease;
+            font-size: 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
         }
         
         .notification.show {
@@ -324,44 +420,67 @@
         }
         
         .notification.error {
-            background: #F44336;
+            background: linear-gradient(135deg, #F44336, #d32f2f);
+            box-shadow: 0 8px 25px rgba(244, 67, 54, 0.3);
         }
         
         .notification-icon {
-            font-size: 18px;
+            font-size: 20px;
         }
         
         /* Медиа-запросы для мобильных устройств */
         @media (max-width: 768px) {
             #main-panel {
                 width: 320px;
+                max-height: 90vh;
+                border-radius: 10px;
+            }
+            
+            .panel-content {
+                max-height: calc(90vh - 80px);
+            }
+            
+            .tab-content {
+                height: calc(90vh - 220px);
             }
             
             .scrollable-filters {
-                padding: 0 15px;
+                padding: 0 18px;
             }
             
             .notification {
                 width: 90%;
                 text-align: center;
-            }
-            
-            .panel-content {
-                max-height: 65vh;
-            }
-            
-            .tab-content {
-                height: calc(65vh - 120px);
+                padding: 14px 20px;
             }
             
             .status-filters {
-                gap: 15px;
+                gap: 18px;
             }
             
             .toggle-button {
-                width: 28px;
-                height: 28px;
+                width: 30px;
+                height: 30px;
                 font-size: 18px;
+            }
+            
+            .panel-header {
+                padding: 16px 50px 16px 18px;
+            }
+        }
+
+        /* Для очень маленьких экранов */
+        @media (max-height: 600px) {
+            #main-panel {
+                max-height: 98vh;
+            }
+            
+            .panel-content {
+                max-height: calc(98vh - 80px);
+            }
+            
+            .tab-content {
+                height: calc(98vh - 220px);
             }
         }
     </style>
@@ -417,10 +536,9 @@
                             </div>
                         </div>
                         
-                        <!-- Прокручиваемая секция районов - БЕЗ ЗАГОЛОВКА -->
+                        <!-- Прокручиваемая секция районов -->
                         <div class="scrollable-filters">
                             <div class="filter-section">
-                                <!-- Убрали заголовок "Район:" -->
                                 <div class="checkbox-group" id="districts-container">
                                     <!-- Районы будут добавлены динамически -->
                                 </div>
@@ -542,7 +660,8 @@
             
             // Создаем кастомный макет для балуна кластера
             const ClusterBalloonContentLayout = ymaps.templateLayoutFactory.createClass(
-                '<h2 style="margin: 0 0 10px 0; font-size: 16px;">Адресов в кластере: {{properties.geoObjects.length}}</h2>' +
+                '<div style="padding: 16px;">' +
+                '<h2 style="margin: 0 0 12px 0; font-size: 16px; color: #333; font-weight: 600;">Адресов в кластере: {{properties.geoObjects.length}}</h2>' +
                 '<div class="cluster-balloon">' +
                 '{% for object in properties.geoObjects %}' +
                 '<div class="cluster-item">' +
@@ -553,7 +672,8 @@
                 '</div>' +
                 '{% endfor %}' +
                 '</div>' +
-                '<button class="balloon-copy-button" onclick="window.copyCurrentClusterAddresses()">Копировать все адреса из кластера</button>',
+                '<button class="balloon-copy-button" onclick="window.copyCurrentClusterAddresses()">Копировать все адреса из кластера</button>' +
+                '</div>',
                 {
                     // Ограничиваем размер балуна
                     build: function() {
@@ -655,7 +775,7 @@
                 buttons.forEach(button => {
                     const originalText = button.textContent;
                     button.textContent = '✓ Скопировано!';
-                    button.style.background = '#45a049';
+                    button.style.background = '#1565C0';
                     
                     setTimeout(() => {
                         button.textContent = originalText;
@@ -744,10 +864,12 @@
         
         function createBalloonContent(address, status, district, isOccupied, entrances) {
             return `
-                <b>Адрес:</b> ${address}<br>
-                <b>Статус:</b> <span class="${isOccupied ? 'status-occupied' : 'status-free'}">${status}</span><br>
-                <b>Район:</b> ${district || 'не указан'}<br>
-                ${entrances ? `<b>Подъездов:</b> ${entrances}<br>` : ''}
+                <div style="padding: 8px 0;">
+                    <b>Адрес:</b> ${address}<br>
+                    <b>Статус:</b> <span class="${isOccupied ? 'status-occupied' : 'status-free'}">${status}</span><br>
+                    <b>Район:</b> ${district || 'не указан'}<br>
+                    ${entrances ? `<b>Подъездов:</b> ${entrances}<br>` : ''}
+                </div>
                 <button class="balloon-copy-button" onclick="copySingleAddress('${address.replace(/'/g, "\\'")}', '${status.replace(/'/g, "\\'")}', '${(district || '').replace(/'/g, "\\'")}', ${entrances || 0})">
                     Копировать адрес
                 </button>
@@ -774,7 +896,7 @@
                 buttons.forEach(button => {
                     const originalText = button.textContent;
                     button.textContent = '✓ Скопировано!';
-                    button.style.background = '#45a049';
+                    button.style.background = '#1565C0';
                     
                     setTimeout(() => {
                         button.textContent = originalText;
