@@ -161,7 +161,7 @@
         
         /* Фиксированные секции фильтров */
         .fixed-filter-section {
-            padding: 22px;
+            padding: 18px 22px; /* Уменьшен padding для плотности */
             border-bottom: 1px solid #f0f0f0;
             flex-shrink: 0;
             background: white;
@@ -170,24 +170,24 @@
         /* Статусы в одну строку */
         .status-filters {
             display: flex;
-            gap: 24px;
+            gap: 20px; /* Уменьшен gap для плотности */
             align-items: center;
         }
         
         .status-filter-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px; /* Уменьшен gap для плотности */
         }
         
         .status-filter-group label {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px; /* Уменьшен gap для плотности */
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            padding: 6px 12px;
+            padding: 5px 10px; /* Уменьшен padding для плотности */
             border-radius: 6px;
             transition: background-color 0.2s ease;
         }
@@ -214,24 +214,24 @@
             background: white;
         }
         
-        /* Секции фильтров */
+        /* Секции фильтров - УПЛОТНЕННЫЕ */
         .filter-section {
-            padding: 22px 0;
+            padding: 16px 0; /* Уменьшен padding для плотности */
             border-bottom: 1px solid #f0f0f0;
         }
         
         .checkbox-group {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px; /* Уменьшен gap для плотности */
         }
         
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px; /* Уменьшен gap для плотности */
             cursor: pointer;
-            padding: 8px 0;
+            padding: 6px 0; /* Уменьшен padding для плотности */
             border-radius: 6px;
             transition: background-color 0.2s ease;
         }
@@ -283,16 +283,16 @@
             line-height: 1.5;
         }
         
-        /* Кнопка копирования внизу - СИНЯЯ */
+        /* Кнопка копирования внизу - ЗЕЛЕНАЯ КАК В ЯНДЕКС КАРТАХ */
         .panel-footer {
-            padding: 22px;
+            padding: 18px 22px; /* Уменьшен padding для плотности */
             border-top: 2px solid #f0f0f0;
             background: linear-gradient(to bottom, #fafbfc, #f8f9fa);
         }
         
         .copy-button {
             width: 100%;
-            background: linear-gradient(135deg, #2196F3, #1976D2);
+            background: linear-gradient(135deg, #00B14F, #009944);
             color: white;
             border: none;
             padding: 14px;
@@ -301,24 +301,24 @@
             font-size: 15px;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 177, 79, 0.3);
             text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         
         .copy-button:hover {
-            background: linear-gradient(135deg, #1976D2, #1565C0);
+            background: linear-gradient(135deg, #009944, #00883a);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+            box-shadow: 0 4px 12px rgba(0, 177, 79, 0.4);
         }
         
         .copy-button:active {
             transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+            box-shadow: 0 2px 4px rgba(0, 177, 79, 0.3);
         }
         
-        /* Кнопки в балунах - СИНИЕ */
+        /* Кнопки в балунах - ЗЕЛЕНЫЕ КАК В ЯНДЕКС КАРТАХ */
         .balloon-copy-button {
-            background: linear-gradient(135deg, #2196F3, #1976D2);
+            background: linear-gradient(135deg, #00B14F, #009944);
             color: white;
             border: none;
             padding: 12px 16px;
@@ -327,21 +327,21 @@
             font-size: 13px;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 177, 79, 0.3);
             text-shadow: 0 1px 2px rgba(0,0,0,0.1);
             width: 100%;
             margin-top: 12px;
         }
         
         .balloon-copy-button:hover {
-            background: linear-gradient(135deg, #1976D2, #1565C0);
+            background: linear-gradient(135deg, #009944, #00883a);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+            box-shadow: 0 4px 12px rgba(0, 177, 79, 0.4);
         }
         
         .balloon-copy-button:active {
             transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+            box-shadow: 0 2px 4px rgba(0, 177, 79, 0.3);
         }
         
         .empty-list {
@@ -400,11 +400,11 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%) translateY(-100px);
-            background: linear-gradient(135deg, #2196F3, #1976D2);
+            background: linear-gradient(135deg, #00B14F, #009944);
             color: white;
             padding: 16px 28px;
             border-radius: 10px;
-            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 177, 79, 0.3);
             z-index: 10000;
             transition: transform 0.4s ease;
             font-size: 15px;
@@ -455,7 +455,7 @@
             }
             
             .status-filters {
-                gap: 18px;
+                gap: 16px; /* Уменьшен gap для мобильных */
             }
             
             .toggle-button {
@@ -466,6 +466,23 @@
             
             .panel-header {
                 padding: 16px 50px 16px 18px;
+            }
+            
+            /* Еще больше уплотнение для мобильных */
+            .fixed-filter-section {
+                padding: 16px 18px;
+            }
+            
+            .filter-section {
+                padding: 14px 0;
+            }
+            
+            .checkbox-group {
+                gap: 5px;
+            }
+            
+            .checkbox-item {
+                padding: 5px 0;
             }
         }
 
@@ -658,44 +675,113 @@
                 zoom: 12
             });
             
-            // Создаем кастомный макет для балуна кластера
-            const ClusterBalloonContentLayout = ymaps.templateLayoutFactory.createClass(
-                '<div style="padding: 16px;">' +
-                '<h2 style="margin: 0 0 12px 0; font-size: 16px; color: #333; font-weight: 600;">Адресов в кластере: {{properties.geoObjects.length}}</h2>' +
-                '<div class="cluster-balloon">' +
-                '{% for object in properties.geoObjects %}' +
-                '<div class="cluster-item">' +
-                '<div><strong>{{object.properties.address}}</strong></div>' +
-                '<div>Статус: {{object.properties.fullStatus}}</div>' +
-                '<div>Район: {{object.properties.district || "не указан"}}</div>' +
-                '<div>Подъездов: {{object.properties.entrances || "не указано"}}</div>' +
-                '</div>' +
-                '{% endfor %}' +
-                '</div>' +
-                '<button class="balloon-copy-button" onclick="window.copyCurrentClusterAddresses()">Копировать все адреса из кластера</button>' +
-                '</div>',
-                {
-                    // Ограничиваем размер балуна
-                    build: function() {
-                        ClusterBalloonContentLayout.superclass.build.call(this);
-                        this._element.style.maxWidth = '400px';
-                        this._element.style.maxHeight = '350px';
-                        
-                        // Сохраняем объекты кластера в глобальной переменной
-                        const clusterObjects = this.getData().object.properties.geoObjects;
-                        if (clusterObjects && clusterObjects.length > 0) {
-                            window.currentClusterObjects = clusterObjects;
-                            console.log('Сохранены объекты кластера:', clusterObjects.length);
-                        }
-                    },
-                    
-                    // Очищаем при закрытии балуна
-                    clear: function() {
-                        window.currentClusterObjects = [];
-                        ClusterBalloonContentLayout.superclass.clear.call(this);
-                    }
-                }
-            );
+// Создаем кастомный макет для балуна кластера
+const ClusterBalloonContentLayout = ymaps.templateLayoutFactory.createClass(
+    '<div style="padding: 16px;">' +
+    '<h2 style="margin: 0 0 12px 0; font-size: 16px; color: #333; font-weight: 600;">' +
+    'Адресов в кластере: {{ properties.geoObjects ? properties.geoObjects.length : 0 }}' +
+    '</h2>' +
+    '{% if properties.geoObjects && properties.geoObjects.length %}' +
+    '<div class="cluster-balloon">' +
+    '{% for object in properties.geoObjects %}' +
+    '{% if object && object.properties %}' +
+    '<div class="cluster-item">' +
+    '<div><strong>{{ object.properties.address || "Адрес не указан" }}</strong></div>' +
+    '<div>Статус: {{ object.properties.fullStatus || "не указан" }}</div>' +
+    '<div>Район: {{ object.properties.district || "не указан" }}</div>' +
+    '<div>Подъездов: {{ object.properties.entrances || "не указано" }}</div>' +
+    '</div>' +
+    '{% endif %}' +
+    '{% endfor %}' +
+    '</div>' +
+    '<button class="balloon-copy-button" onclick="window.copyClusterAddresses(this)">Копировать все адреса из кластера</button>' +
+    '{% else %}' +
+    '<p>Нет данных для отображения</p>' +
+    '{% endif %}' +
+    '</div>',
+    {
+        build: function() {
+            ClusterBalloonContentLayout.superclass.build.call(this);
+            this._element.style.maxWidth = '400px';
+            this._element.style.maxHeight = '350px';
+        }
+    }
+);
+
+// Функция для копирования адресов из кластера
+window.copyClusterAddresses = function(button) {
+    try {
+        // Находим ближайший контейнер балуна
+        let balloonContent = button.closest('.ymaps-balloon_layout_normal');
+        if (!balloonContent) {
+            balloonContent = button.closest('.ymaps-balloon-content');
+        }
+        if (!balloonContent) {
+            // Ищем любой родительский элемент с классом ymaps-
+            let parent = button.parentElement;
+            while (parent && !parent.className.includes('ymaps-')) {
+                parent = parent.parentElement;
+            }
+            balloonContent = parent;
+        }
+        
+        if (!balloonContent) {
+            showNotification('Не удалось найти данные балуна', true);
+            return;
+        }
+        
+        // Ищем элементы с адресами
+        const clusterItems = balloonContent.querySelectorAll('.cluster-item');
+        
+        if (clusterItems.length === 0) {
+            showNotification('Нет адресов для копирования', true);
+            return;
+        }
+        
+        let text = '';
+        
+        clusterItems.forEach(item => {
+            const addressElem = item.querySelector('strong');
+            if (!addressElem) return;
+            
+            const address = addressElem.textContent.trim();
+            const details = Array.from(item.querySelectorAll('div:not(:first-child)'))
+                .map(div => div.textContent.replace(/^[^:]+:\s*/, '').trim())
+                .filter(text => text && text !== 'не указан' && text !== 'не указано');
+            
+            text += address;
+            if (details.length > 0) {
+                text += ` (${details.join(', ')})`;
+            }
+            text += '\n';
+        });
+        
+        if (!text) {
+            showNotification('Не удалось извлечь адреса', true);
+            return;
+        }
+        
+        navigator.clipboard.writeText(text).then(() => {
+            button.textContent = '✓ Скопировано!';
+            button.style.background = '#00883a';
+            
+            setTimeout(() => {
+                button.textContent = 'Копировать все адреса из кластера';
+                button.style.background = '';
+            }, 2000);
+            
+            showNotification(`Скопировано ${clusterItems.length} адресов из кластера`);
+        }).catch(err => {
+            console.error('Ошибка копирования:', err);
+            showNotification('Не удалось скопировать адреса', true);
+        });
+        
+    } catch (error) {
+        console.error('Ошибка при копировании кластера:', error);
+        showNotification('Ошибка при копировании адресов', true);
+    }
+};
+
             
             objectManager = new ymaps.ObjectManager({
                 clusterize: true,
@@ -708,18 +794,20 @@
             objectManager.clusters.options.set('preset', 'islands#invertedBlueClusterIcons');
             objectManager.objects.options.set('preset', 'islands#circleDotIcon');
             
-            // Обработчик клика по кластеру - сохраняем объекты кластера
-            objectManager.clusters.events.add('click', function(e) {
-                const cluster = e.get('target');
-                const clusterObjects = cluster.properties.geoObjects;
-                
-                if (clusterObjects && clusterObjects.length > 0) {
-                    window.currentClusterObjects = clusterObjects;
-                    console.log('Объекты кластера сохранены:', clusterObjects.length);
-                }
-                
-                cluster.balloon.open();
-            });
+// Упрощенный обработчик клика по кластеру
+objectManager.clusters.events.add('click', function(e) {
+    try {
+        const cluster = e.get('target');
+        
+        // Просто открываем балун - Яндекс сам позаботится о данных
+        if (cluster && cluster.balloon && typeof cluster.balloon.open === 'function') {
+            cluster.balloon.open();
+        }
+        
+    } catch (error) {
+        console.warn('Ошибка при открытии балуна кластера:', error);
+    }
+});
             
             map.geoObjects.add(objectManager);
             
@@ -738,23 +826,27 @@
             loadData();
         });
         
-        // Функция для копирования всех адресов из текущего кластера
-        window.copyCurrentClusterAddresses = function() {
-            console.log('Текущие объекты кластера:', window.currentClusterObjects);
-            
-            if (!window.currentClusterObjects || window.currentClusterObjects.length === 0) {
-                showNotification('Нет адресов для копирования', true);
-                return;
-            }
-            
-            let text = '';
-            
-            // Формируем текст со всеми адресами из кластера
-            window.currentClusterObjects.forEach((obj, index) => {
-                const address = obj.properties.address;
-                const status = obj.properties.fullStatus;
-                const district = obj.properties.district;
-                const entrances = obj.properties.entrances;
+// Функция для копирования всех адресов из текущего кластера
+window.copyCurrentClusterAddresses = function() {
+    try {
+        console.log('Текущие объекты кластера:', window.currentClusterObjects);
+        
+        if (!window.currentClusterObjects || window.currentClusterObjects.length === 0) {
+            showNotification('Нет адресов для копирования', true);
+            return;
+        }
+        
+        let text = '';
+        let validObjectsCount = 0;
+        
+        // Формируем текст со всеми адресами из кластера
+        window.currentClusterObjects.forEach((obj) => {
+            // Проверяем, что объект и его свойства существуют
+            if (obj && obj.properties) {
+                const address = obj.properties.address || 'Адрес не указан';
+                const status = obj.properties.fullStatus || '';
+                const district = obj.properties.district || '';
+                const entrances = obj.properties.entrances || 0;
                 
                 // Добавляем дополнительную информацию, если она есть
                 const details = [];
@@ -767,29 +859,40 @@
                     text += ` (${details.join(', ')})`;
                 }
                 text += '\n';
+                validObjectsCount++;
+            }
+        });
+        
+        if (validObjectsCount === 0) {
+            showNotification('Нет валидных адресов для копирования', true);
+            return;
+        }
+        
+        navigator.clipboard.writeText(text).then(() => {
+            // Временное изменение текста кнопки для подтверждения
+            const buttons = document.querySelectorAll('.balloon-copy-button');
+            buttons.forEach(button => {
+                const originalText = button.textContent;
+                button.textContent = '✓ Скопировано!';
+                button.style.background = '#00883a';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 2000);
             });
             
-            navigator.clipboard.writeText(text).then(() => {
-                // Временное изменение текста кнопки для подтверждения
-                const buttons = document.querySelectorAll('.balloon-copy-button');
-                buttons.forEach(button => {
-                    const originalText = button.textContent;
-                    button.textContent = '✓ Скопировано!';
-                    button.style.background = '#1565C0';
-                    
-                    setTimeout(() => {
-                        button.textContent = originalText;
-                        button.style.background = '';
-                    }, 2000);
-                });
-                
-                // Показываем уведомление
-                showNotification(`Скопировано ${window.currentClusterObjects.length} адресов из кластера`);
-            }).catch(err => {
-                console.error('Ошибка копирования:', err);
-                showNotification('Не удалось скопировать адреса', true);
-            });
-        };
+            // Показываем уведомление
+            showNotification(`Скопировано ${validObjectsCount} адресов из кластера`);
+        }).catch(err => {
+            console.error('Ошибка копирования:', err);
+            showNotification('Не удалось скопировать адреса', true);
+        });
+    } catch (error) {
+        console.error('Ошибка в copyCurrentClusterAddresses:', error);
+        showNotification('Ошибка при копировании адресов', true);
+    }
+};
         
         function processData(data) {
             const districts = new Set();
@@ -896,7 +999,7 @@
                 buttons.forEach(button => {
                     const originalText = button.textContent;
                     button.textContent = '✓ Скопировано!';
-                    button.style.background = '#1565C0';
+                    button.style.background = '#00883a';
                     
                     setTimeout(() => {
                         button.textContent = originalText;
