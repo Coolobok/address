@@ -873,7 +873,8 @@
                 }
                 
                 navigator.clipboard.writeText(text).then(() => {
-                    showNotification(`Скопировано ${clusterItems.length} адресов из кластера`);
+                    // Показываем уведомление с новым текстом
+                    showNotification(`Скопировано адресов из кластера: ${clusterItems.length}`);
                 }).catch(err => {
                     console.error('Ошибка копирования:', err);
                     showNotification('Не удалось скопировать адреса', true);
@@ -906,7 +907,7 @@
             });
         };
 
-        // Функция для копирования адресов из кластера (для ПК версии) - ИСПРАВЛЕННАЯ
+        // Функция для копирования адресов из кластера (для ПК версии)
         window.copyCurrentClusterAddresses = function() {
             console.log('Текущие объекты кластера:', window.currentClusterObjects);
             
@@ -951,8 +952,8 @@
                     }, 2000);
                 });
                 
-                // Показываем уведомление
-                showNotification(`Скопировано ${window.currentClusterObjects.length} адресов из кластера`);
+                // Показываем уведомление с новым текстом
+                showNotification(`Скопировано адресов из кластера: ${window.currentClusterObjects.length}`);
             }).catch(err => {
                 console.error('Ошибка копирования:', err);
                 showNotification('Не удалось скопировать адреса', true);
@@ -1002,7 +1003,7 @@
                 }
             );
 
-            // Создаем макет для одиночных объектов (для ПК версии) - ИСПРАВЛЕННЫЙ
+            // Создаем макет для одиночных объектов (для ПК версии)
             const ObjectBalloonContentLayout = ymaps.templateLayoutFactory.createClass(
                 '<div style="padding: 8px 0;">' +
                 '<b>Адрес:</b> $[properties.address]<br>' +
@@ -1359,6 +1360,7 @@
             });
         }
         
+        // Функция для копирования всех адресов - ИСПРАВЛЕННАЯ
         async function copyAllAddresses() {
             const items = Array.from(document.querySelectorAll('.address-item'));
             if (items.length === 0) return;
@@ -1383,7 +1385,8 @@
             
             try {
                 await navigator.clipboard.writeText(text);
-                showNotification(`Список из ${items.length} адресов скопирован в буфер обмена!`);
+                // Показываем уведомление с новым текстом
+                showNotification(`Скопированы все отмеченные в фильтре адреса: ${items.length}`);
             } catch (err) {
                 console.error('Ошибка копирования:', err);
                 showNotification('Не удалось скопировать список адресов', true);
