@@ -839,7 +839,7 @@
             return content;
         }
         
-        // Функция для копирования адресов из кастомного балуна кластера
+        // Функция для копирования адресов из кастомного балуна кластера (для мобильных)
         window.copyClusterAddressesFromCustomBalloon = function() {
             try {
                 const clusterItems = document.querySelectorAll('#custom-balloon-content .cluster-item');
@@ -906,70 +906,57 @@
             });
         };
 
-        // Функция для копирования адресов из кластера (для ПК версии)
-        window.copyClusterAddresses = function(button) {
-            try {
-                // Находим ближайший контейнер балуна
-                let balloonContent = button.closest('.ymaps-balloon_layout_normal');
-                if (!balloonContent) {
-                    balloonContent = button.closest('.ymaps-balloon-content');
+        // Функция для копирования адресов из кластера (для ПК версии) - ИСПРАВЛЕННАЯ
+        window.copyCurrentClusterAddresses = function() {
+            console.log('Текущие объекты кластера:', window.currentClusterObjects);
+            
+            if (!window.currentClusterObjects || window.currentClusterObjects.length === 0) {
+                showNotification('Нет адресов для копирования', true);
+                return;
+            }
+            
+            let text = '';
+            
+            // Формируем текст со всеми адресами из кластера
+            window.currentClusterObjects.forEach((obj, index) => {
+                const address = obj.properties.address;
+                const status = obj.properties.fullStatus;
+                const district = obj.properties.district;
+                const entrances = obj.properties.entrances;
+                
+                // Добавляем дополнительную информацию, если она есть
+                const details = [];
+                if (status && status !== 'undefined') details.push(status);
+                if (district && district !== 'undefined' && district !== 'не указан') details.push(district);
+                if (entrances && entrances !== 'undefined' && entrances !== 'не указано' && entrances !== 0) details.push(`Подъездов: ${entrances}`);
+                
+                text += `${address}`;
+                if (details.length > 0) {
+                    text += ` (${details.join(', ')})`;
                 }
-                
-                if (!balloonContent) {
-                    showNotification('Не удалось найти данные балуна', true);
-                    return;
-                }
-                
-                // Ищем элементы с адресами
-                const clusterItems = balloonContent.querySelectorAll('.cluster-item');
-                
-                if (clusterItems.length === 0) {
-                    showNotification('Нет адресов для копирования', true);
-                    return;
-                }
-                
-                let text = '';
-                
-                clusterItems.forEach(item => {
-                    const addressElem = item.querySelector('strong');
-                    if (!addressElem) return;
-                    
-                    const address = addressElem.textContent.trim();
-                    const details = Array.from(item.querySelectorAll('div:not(:first-child)'))
-                        .map(div => div.textContent.replace(/^[^:]+:\s*/, '').trim())
-                        .filter(text => text && text !== 'не указан' && text !== 'не указано');
-                    
-                    text += address;
-                    if (details.length > 0) {
-                        text += ` (${details.join(', ')})`;
-                    }
-                    text += '\n';
-                });
-                
-                if (!text) {
-                    showNotification('Не удалось извлечь адреса', true);
-                    return;
-                }
-                
-                navigator.clipboard.writeText(text).then(() => {
+                text += '\n';
+            });
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Временное изменение текста кнопки для подтверждения
+                const buttons = document.querySelectorAll('.balloon-copy-button');
+                buttons.forEach(button => {
+                    const originalText = button.textContent;
                     button.textContent = '✓ Скопировано!';
                     button.style.background = '#00883a';
                     
                     setTimeout(() => {
-                        button.textContent = 'Копировать все адреса из кластера';
+                        button.textContent = originalText;
                         button.style.background = '';
                     }, 2000);
-                    
-                    showNotification(`Скопировано ${clusterItems.length} адресов из кластера`);
-                }).catch(err => {
-                    console.error('Ошибка копирования:', err);
-                    showNotification('Не удалось скопировать адреса', true);
                 });
                 
-            } catch (error) {
-                console.error('Ошибка при копировании кластера:', error);
-                showNotification('Ошибка при копировании адресов', true);
-            }
+                // Показываем уведомление
+                showNotification(`Скопировано ${window.currentClusterObjects.length} адресов из кластера`);
+            }).catch(err => {
+                console.error('Ошибка копирования:', err);
+                showNotification('Не удалось скопировать адреса', true);
+            });
         };
         
         ymaps.ready(() => {
@@ -977,46 +964,83 @@
             const ClusterBalloonContentLayout = ymaps.templateLayoutFactory.createClass(
                 '<div style="padding: 16px; width: 100%; box-sizing: border-box;">' +
                 '<h2 style="margin: 0 0 12px 0; font-size: 16px; color: #333; font-weight: 600;">' +
-                'Адресов в кластере: {{ properties.geoObjects ? properties.geoObjects.length : 0 }}' +
+                'Адресов в кластере: $[properties.geoObjects.length]' +
                 '</h2>' +
-                '{% if properties.geoObjects && properties.geoObjects.length %}' +
                 '<div class="cluster-balloon">' +
                 '{% for object in properties.geoObjects %}' +
                 '{% if object && object.properties %}' +
                 '<div class="cluster-item">' +
-                '<div><strong>{{ object.properties.address || "Адрес не указан" }}</strong></div>' +
-                '<div>Статус: {{ object.properties.fullStatus || "не указан" }}</div>' +
-                '<div>Район: {{ object.properties.district || "не указан" }}</div>' +
-                '<div>Подъездов: {{ object.properties.entrances || "не указано" }}</div>' +
+                '<div><strong>$[object.properties.address]</strong></div>' +
+                '<div>Статус: $[object.properties.fullStatus]</div>' +
+                '<div>Район: $[object.properties.district]</div>' +
+                '<div>Подъездов: $[object.properties.entrances]</div>' +
                 '</div>' +
                 '{% endif %}' +
                 '{% endfor %}' +
                 '</div>' +
-                '<button class="balloon-copy-button" onclick="window.copyClusterAddresses(this)">Копировать все адреса из кластера</button>' +
-                '{% else %}' +
-                '<p>Нет данных для отображения</p>' +
-                '{% endif %}' +
+                '<button class="balloon-copy-button" onclick="window.copyCurrentClusterAddresses()">Копировать все адреса из кластера</button>' +
                 '</div>',
                 {
                     build: function() {
                         ClusterBalloonContentLayout.superclass.build.call(this);
                         this._element.style.maxWidth = '400px';
                         this._element.style.maxHeight = '350px';
+                        
+                        // Сохраняем объекты кластера в глобальной переменной (как в рабочей версии)
+                        const clusterObjects = this.getData().object.properties.geoObjects;
+                        if (clusterObjects && clusterObjects.length > 0) {
+                            window.currentClusterObjects = clusterObjects;
+                            console.log('Сохранены объекты кластера:', clusterObjects.length);
+                        }
+                    },
+                    
+                    // Очищаем при закрытии балуна
+                    clear: function() {
+                        window.currentClusterObjects = [];
+                        ClusterBalloonContentLayout.superclass.clear.call(this);
                     }
                 }
             );
 
-            // Создаем макет для одиночных объектов (для ПК версии)
+            // Создаем макет для одиночных объектов (для ПК версии) - ИСПРАВЛЕННЫЙ
             const ObjectBalloonContentLayout = ymaps.templateLayoutFactory.createClass(
                 '<div style="padding: 8px 0;">' +
                 '<b>Адрес:</b> $[properties.address]<br>' +
-                '<b>Статус:</b> <span class="$[properties.status === \"occupied\" ? \"status-occupied\" : \"status-free\"]">$[properties.fullStatus]</span><br>' +
-                '<b>Район:</b> $[properties.district || "не указан"]<br>' +
-                '$[properties.entrances ? "<b>Подъездов:</b> " + properties.entrances + "<br>" : ""]' +
+                '<b>Статус:</b> <span class="$[properties.status === "occupied" ? "status-occupied" : "status-free"]">$[properties.fullStatus]</span><br>' +
+                '<b>Район:</b> $[properties.district]<br>' +
+                '<b>Подъездов:</b> $[properties.entrances]<br>' +
                 '</div>' +
-                '<button class="balloon-copy-button" onclick="copySingleAddress(\'$[properties.address]\', \'$[properties.fullStatus]\', \'$[properties.district || ""]\', $[properties.entrances || 0])">' +
+                '<button class="balloon-copy-button" onclick="copySingleAddress(\'$[properties.address]\', \'$[properties.fullStatus]\', \'$[properties.district]\', $[properties.entrances])">' +
                 'Копировать адрес' +
-                '</button>'
+                '</button>',
+                {
+                    // Функция для построения содержимого балуна
+                    build: function() {
+                        ObjectBalloonContentLayout.superclass.build.call(this);
+                        
+                        // Получаем данные объекта
+                        const data = this.getData();
+                        const properties = data.object.properties;
+                        
+                        // Заменяем undefined и null на "не указано"
+                        const district = properties.district || 'не указан';
+                        const entrances = properties.entrances || 'не указано';
+                        
+                        // Обновляем текст в балуне
+                        const balloonContent = this.getElement().querySelector('.ymaps-balloon-content');
+                        if (balloonContent) {
+                            const districtElement = balloonContent.querySelector('b:nth-child(3)');
+                            const entrancesElement = balloonContent.querySelector('b:nth-child(4)');
+                            
+                            if (districtElement && districtElement.nextSibling) {
+                                districtElement.nextSibling.textContent = ' ' + district;
+                            }
+                            if (entrancesElement && entrancesElement.nextSibling) {
+                                entrancesElement.nextSibling.textContent = ' ' + entrances;
+                            }
+                        }
+                    }
+                }
             );
 
             map = new ymaps.Map('map', {
@@ -1050,6 +1074,29 @@
                 objectManager.objects.options.set('balloonContentLayout', ObjectBalloonContentLayout);
             }
             
+            // Обработчик клика по кластерам (для сохранения объектов кластера в ПК версии)
+            objectManager.clusters.events.add('click', function(e) {
+                const clusterId = e.get('objectId');
+                const cluster = objectManager.clusters.getById(clusterId);
+                const clusterObjects = cluster.properties.geoObjects;
+                
+                if (clusterObjects && clusterObjects.length > 0) {
+                    window.currentClusterObjects = clusterObjects;
+                    console.log('Объекты кластера сохранены:', clusterObjects.length);
+                }
+                
+                if (isMobile) {
+                    // На мобильных - показываем кастомный балун
+                    const content = createClusterBalloonContent(cluster.properties.geoObjects);
+                    showCustomMobileBalloon(content, cluster.geometry.coordinates);
+                    // Закрываем стандартный балун Яндекс.Карт
+                    objectManager.clusters.balloon.close(clusterId);
+                } else {
+                    // На десктопе - используем стандартные балуны Яндекс
+                    objectManager.clusters.balloon.open(clusterId);
+                }
+            });
+            
             // Обработчик клика по объектам
             objectManager.objects.events.add('click', function(e) {
                 const objectId = e.get('objectId');
@@ -1064,23 +1111,6 @@
                 } else {
                     // На десктопе - используем стандартные балуны Яндекс
                     objectManager.objects.balloon.open(objectId);
-                }
-            });
-            
-            // Обработчик клика по кластерам
-            objectManager.clusters.events.add('click', function(e) {
-                const clusterId = e.get('objectId');
-                const cluster = objectManager.clusters.getById(clusterId);
-                
-                if (isMobile) {
-                    // На мобильных - показываем кастомный балун
-                    const content = createClusterBalloonContent(cluster.properties.geoObjects);
-                    showCustomMobileBalloon(content, cluster.geometry.coordinates);
-                    // Закрываем стандартный балун Яндекс.Карт
-                    objectManager.clusters.balloon.close(clusterId);
-                } else {
-                    // На десктопе - используем стандартные балуны Яндекс
-                    objectManager.clusters.balloon.open(clusterId);
                 }
             });
             
