@@ -1730,12 +1730,35 @@
             document.body.appendChild(script);
         }
 
+        // Функция для обновления мобильного балуна
+        function updateCustomMobileBalloon() {
+            if (!isMobile) return;
+            
+            const balloon = document.getElementById('custom-mobile-balloon');
+            if (!balloon.classList.contains('active')) return;
+            
+            if (currentActiveClusterId) {
+                const cluster = objectManager.clusters.getById(currentActiveClusterId);
+                if (cluster && cluster.properties.geoObjects) {
+                    const newContent = createClusterBalloonContent(cluster.properties.geoObjects);
+                    showCustomMobileBalloon(newContent, cluster.geometry.coordinates);
+                }
+            } else if (currentActiveObjectId) {
+                const object = objectManager.objects.getById(currentActiveObjectId);
+                if (object) {
+                    const newContent = createObjectBalloonContent(object.properties, currentActiveObjectId);
+                    showCustomMobileBalloon(newContent, object.geometry.coordinates);
+                }
+            }
+        }
+        
         function showCustomMobileBalloon(content, coordinates) {
             const overlay = document.getElementById('balloon-overlay');
             const balloon = document.getElementById('custom-mobile-balloon');
             const balloonContent = document.getElementById('custom-balloon-content');
             
             balloonContent.innerHTML = content;
+            attachMobileBalloonEventListeners(); // Добавляем обработчики событий
             overlay.classList.add('active');
             balloon.classList.add('active');
             
@@ -1755,6 +1778,95 @@
             balloon.classList.remove('active');
         }
         
+        // Функция для привязки обработчиков событий к мобильному балуну
+        function attachMobileBalloonEventListeners() {
+            // Обработчики для чекбоксов в кластере
+            document.querySelectorAll('#custom-balloon-content .cluster-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function(e) {
+                    e.stopPropagation();
+                    const objectId = parseInt(this.getAttribute('data-object-id') || this.closest('.cluster-checkbox-item')?.getAttribute('data-object-id'));
+                    if (objectId) {
+                        toggleAddressSelection(objectId, this.checked);
+                        setTimeout(updateCustomMobileBalloon, 100);
+                    }
+                });
+            });
+            
+            // Обработчики для чекбоксов одиночных объектов
+            document.querySelectorAll('#custom-balloon-content .object-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function(e) {
+                    e.stopPropagation();
+                    const objectId = parseInt(this.getAttribute('data-object-id') || this.closest('label')?.getAttribute('data-object-id'));
+                    if (objectId) {
+                        toggleAddressSelection(objectId, this.checked);
+                        setTimeout(updateCustomMobileBalloon, 100);
+                    }
+                });
+            });
+            
+            // Обработчики для кнопок
+            document.querySelectorAll('#custom-balloon-content .balloon-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    if (this.classList.contains('select-all') || this.classList.contains('deselect-all')) {
+                        if (currentActiveClusterId) {
+                            const cluster = objectManager.clusters.getById(currentActiveClusterId);
+                            if (cluster && cluster.properties.geoObjects) {
+                                const addressIds = cluster.properties.geoObjects.map(obj => obj.id);
+                                const allSelected = addressIds.every(id => selectedAddresses.has(id));
+                                
+                                if (allSelected) {
+                                    deselectAllInCluster(addressIds);
+                                } else {
+                                    selectAllInCluster(addressIds);
+                                }
+                                setTimeout(updateCustomMobileBalloon, 100);
+                            }
+                        }
+                    }
+                    
+                    if (this.classList.contains('select-every-other')) {
+                        if (currentActiveClusterId) {
+                            const cluster = objectManager.clusters.getById(currentActiveClusterId);
+                            if (cluster && cluster.properties.geoObjects) {
+                                const addressIds = cluster.properties.geoObjects.map(obj => obj.id);
+                                selectEveryOtherInCluster(addressIds);
+                                setTimeout(updateCustomMobileBalloon, 100);
+                            }
+                        }
+                    }
+                    
+                    if (this.classList.contains('hide-unselected')) {
+                        if (currentActiveClusterId) {
+                            const cluster = objectManager.clusters.getById(currentActiveClusterId);
+                            if (cluster && cluster.properties.geoObjects) {
+                                const addressIds = cluster.properties.geoObjects.map(obj => obj.id);
+                                hideUnselectedAddressesInBalloon(addressIds);
+                            }
+                        } else if (currentActiveObjectId) {
+                            hideUnselectedAddressesInBalloon([currentActiveObjectId]);
+                        }
+                    }
+                });
+            });
+            
+            // Обработчик для кнопки копирования
+            document.querySelectorAll('#custom-balloon-content .balloon-copy-button').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const address = this.getAttribute('data-address');
+                    const status = this.getAttribute('data-status');
+                    const district = this.getAttribute('data-district');
+                    const entrances = parseInt(this.getAttribute('data-entrances') || 0);
+                    
+                    if (address) {
+                        copySingleAddress(address, status, district, entrances);
+                    }
+                });
+            });
+        }
+        
         function createObjectBalloonContent(properties, objectId) {
             const isOccupied = properties.status === 'occupied';
             const isSelected = selectedAddresses.has(objectId);
@@ -1767,9 +1879,9 @@
                     ${properties.entrances ? `<b>Подъездов:</b> ${properties.entrances}<br>` : ''}
                 </div>
                 <div style="margin: 10px 0;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;" data-object-id="${objectId}">
                         <input type="checkbox" class="object-checkbox" ${isSelected ? 'checked' : ''} 
-                               onchange="toggleAddressSelection(${objectId}, this.checked)" style="transform: scale(1.1);">
+                               data-object-id="${objectId}" style="transform: scale(1.1);">
                         <span>Выбрать этот адрес</span>
                     </label>
                 </div>
@@ -1778,7 +1890,11 @@
                         Скрыть невыбранные
                     </button>
                 </div>
-                <button class="balloon-copy-button" onclick="copySingleAddress('${properties.address.replace(/'/g, "\\'")}', '${properties.fullStatus.replace(/'/g, "\\'")}', '${(properties.district || '').replace(/'/g, "\\'")}', ${properties.entrances || 0})">
+                <button class="balloon-copy-button" 
+                        data-address="${properties.address.replace(/'/g, "\\'")}"
+                        data-status="${properties.fullStatus.replace(/'/g, "\\'")}"
+                        data-district="${(properties.district || '').replace(/'/g, "\\'")}"
+                        data-entrances="${properties.entrances || 0}">
                     Копировать адрес
                 </button>
             `;
@@ -1813,9 +1929,9 @@
                     const isSelected = selectedAddresses.has(obj.id);
                     
                     content += `
-                        <div class="cluster-checkbox-item" onclick="event.stopPropagation();">
+                        <div class="cluster-checkbox-item" data-object-id="${obj.id}">
                             <input type="checkbox" class="cluster-checkbox" ${isSelected ? 'checked' : ''}
-                                   onchange="toggleAddressSelection(${obj.id}, this.checked)">
+                                   data-object-id="${obj.id}">
                             <div class="cluster-item-content">
                                 <div class="cluster-item-address">${obj.properties.address || "Адрес не указан"}</div>
                                 <div class="cluster-item-details">
@@ -1832,13 +1948,13 @@
             content += `
                 </div>
                 <div class="balloon-controls">
-                    <button class="balloon-btn ${buttonClass}" onclick="${buttonClickHandler}">
+                    <button class="balloon-btn ${buttonClass}">
                         ${buttonText}
                     </button>
-                    <button class="balloon-btn select-every-other" onclick="selectEveryOtherInCluster([${addressIds.join(',')}])">
+                    <button class="balloon-btn select-every-other">
                         Выбрать через один адрес
                     </button>
-                    <button class="balloon-btn hide-unselected" onclick="hideUnselectedAddressesInBalloon([${addressIds.join(',')}])">
+                    <button class="balloon-btn hide-unselected">
                         Скрыть невыбранные в кластере
                     </button>
                 </div>
@@ -1857,6 +1973,11 @@
             updateAddressSelectionOnMap(addressId, isSelected);
             updateAddressItemSelection(addressId, isSelected);
             updateSelectedCount();
+            
+            // Обновляем кастомный мобильный балун
+            if (isMobile) {
+                updateCustomMobileBalloon();
+            }
             
             if (currentActiveClusterId && currentClusterObjects) {
                 updateClusterBalloonButton(currentActiveClusterId);
@@ -1897,6 +2018,11 @@
             updateSelectedCount();
             showNotification(`Выбрано адресов: ${addressIds.length}`);
             
+            // Обновляем кастомный мобильный балун
+            if (isMobile) {
+                updateCustomMobileBalloon();
+            }
+            
             updateClusterBalloonButton(currentActiveClusterId);
         };
         
@@ -1909,6 +2035,11 @@
             
             updateSelectedCount();
             showNotification(`Снято выделение: ${addressIds.length} адресов`);
+            
+            // Обновляем кастомный мобильный балун
+            if (isMobile) {
+                updateCustomMobileBalloon();
+            }
             
             updateClusterBalloonButton(currentActiveClusterId);
         };
@@ -1936,6 +2067,11 @@
             
             updateSelectedCount();
             showNotification(`Выбрано через один: ${Math.ceil(addressIds.length / 2)} адресов`);
+            
+            // Обновляем кастомный мобильный балун
+            if (isMobile) {
+                updateCustomMobileBalloon();
+            }
             
             updateClusterBalloonButton(currentActiveClusterId);
         };
