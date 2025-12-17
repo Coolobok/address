@@ -10,6 +10,14 @@
 		body, html { width: 100%; height: 100%; font-family: Arial; overflow: hidden; }
 		#map-container { width: 100%; height: 100%; position: relative; }
 		#map { width: 100%; height: 100%; }
+		
+			#address-list-empty {
+			padding: 40px 20px;
+			text-align: center;
+			color: #888;
+			font-size: 13px;
+			background: white;
+		}
 
 		/* Основная панель - УВЕЛИЧЕНА ВЫСОТА */
 		#main-panel {
@@ -570,7 +578,7 @@
 			position: fixed;
 			bottom: 20px;
 			left: 50%;
-			transform: translateX(-50%);
+			transform: translateX(-50%) translateY(100%);
 			width: 90%;
 			max-width: 400px;
 			max-height: 70vh;
@@ -580,16 +588,20 @@
 			z-index: 2000;
 			overflow: hidden;
 			display: none;
+			transition: transform 0.3s ease, opacity 0.3s ease;
+			opacity: 0;
 		}
 
 		.custom-mobile-balloon.active {
 			display: block;
+			opacity: 1;
+			transform: translateX(-50%) translateY(0);
 		}
 
 		.custom-balloon-content {
 			max-height: 65vh;
 			overflow-y: auto;
-			padding: 20px;
+			padding: 20px 20px 20px 20px;
 		}
 
 		.mobile-balloon-close {
@@ -619,10 +631,13 @@
 			background: rgba(0,0,0,0.5);
 			z-index: 1999;
 			display: none;
+			transition: opacity 0.3s ease;
+			opacity: 0;
 		}
 
 		.balloon-overlay.active {
 			display: block;
+			opacity: 1;
 		}
 
 		/* Стили для балуна кластера */
@@ -937,6 +952,23 @@
 			text-align: center;
 		}
 
+		/* Полное отключение стандартных анимаций балунов */
+		.ymaps-2-1-79-balloon,
+		.ymaps-2-1-79-balloon__content,
+		.ymaps-2-1-79-balloon__layout {
+			animation: none !important;
+			transition: none !important;
+		}
+
+		.ymaps-2-1-79-balloon__close-button {
+			animation: none !important;
+			transition: none !important;
+		}
+
+		.ymaps-2-1-79-balloon__tail {
+			display: none !important;
+		}
+
 		/* Оптимизация для плавных обновлений */
 		.cluster-balloon-content,
 		.custom-balloon-content {
@@ -949,14 +981,16 @@
 			pointer-events: none;
 		}
 
-		/* Убираем анимацию открытия балуна в Я.Картах */
-		.ymaps-2-1-79-balloon,
-		.ymaps-2-1-79-balloon__content {
-			animation: none !important;
+		/* Стили для вкладки "Мои метки" */
+		#my-markers-tab > div {
+			padding: 16px; /* Уменьшено с 20px */
 		}
 
-		.ymaps-2-1-79-balloon__tail {
-			display: none !important;
+		#my-markers-tab h4 {
+			margin: 0 0 10px 0; /* Уменьшено с 12px */
+			color: #333;
+			text-align: left;
+			font-size: 14px; /* Добавлен размер шрифта */
 		}
 
 		/* Медиа-запросы для мобильных устройств */
@@ -1135,6 +1169,47 @@
 				max-height: 85vh;
 			}
 			
+			/* Кастомный мобильный балун на мобильных */
+			.custom-mobile-balloon {
+				bottom: 10px;
+				max-height: 85vh;
+				display: flex;
+				flex-direction: column;
+				width: 95%;
+			}
+			
+			.custom-balloon-content {
+				flex: 1;
+				overflow-y: auto;
+				padding: 16px 16px 16px 16px; /* Отступ для кнопок */
+				max-height: calc(85vh - 120px);
+			}
+			
+			/* Фиксированные кнопки внизу мобильного балуна */
+			.mobile-balloon-buttons {
+				position: sticky;
+				bottom: 0;
+				background: white;
+				padding: 12px;
+				border-top: 1px solid #e0e0e0;
+				display: flex;
+				gap: 8px;
+				flex-wrap: wrap;
+				z-index: 10;
+			}
+			
+			.mobile-balloon-buttons button {
+				flex: 1;
+				min-width: 100px;
+				padding: 10px;
+				font-size: 12px;
+				white-space: nowrap;
+				border: none;
+				border-radius: 6px;
+				cursor: pointer;
+				font-weight: 500;
+			}
+			
 			/* Скрываем стандартные балуны на мобильных */
 			.ymaps-2-1-79-balloon,
 			.ymaps-balloon {
@@ -1192,19 +1267,23 @@
 			.marker-modal-content {
 				padding: 12px;
 			}
+			
+			.mobile-balloon-buttons {
+				flex-direction: column;
+			}
+			
+			.mobile-balloon-buttons button {
+				min-width: 100%;
+				font-size: 11px;
+				padding: 8px;
+			}
 		}
-
-		/* Стили для вкладки "Мои метки" */
-		#my-markers-tab > div {
-			padding: 16px; /* Уменьшено с 20px */
+	   
+		/* Индикатор загрузки */
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
 		}
-
-		#my-markers-tab h4 {
-			margin: 0 0 10px 0; /* Уменьшено с 12px */
-			color: #333;
-			text-align: left;
-			font-size: 14px; /* Добавлен размер шрифта */
-		}	   
     </style>
 </head>
 <body>
@@ -1218,12 +1297,22 @@
         <div class="custom-mobile-balloon" id="custom-mobile-balloon">
             <button class="mobile-balloon-close" id="mobile-balloon-close">×</button>
             <div class="custom-balloon-content" id="custom-balloon-content"></div>
+            <!-- Фиксированные кнопки внизу для мобильной версии -->
+            <div class="mobile-balloon-buttons" id="mobile-balloon-buttons"></div>
         </div>
         
         <!-- Уведомление -->
         <div id="notification" class="notification">
             <span class="notification-icon">✓</span>
             <span id="notification-text">Данные скопированы в буфер обмена!</span>
+        </div>
+        
+        <!-- Индикатор загрузки -->
+        <div id="loading-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 10000; display: flex; align-items: center; justify-content: center; transition: opacity 0.3s ease; opacity: 0; display: none;">
+            <div style="text-align: center;">
+                <div style="width: 48px; height: 48px; border: 4px solid #f3f3f3; border-top: 4px solid #2196F3; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
+                <div id="loading-text" style="font-size: 16px; color: #333; font-weight: 500;">Загрузка данных...</div>
+            </div>
         </div>
         
         <!-- Модальное окно для добавления метки -->
@@ -1377,9 +1466,9 @@
                     </div>
                     
                     <!-- Список адресов -->
-                    <div class="address-list" id="address-list">
-                        <div class="empty-list">Выберите фильтры для отображения адресов</div>
-                    </div>
+					<div class="address-list" id="address-list">
+						<div class="empty-list" id="address-list-empty">Загрузка данных...</div>
+					</div>
                 </div>
                 
                 <!-- Содержимое вкладки "Мои метки" -->
@@ -1421,724 +1510,881 @@
         </div>
     </div>
 
-    <script>
-        // Глобальные переменные
-        const SHEET_ID = '1jZsHbNXVmvNRjmh_p1pLFl3G3oLgD0sFas8L4EDexiI';
-        const JSONP_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData&sheet=Filter`;
-        
-        let currentClusterData = null;
-        let map, objectManager, currentAddresses = [];
-        let totalEntrances = 0;
-        let selectedAddresses = new Set();
-        let isPanelCollapsed = false;
-        let isMobile = window.innerWidth <= 768;
-        let isHidingUnselected = false;
-        let isHidingUnselectedInCurrentCluster = false;
-        let currentClusterHiddenAddresses = [];
-        let currentClusterObjects = [];
-        let currentActiveClusterId = null;
-        let currentActiveObjectId = null;
-        
-        // Переменные для пользовательских меток
-        let userMarkers = JSON.parse(localStorage.getItem('userMarkers')) || [];
-        let isAddingMarker = false;
-        let tempMarker = null;
-        let markerClickEvent = null;
+<script>
+    // Глобальные переменные
+    const SHEET_ID = '1jZsHbNXVmvNRjmh_p1pLFl3G3oLgD0sFas8L4EDexiI';
+    const JSONP_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData&sheet=Filter`;
+    
+    let currentClusterData = null;
+    let map, objectManager, currentAddresses = [];
+    let totalEntrances = 0;
+    let selectedAddresses = new Set();
+    let isPanelCollapsed = false;
+    let isMobile = window.innerWidth <= 768;
+    let isHidingUnselected = false;
+    let isHidingUnselectedInCurrentCluster = false;
+    let currentClusterHiddenAddresses = [];
+    let currentClusterObjects = [];
+    let lastOpenedClusterId = null;
+    let lastOpenedObjectId = null;
+    let isBalloonRefreshing = false;
+    
+    // Переменные для пользовательских меток
+    let userMarkers = JSON.parse(localStorage.getItem('userMarkers')) || [];
+    let isAddingMarker = false;
+    let tempMarker = null;
+    let markerClickEvent = null;
+    
+    // Переменные для индикатора загрузки
+    let isLoading = false;
+    let filterTimer = null;
 
-        // Функции для расчета стоимости
-        function calculatePrice(standsCount) {
-            if (standsCount < 100) {
-                return { 
-                    total: 0, 
-                    pricePer: 0,
-                    message: 'выберите минимум 100 стендов',
-                    isValid: false
-                };
-            } else if (standsCount >= 100 && standsCount <= 299) {
-                return { 
-                    total: standsCount * 160, 
-                    pricePer: 160,
-                    message: null,
-                    isValid: true
-                };
-            } else if (standsCount >= 300 && standsCount <= 499) {
-                return { 
-                    total: standsCount * 140, 
-                    pricePer: 140,
-                    message: null,
-                    isValid: true
-                };
-            } else {
-                return { 
-                    total: standsCount * 120, 
-                    pricePer: 120,
-                    message: null,
-                    isValid: true
-                };
-            }
+    // Функции для расчета стоимости
+    function calculatePrice(standsCount) {
+        if (standsCount < 100) {
+            return { 
+                total: 0, 
+                pricePer: 0,
+                message: 'выберите минимум 100 стендов',
+                isValid: false
+            };
+        } else if (standsCount >= 100 && standsCount <= 299) {
+            return { 
+                total: standsCount * 160, 
+                pricePer: 160,
+                message: null,
+                isValid: true
+            };
+        } else if (standsCount >= 300 && standsCount <= 499) {
+            return { 
+                total: standsCount * 140, 
+                pricePer: 140,
+                message: null,
+                isValid: true
+            };
+        } else {
+            return { 
+                total: standsCount * 120, 
+                pricePer: 120,
+                message: null,
+                isValid: true
+            };
         }
+    }
 
-        function updatePanelHeaderStats() {
-            const visibleBuildings = currentAddresses.filter(addr => 
-                document.querySelector(`.address-item[data-id="${addr.id}"]`)
-            ).length;
-            const hiddenBuildings = currentAddresses.length - visibleBuildings;
-            
-            let selectedStands = 0;
-            selectedAddresses.forEach(id => {
-                const addr = currentAddresses.find(a => a.id === id);
-                if (addr) selectedStands += (addr.entrances || 0);
-            });
-            
-            let hiddenStands = 0;
-            const visibleIds = new Set(currentAddresses
-                .filter(addr => document.querySelector(`.address-item[data-id="${addr.id}"]`))
-                .map(addr => addr.id));
-            
-            currentAddresses.forEach(addr => {
-                if (!visibleIds.has(addr.id)) {
-                    hiddenStands += (addr.entrances || 0);
-                }
-            });
-            
-            document.getElementById('buildings-count').textContent = visibleBuildings;
-            document.getElementById('hidden-buildings').textContent = hiddenBuildings;
-            document.getElementById('selected-stands').textContent = selectedStands;
-            document.getElementById('hidden-stands').textContent = hiddenStands;
-            
-            const priceInfo = calculatePrice(selectedStands);
-            const priceContainer = document.getElementById('price-container');
-            
-            if (priceInfo.message) {
-                priceContainer.innerHTML = `<span id="monthly-price" class="price-warning">${priceInfo.message}</span>`;
-            } else {
-                const formattedPrice = priceInfo.total.toLocaleString('ru-RU') + ' р.';
-                priceContainer.innerHTML = `<span id="monthly-price" class="price-value">${formattedPrice}</span>`;
-            }
-        }
-
-        function showNotification(message, isError = false) {
-            const notification = document.getElementById('notification');
-            const notificationText = document.getElementById('notification-text');
-            
-            notificationText.textContent = message;
-            notification.className = 'notification' + (isError ? ' error' : '');
-            notification.classList.add('show');
-            
+    // Функции индикатора загрузки
+    function showLoading(message = 'Загрузка данных...') {
+        isLoading = true;
+        const overlay = document.getElementById('loading-overlay');
+        const text = document.getElementById('loading-text');
+        
+        if (overlay && text) {
+            text.textContent = message;
+            overlay.style.display = 'flex';
             setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
+                overlay.style.opacity = '1';
+            }, 10);
         }
+    }
+
+    function hideLoading() {
+        isLoading = false;
+        const overlay = document.getElementById('loading-overlay');
         
-        function updateSelectedCount() {
-            updatePanelHeaderStats();
-            updateSelectAllButton();
+        if (overlay) {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
         }
+    }
+
+    function updatePanelHeaderStats() {
+        const visibleBuildings = currentAddresses.filter(addr => 
+            document.querySelector(`.address-item[data-id="${addr.id}"]`)
+        ).length;
+        const hiddenBuildings = currentAddresses.length - visibleBuildings;
         
-        function updateSelectAllButton() {
-            const selectAllBtn = document.getElementById('select-all-btn');
-            if (!selectAllBtn) return;
-            
-            const visibleAddressIds = new Set();
-            currentAddresses.forEach(addr => {
-                if (document.querySelector(`.address-item[data-id="${addr.id}"]`)) {
-                    visibleAddressIds.add(addr.id);
-                }
-            });
-            
-            const allVisibleSelected = Array.from(visibleAddressIds).every(id => selectedAddresses.has(id));
-            
-            if (allVisibleSelected && visibleAddressIds.size > 0) {
-                selectAllBtn.textContent = "Снять выделение";
-                selectAllBtn.className = "selection-btn deselect-all";
-                selectAllBtn.onclick = () => deselectAllVisibleAddresses();
-            } else {
-                selectAllBtn.textContent = "Выбрать все";
-                selectAllBtn.className = "selection-btn select-all";
-                selectAllBtn.onclick = () => selectAllAddresses();
+        let selectedStands = 0;
+        selectedAddresses.forEach(id => {
+            const addr = currentAddresses.find(a => a.id === id);
+            if (addr) selectedStands += (addr.entrances || 0);
+        });
+        
+        let hiddenStands = 0;
+        const visibleIds = new Set(currentAddresses
+            .filter(addr => document.querySelector(`.address-item[data-id="${addr.id}"]`))
+            .map(addr => addr.id));
+        
+        currentAddresses.forEach(addr => {
+            if (!visibleIds.has(addr.id)) {
+                hiddenStands += (addr.entrances || 0);
             }
-        }
+        });
         
-        function deselectAllVisibleAddresses() {
-            const visibleAddressIds = [];
-            currentAddresses.forEach(addr => {
-                if (document.querySelector(`.address-item[data-id="${addr.id}"]`)) {
-                    visibleAddressIds.push(addr.id);
-                }
-            });
-            
-            visibleAddressIds.forEach(id => {
+        document.getElementById('buildings-count').textContent = visibleBuildings;
+        document.getElementById('hidden-buildings').textContent = hiddenBuildings;
+        document.getElementById('selected-stands').textContent = selectedStands;
+        document.getElementById('hidden-stands').textContent = hiddenStands;
+        
+        const priceInfo = calculatePrice(selectedStands);
+        const priceContainer = document.getElementById('price-container');
+        
+        if (priceInfo.message) {
+            priceContainer.innerHTML = `<span id="monthly-price" class="price-warning">${priceInfo.message}</span>`;
+        } else {
+            const formattedPrice = priceInfo.total.toLocaleString('ru-RU') + ' р.';
+            priceContainer.innerHTML = `<span id="monthly-price" class="price-value">${formattedPrice}</span>`;
+        }
+    }
+
+    function showNotification(message, isError = false) {
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        
+        notificationText.textContent = message;
+        notification.className = 'notification' + (isError ? ' error' : '');
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+    
+    function updateSelectedCount() {
+        updatePanelHeaderStats();
+        updateSelectAllButton();
+    }
+    
+    function updateSelectAllButton() {
+        const selectAllBtn = document.getElementById('select-all-btn');
+        if (!selectAllBtn) return;
+        
+        const visibleAddressIds = new Set();
+        currentAddresses.forEach(addr => {
+            if (document.querySelector(`.address-item[data-id="${addr.id}"]`)) {
+                visibleAddressIds.add(addr.id);
+            }
+        });
+        
+        const allVisibleSelected = Array.from(visibleAddressIds).every(id => selectedAddresses.has(id));
+        
+        if (allVisibleSelected && visibleAddressIds.size > 0) {
+            selectAllBtn.textContent = "Снять выделение";
+            selectAllBtn.className = "selection-btn deselect-all";
+            selectAllBtn.onclick = () => deselectAllVisibleAddresses();
+        } else {
+            selectAllBtn.textContent = "Выбрать все";
+            selectAllBtn.className = "selection-btn select-all";
+            selectAllBtn.onclick = () => selectAllAddresses();
+        }
+    }
+    
+    function deselectAllVisibleAddresses() {
+        const visibleAddressIds = [];
+        currentAddresses.forEach(addr => {
+            if (document.querySelector(`.address-item[data-id="${addr.id}"]`)) {
+                visibleAddressIds.push(addr.id);
+            }
+        });
+        
+        visibleAddressIds.forEach(id => {
+            selectedAddresses.delete(id);
+            updateAddressSelectionOnMap(id, false);
+            updateAddressItemSelection(id, false);
+        });
+        
+        updateSelectedCount();
+        showNotification(`Снято выделение с ${visibleAddressIds.length} адресов`);
+    }
+    
+    // Вспомогательные функции для работы с фильтрами
+    function getAddressesByStatus(status) {
+        return currentAddresses.filter(addr => {
+            const isOccupied = addr.isOccupied;
+            if (status === 'free') return !isOccupied;
+            if (status === 'occupied') return isOccupied;
+            return false;
+        });
+    }
+    
+    function getAddressesByDistrict(district) {
+        return currentAddresses.filter(addr => addr.district === district);
+    }
+    
+    function deselectAddressesByStatus(status) {
+        const addresses = getAddressesByStatus(status);
+        const addressesToDeselect = [];
+        
+        addresses.forEach(addr => {
+            if (selectedAddresses.has(addr.id)) {
+                addressesToDeselect.push(addr.id);
+            }
+        });
+        
+        if (addressesToDeselect.length > 0) {
+            addressesToDeselect.forEach(id => {
                 selectedAddresses.delete(id);
                 updateAddressSelectionOnMap(id, false);
                 updateAddressItemSelection(id, false);
             });
             
-            updateSelectedCount();
-            showNotification(`Снято выделение с ${visibleAddressIds.length} адресов`);
+            return addressesToDeselect.length;
         }
         
-        // Вспомогательные функции для работы с фильтрами
-        function getAddressesByStatus(status) {
-            return currentAddresses.filter(addr => {
-                const isOccupied = addr.isOccupied;
-                if (status === 'free') return !isOccupied;
-                if (status === 'occupied') return isOccupied;
-                return false;
-            });
-        }
+        return 0;
+    }
+    
+    function deselectAddressesByDistrict(district) {
+        const addresses = getAddressesByDistrict(district);
+        const addressesToDeselect = [];
         
-        function getAddressesByDistrict(district) {
-            return currentAddresses.filter(addr => addr.district === district);
-        }
-        
-        function deselectAddressesByStatus(status) {
-            const addresses = getAddressesByStatus(status);
-            const addressesToDeselect = [];
-            
-            addresses.forEach(addr => {
-                if (selectedAddresses.has(addr.id)) {
-                    addressesToDeselect.push(addr.id);
-                }
-            });
-            
-            if (addressesToDeselect.length > 0) {
-                addressesToDeselect.forEach(id => {
-                    selectedAddresses.delete(id);
-                    updateAddressSelectionOnMap(id, false);
-                    updateAddressItemSelection(id, false);
-                });
-                
-                return addressesToDeselect.length;
+        addresses.forEach(addr => {
+            if (selectedAddresses.has(addr.id)) {
+                addressesToDeselect.push(addr.id);
             }
-            
-            return 0;
-        }
+        });
         
-        function deselectAddressesByDistrict(district) {
-            const addresses = getAddressesByDistrict(district);
-            const addressesToDeselect = [];
-            
-            addresses.forEach(addr => {
-                if (selectedAddresses.has(addr.id)) {
-                    addressesToDeselect.push(addr.id);
-                }
+        if (addressesToDeselect.length > 0) {
+            addressesToDeselect.forEach(id => {
+                selectedAddresses.delete(id);
+                updateAddressSelectionOnMap(id, false);
+                updateAddressItemSelection(id, false);
             });
             
-            if (addressesToDeselect.length > 0) {
-                addressesToDeselect.forEach(id => {
-                    selectedAddresses.delete(id);
-                    updateAddressSelectionOnMap(id, false);
-                    updateAddressItemSelection(id, false);
-                });
-                
-                return addressesToDeselect.length;
-            }
-            
-            return 0;
+            return addressesToDeselect.length;
         }
         
-        function handleFilterChange(filterType, filterValue, isChecked) {
-            if (!isChecked) {
-                let deselectedCount = 0;
-                let filterName = '';
-                
-                if (filterType === 'status') {
-                    deselectedCount = deselectAddressesByStatus(filterValue);
-                    filterName = filterValue === 'free' ? 'Свободно' : 'Занято';
-                } else if (filterType === 'district') {
-                    if (filterValue !== 'all') {
-                        deselectedCount = deselectAddressesByDistrict(filterValue);
-                        filterName = filterValue;
-                    } else {
-                        const previouslySelected = [...selectedAddresses];
-                        previouslySelected.forEach(addressId => {
-                            selectedAddresses.delete(addressId);
-                            updateAddressSelectionOnMap(addressId, false);
-                            updateAddressItemSelection(addressId, false);
-                        });
-                        deselectedCount = previouslySelected.length;
-                        filterName = 'Все районы';
-                    }
-                }
-                
-                if (deselectedCount > 0) {
-                    showNotification(`Снято выделение с ${deselectedCount} адресов (фильтр: ${filterName})`);
+        return 0;
+    }
+    
+    function handleFilterChange(filterType, filterValue, isChecked) {
+        if (!isChecked) {
+            let deselectedCount = 0;
+            let filterName = '';
+            
+            if (filterType === 'status') {
+                deselectedCount = deselectAddressesByStatus(filterValue);
+                filterName = filterValue === 'free' ? 'Свободно' : 'Занято';
+            } else if (filterType === 'district') {
+                if (filterValue !== 'all') {
+                    deselectedCount = deselectAddressesByDistrict(filterValue);
+                    filterName = filterValue;
+                } else {
+                    const previouslySelected = [...selectedAddresses];
+                    previouslySelected.forEach(addressId => {
+                        selectedAddresses.delete(addressId);
+                        updateAddressSelectionOnMap(addressId, false);
+                        updateAddressItemSelection(addressId, false);
+                    });
+                    deselectedCount = previouslySelected.length;
+                    filterName = 'Все районы';
                 }
             }
             
-            applyFilters();
-        }
-        
-        function setupTabs() {
-            const tabs = document.querySelectorAll('.tab');
-            const tabContents = document.querySelectorAll('.tab-content');
-            
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabName = tab.getAttribute('data-tab');
-                    
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tabContents.forEach(tc => tc.classList.remove('active'));
-                    
-                    tab.classList.add('active');
-                    document.getElementById(`${tabName}-tab`).classList.add('active');
-                    
-                    if (tabName === 'my-markers') {
-                        updateUserMarkersList();
-                    }
-                });
-            });
-        }
-        
-        function setupPanel() {
-            const panel = document.getElementById('main-panel');
-            const header = document.getElementById('panel-header');
-            const toggleButton = document.querySelector('.toggle-button');
-            
-            function togglePanel() {
-                isPanelCollapsed = !isPanelCollapsed;
-                panel.classList.toggle('collapsed', isPanelCollapsed);
-                toggleButton.title = isPanelCollapsed ? 'Развернуть' : 'Свернуть';
+            if (deselectedCount > 0) {
+                showNotification(`Снято выделение с ${deselectedCount} адресов (фильтр: ${filterName})`);
             }
-            
-            header.addEventListener('click', togglePanel);
-            toggleButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                togglePanel();
-            });
         }
         
-        window.handleSheetData = function(response) {
+        applyFilters();
+    }
+    
+function setupTabs() {
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.getAttribute('data-tab');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(tc => tc.classList.remove('active'));
+            
+            tab.classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            if (tabName === 'my-markers') {
+                updateUserMarkersList();
+            } else if (tabName === 'addresses') {
+                // Обновляем список при переключении на вкладку адресов
+                const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
+                const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
+                
+                if (selectedStatuses.length > 0) {
+                    // Если есть активные фильтры, применяем их
+                    applyFilters();
+                } else {
+                    // Иначе показываем все адреса
+                    const filtered = currentAddresses.filter(addr => {
+                        return true; // Показываем все адреса
+                    });
+                    updateAddressList(filtered);
+                }
+            }
+        });
+    });
+}
+    
+    function setupPanel() {
+        const panel = document.getElementById('main-panel');
+        const header = document.getElementById('panel-header');
+        const toggleButton = document.querySelector('.toggle-button');
+        
+        function togglePanel() {
+            isPanelCollapsed = !isPanelCollapsed;
+            panel.classList.toggle('collapsed', isPanelCollapsed);
+            toggleButton.title = isPanelCollapsed ? 'Развернуть' : 'Свернуть';
+        }
+        
+        header.addEventListener('click', togglePanel);
+        toggleButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            togglePanel();
+        });
+    }
+    
+    window.handleSheetData = function(response) {
+        showLoading('Обработка данных...');
+        
+        setTimeout(() => {
             if (!response?.table?.rows) {
                 console.error('Неверный формат данных из Google Sheets:', response);
                 document.getElementById('address-list').innerHTML = 
                     '<div class="empty-list">Ошибка загрузки данных</div>';
+                hideLoading();
                 return;
             }
             
             processData(response);
+            hideLoading();
+        }, 500);
+    };
+    
+    function loadData() {
+        showLoading('Загрузка данных с Google Sheets...');
+        
+        const script = document.createElement('script');
+        script.src = JSONP_URL;
+        script.onerror = () => {
+            console.error('Ошибка загрузки данных');
+            hideLoading();
+            document.getElementById('address-list').innerHTML = 
+                '<div class="empty-list">Ошибка загрузки данных</div>';
         };
+        document.body.appendChild(script);
+    }
+    
+    function updateCustomMobileBalloon(content, coordinates) {
+        if (!isMobile || isBalloonRefreshing) return;
         
-        function loadData() {
-            const script = document.createElement('script');
-            script.src = JSONP_URL;
-            script.onerror = () => {
-                console.error('Ошибка загрузки данных');
-                document.getElementById('address-list').innerHTML = 
-                    '<div class="empty-list">Ошибка загрузки данных</div>';
-            };
-            document.body.appendChild(script);
-        }
-
-        // Функция для обновления мобильного балуна
-        function updateCustomMobileBalloon() {
-            if (!isMobile) return;
-            
-            const balloon = document.getElementById('custom-mobile-balloon');
-            if (!balloon.classList.contains('active')) return;
-            
-            if (currentActiveClusterId) {
-                const cluster = objectManager.clusters.getById(currentActiveClusterId);
-                if (cluster && cluster.properties.geoObjects) {
-                    const newContent = createClusterBalloonContent(cluster.properties.geoObjects);
-                    showCustomMobileBalloon(newContent, cluster.geometry.coordinates);
-                }
-            } else if (currentActiveObjectId) {
-                const object = objectManager.objects.getById(currentActiveObjectId);
-                if (object) {
-                    const newContent = createObjectBalloonContent(object.properties, currentActiveObjectId);
-                    showCustomMobileBalloon(newContent, object.geometry.coordinates);
-                }
-            }
-        }
+        const overlay = document.getElementById('balloon-overlay');
+        const balloon = document.getElementById('custom-mobile-balloon');
+        const balloonContent = document.getElementById('custom-balloon-content');
+        const mobileButtons = document.getElementById('mobile-balloon-buttons');
         
-        function showCustomMobileBalloon(content, coordinates) {
-            const overlay = document.getElementById('balloon-overlay');
-            const balloon = document.getElementById('custom-mobile-balloon');
-            const balloonContent = document.getElementById('custom-balloon-content');
-            
+        // Плавное обновление
+        balloonContent.style.opacity = '0';
+        setTimeout(() => {
             balloonContent.innerHTML = content;
-            attachMobileBalloonEventListeners(); // Добавляем обработчики событий
-            overlay.classList.add('active');
-            balloon.classList.add('active');
             
-            if (coordinates) {
-                map.panTo(coordinates, {
-                    flying: true,
-                    duration: 300
-                });
-            }
-        }
+            // Создаем кнопки для мобильной версии
+// Создаем кнопки для мобильной версии
+if (mobileButtons) {
+    mobileButtons.innerHTML = '';
+}
+            
+            balloonContent.style.opacity = '1';
+        }, 150);
         
-        function closeCustomMobileBalloon() {
-            const overlay = document.getElementById('balloon-overlay');
-            const balloon = document.getElementById('custom-mobile-balloon');
-            
+        overlay.classList.add('active');
+        balloon.classList.add('active');
+        
+        if (coordinates) {
+            map.panTo(coordinates, {
+                flying: true,
+                duration: 300
+            });
+        }
+    }
+    
+    function closeCustomMobileBalloon() {
+        const overlay = document.getElementById('balloon-overlay');
+        const balloon = document.getElementById('custom-mobile-balloon');
+        const balloonContent = document.getElementById('custom-balloon-content');
+        
+        balloonContent.style.opacity = '0';
+        setTimeout(() => {
             overlay.classList.remove('active');
             balloon.classList.remove('active');
+            balloonContent.style.opacity = '1';
+        }, 150);
+    }
+    
+    // Функция для частичного обновления мобильного балуна
+    function updateMobileBalloonSelection(addressId, isSelected) {
+        const balloon = document.getElementById('custom-mobile-balloon');
+        if (!balloon.classList.contains('active')) return;
+        
+        // Находим чекбокс в балуне и обновляем его состояние
+        const checkbox = balloon.querySelector(`input[data-object-id="${addressId}"]`);
+        if (checkbox) {
+            checkbox.checked = isSelected;
         }
         
-        // Функция для привязки обработчиков событий к мобильному балуну
-        function attachMobileBalloonEventListeners() {
-            // Обработчики для чекбоксов в кластере
-            document.querySelectorAll('#custom-balloon-content .cluster-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', function(e) {
-                    e.stopPropagation();
-                    const objectId = parseInt(this.getAttribute('data-object-id') || this.closest('.cluster-checkbox-item')?.getAttribute('data-object-id'));
-                    if (objectId) {
-                        toggleAddressSelection(objectId, this.checked);
-                        setTimeout(updateCustomMobileBalloon, 100);
-                    }
-                });
-            });
-            
-            // Обработчики для чекбоксов одиночных объектов
-            document.querySelectorAll('#custom-balloon-content .object-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', function(e) {
-                    e.stopPropagation();
-                    const objectId = parseInt(this.getAttribute('data-object-id') || this.closest('label')?.getAttribute('data-object-id'));
-                    if (objectId) {
-                        toggleAddressSelection(objectId, this.checked);
-                        setTimeout(updateCustomMobileBalloon, 100);
-                    }
-                });
-            });
-            
-            // Обработчики для кнопок
-            document.querySelectorAll('#custom-balloon-content .balloon-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    
-                    if (this.classList.contains('select-all') || this.classList.contains('deselect-all')) {
-                        if (currentActiveClusterId) {
-                            const cluster = objectManager.clusters.getById(currentActiveClusterId);
-                            if (cluster && cluster.properties.geoObjects) {
-                                const addressIds = cluster.properties.geoObjects.map(obj => obj.id);
-                                const allSelected = addressIds.every(id => selectedAddresses.has(id));
-                                
-                                if (allSelected) {
-                                    deselectAllInCluster(addressIds);
-                                } else {
-                                    selectAllInCluster(addressIds);
-                                }
-                                setTimeout(updateCustomMobileBalloon, 100);
-                            }
-                        }
-                    }
-                    
-                    if (this.classList.contains('select-every-other')) {
-                        if (currentActiveClusterId) {
-                            const cluster = objectManager.clusters.getById(currentActiveClusterId);
-                            if (cluster && cluster.properties.geoObjects) {
-                                const addressIds = cluster.properties.geoObjects.map(obj => obj.id);
-                                selectEveryOtherInCluster(addressIds);
-                                setTimeout(updateCustomMobileBalloon, 100);
-                            }
-                        }
-                    }
-                    
-                    if (this.classList.contains('hide-unselected')) {
-                        if (currentActiveClusterId) {
-                            const cluster = objectManager.clusters.getById(currentActiveClusterId);
-                            if (cluster && cluster.properties.geoObjects) {
-                                const addressIds = cluster.properties.geoObjects.map(obj => obj.id);
-                                hideUnselectedAddressesInBalloon(addressIds);
-                            }
-                        } else if (currentActiveObjectId) {
-                            hideUnselectedAddressesInBalloon([currentActiveObjectId]);
-                        }
-                    }
-                });
-            });
-            
-            // Обработчик для кнопки копирования
-            document.querySelectorAll('#custom-balloon-content .balloon-copy-button').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const address = this.getAttribute('data-address');
-                    const status = this.getAttribute('data-status');
-                    const district = this.getAttribute('data-district');
-                    const entrances = parseInt(this.getAttribute('data-entrances') || 0);
-                    
-                    if (address) {
-                        copySingleAddress(address, status, district, entrances);
-                    }
-                });
-            });
-        }
+        // Обновляем только кнопки в балуне
+        updateBalloonButtons(balloon);
+    }
+    
+    // Функция для частичного обновления десктопного балуна
+    function updateDesktopBalloonSelection(addressId, isSelected) {
+        if (isBalloonRefreshing) return;
         
-        function createObjectBalloonContent(properties, objectId) {
-            const isOccupied = properties.status === 'occupied';
-            const isSelected = selectedAddresses.has(objectId);
-            
-            return `
-                <div style="padding: 8px 0;">
-                    <b>Адрес:</b> ${properties.address}<br>
-                    <b>Статус:</b> <span class="balloon-status ${isOccupied ? 'occupied' : 'free'}">${properties.fullStatus}</span><br>
-                    <b>Район:</b> ${properties.district || 'не указан'}<br>
-                    ${properties.entrances ? `<b>Подъездов:</b> ${properties.entrances}<br>` : ''}
-                </div>
-                <div style="margin: 10px 0;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;" data-object-id="${objectId}">
-                        <input type="checkbox" class="object-checkbox" ${isSelected ? 'checked' : ''} 
-                               data-object-id="${objectId}" style="transform: scale(1.1);">
-                        <span>Выбрать этот адрес</span>
-                    </label>
-                </div>
-                <div class="balloon-controls">
-                    <button class="balloon-btn hide-unselected" onclick="hideUnselectedAddressesInBalloon([${objectId}])">
-                        Скрыть невыбранные
-                    </button>
-                </div>
-                <button class="balloon-copy-button" 
-                        data-address="${properties.address.replace(/'/g, "\\'")}"
-                        data-status="${properties.fullStatus.replace(/'/g, "\\'")}"
-                        data-district="${(properties.district || '').replace(/'/g, "\\'")}"
-                        data-entrances="${properties.entrances || 0}">
-                    Копировать адрес
+        try {
+            if (lastOpenedClusterId) {
+                // Для кластерного балуна
+                const balloon = getClusterBalloonElement(lastOpenedClusterId);
+                if (balloon) {
+                    // Находим и обновляем чекбокс
+                    const checkbox = balloon.querySelector(`input[data-object-id="${addressId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = isSelected;
+                    }
+                    
+                    // Обновляем только кнопки
+                    updateBalloonButtons(balloon);
+                    
+                    // Сохраняем позицию скролла
+                    saveBalloonScrollPosition(balloon);
+                }
+            } else if (lastOpenedObjectId) {
+                // Для одиночного балуна
+                const balloon = getObjectBalloonElement(lastOpenedObjectId);
+                if (balloon) {
+                    const checkbox = balloon.querySelector(`input[data-object-id="${addressId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = isSelected;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Ошибка обновления балуна:', error);
+        }
+    }
+    
+    // Функция для обновления кнопок в балуне
+    function updateBalloonButtons(balloonElement) {
+        if (!balloonElement) return;
+        
+        const controlsContainer = balloonElement.querySelector('.balloon-controls');
+        if (!controlsContainer) return;
+        
+        // Получаем все ID объектов в текущем балуне
+        const checkboxes = balloonElement.querySelectorAll('input[data-object-id]');
+        const addressIds = Array.from(checkboxes).map(cb => parseInt(cb.getAttribute('data-object-id')));
+        
+        if (addressIds.length === 0) return;
+        
+        const allSelected = addressIds.every(id => selectedAddresses.has(id));
+        const selectAllBtn = controlsContainer.querySelector('.balloon-btn.select-all, .balloon-btn.deselect-all');
+        
+        if (selectAllBtn) {
+            if (allSelected) {
+                selectAllBtn.textContent = "Снять выделение";
+                selectAllBtn.className = "balloon-btn deselect-all";
+                selectAllBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deselectAllInCluster(addressIds);
+                };
+            } else {
+                selectAllBtn.textContent = "Выбрать все адреса кластера";
+                selectAllBtn.className = "balloon-btn select-all";
+                selectAllBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    selectAllInCluster(addressIds);
+                };
+            }
+        }
+    }
+    
+    // Вспомогательные функции для получения элементов балунов
+    function getClusterBalloonElement(clusterId) {
+        // Ищем открытый балун кластера в DOM
+        const balloons = document.querySelectorAll('.ymaps-2-1-79-balloon, .ymaps-balloon');
+        for (const balloon of balloons) {
+            const content = balloon.querySelector('.cluster-balloon-container');
+            if (content && content.getAttribute('data-cluster-id') === clusterId.toString()) {
+                return balloon;
+            }
+        }
+        return null;
+    }
+    
+    function getObjectBalloonElement(objectId) {
+        // Ищем открытый балун объекта в DOM
+        const balloons = document.querySelectorAll('.ymaps-2-1-79-balloon, .ymaps-balloon');
+        for (const balloon of balloons) {
+            const checkbox = balloon.querySelector(`input[data-object-id="${objectId}"]`);
+            if (checkbox) {
+                return balloon;
+            }
+        }
+        return null;
+    }
+    
+    // Функция для сохранения позиции скролла
+    function saveBalloonScrollPosition(balloonElement) {
+        const scrollContainer = balloonElement.querySelector('.cluster-balloon-content');
+        if (scrollContainer) {
+            scrollContainer.dataset.scrollTop = scrollContainer.scrollTop;
+        }
+    }
+    
+    // Функция для обновления мобильного балуна (полное обновление)
+    function refreshMobileBalloon() {
+        const balloon = document.getElementById('custom-mobile-balloon');
+        if (!balloon.classList.contains('active')) return;
+        
+        if (currentClusterObjects && currentClusterObjects.length > 0) {
+            const content = createClusterBalloonContent(currentClusterObjects);
+            updateCustomMobileBalloon(content, currentClusterObjects[0]?.geometry?.coordinates);
+        }
+    }
+    
+    // Функция для десктопного балуна (сохраняет скролл)
+    function refreshDesktopBalloon() {
+        if (isMobile || isBalloonRefreshing) return;
+        
+        isBalloonRefreshing = true;
+        
+        requestAnimationFrame(() => {
+            try {
+                if (lastOpenedClusterId) {
+                    const cluster = objectManager.clusters.getById(lastOpenedClusterId);
+                    if (cluster) {
+                        // Закрываем балун
+                        objectManager.clusters.balloon.close(lastOpenedClusterId, {
+                            checkZoomRange: false
+                        });
+                        
+                        // Небольшая задержка для гарантии закрытия
+                        setTimeout(() => {
+                            objectManager.clusters.balloon.open(lastOpenedClusterId, {
+                                checkZoomRange: false,
+                                autoPan: false
+                            });
+                            
+                            // Сброс флага после отрисовки
+                            setTimeout(() => {
+                                isBalloonRefreshing = false;
+                            }, 50);
+                        }, 50);
+                    }
+                } else if (lastOpenedObjectId) {
+                    // Аналогично для одиночного объекта
+                    const object = objectManager.objects.getById(lastOpenedObjectId);
+                    if (object) {
+                        objectManager.objects.balloon.close(lastOpenedObjectId, {
+                            checkZoomRange: false
+                        });
+                        
+                        setTimeout(() => {
+                            objectManager.objects.balloon.open(lastOpenedObjectId, {
+                                checkZoomRange: false,
+                                autoPan: false
+                            });
+                            
+                            setTimeout(() => {
+                                isBalloonRefreshing = false;
+                            }, 50);
+                        }, 50);
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка обновления балуна:', error);
+                isBalloonRefreshing = false;
+            }
+        });
+    }
+    
+    function createObjectBalloonContent(properties, objectId) {
+        const isOccupied = properties.status === 'occupied';
+        const isSelected = selectedAddresses.has(objectId);
+        
+        return `
+            <div style="padding: 8px 0;">
+                <b>Адрес:</b> ${properties.address}<br>
+                <b>Статус:</b> <span class="balloon-status ${isOccupied ? 'occupied' : 'free'}">${properties.fullStatus}</span><br>
+                <b>Район:</b> ${properties.district || 'не указан'}<br>
+                ${properties.entrances ? `<b>Подъездов:</b> ${properties.entrances}<br>` : ''}
+            </div>
+            <div style="margin: 10px 0;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" class="object-checkbox" ${isSelected ? 'checked' : ''} 
+                           data-object-id="${objectId}" style="transform: scale(1.1);"
+                           onclick="event.stopPropagation(); toggleAddressSelection(${objectId}, this.checked)">
+                    <span>Выбрать этот адрес</span>
+                </label>
+            </div>
+            <div class="balloon-controls">
+                <button class="balloon-btn hide-unselected" onclick="event.stopPropagation(); hideSingleAddress(${objectId})">
+                    Скрыть невыбранные
                 </button>
-            `;
-        }
+            </div>
+            <button class="balloon-copy-button" onclick="event.stopPropagation(); copySingleAddress('${properties.address.replace(/'/g, "\\'")}', '${properties.fullStatus.replace(/'/g, "\\'")}', '${(properties.district || '').replace(/'/g, "\\'")}', ${properties.entrances || 0})">
+                Копировать адрес
+            </button>
+        `;
+    }
+    
+    function createClusterBalloonContent(geoObjects) {
+        const sortedGeoObjects = [...geoObjects].sort((a, b) => {
+            const addressA = a.properties.address || '';
+            const addressB = b.properties.address || '';
+            return addressA.localeCompare(addressB);
+        });
         
-        function createClusterBalloonContent(geoObjects) {
-            const sortedGeoObjects = [...geoObjects].sort((a, b) => {
-                const addressA = a.properties.address || '';
-                const addressB = b.properties.address || '';
-                return addressA.localeCompare(addressB);
-            });
-            
-            const addressIds = sortedGeoObjects.map(obj => obj.id);
-            
-            const allSelected = addressIds.every(id => selectedAddresses.has(id));
-            const buttonText = allSelected ? "Снять выделение" : "Выбрать все адреса кластера";
-            const buttonClass = allSelected ? "deselect-all" : "select-all";
-            const buttonClickHandler = allSelected ? 
-                `deselectAllInCluster([${addressIds.join(',')}])` : 
-                `selectAllInCluster([${addressIds.join(',')}])`;
-            
-            let content = `
-                <h2 style="margin: 0 0 12px 0; font-size: 16px; color: #333; font-weight: 600;">
-                    Адресов в кластере: ${sortedGeoObjects.length}
-                </h2>
-                <div class="cluster-balloon">
-            `;
-            
-            sortedGeoObjects.forEach((obj, index) => {
-                if (obj && obj.properties) {
-                    const isOccupied = obj.properties.status === 'occupied';
-                    const isSelected = selectedAddresses.has(obj.id);
-                    
-                    content += `
-                        <div class="cluster-checkbox-item" data-object-id="${obj.id}">
-                            <input type="checkbox" class="cluster-checkbox" ${isSelected ? 'checked' : ''}
-                                   data-object-id="${obj.id}">
-                            <div class="cluster-item-content">
-                                <div class="cluster-item-address">${obj.properties.address || "Адрес не указан"}</div>
-                                <div class="cluster-item-details">
-                                    Статус: <span class="balloon-status ${isOccupied ? 'occupied' : 'free'}">${obj.properties.fullStatus || "не указан"}</span><br>
-                                    Район: ${obj.properties.district || "не указан"}<br>
-                                    Подъездов: ${obj.properties.entrances || "не указано"}
-                                </div>
+        const addressIds = sortedGeoObjects.map(obj => obj.id);
+        
+        const allSelected = addressIds.every(id => selectedAddresses.has(id));
+        
+        let content = `
+            <h2 style="margin: 0 0 12px 0; font-size: 16px; color: #333; font-weight: 600;">
+                Адресов в кластере: ${sortedGeoObjects.length}
+            </h2>
+            <div class="cluster-balloon" style="max-height: 200px; overflow-y: auto; margin-bottom: 12px;">
+        `;
+        
+        sortedGeoObjects.forEach((obj, index) => {
+            if (obj && obj.properties) {
+                const isOccupied = obj.properties.status === 'occupied';
+                const isSelected = selectedAddresses.has(obj.id);
+                
+                content += `
+                    <div class="cluster-checkbox-item" data-object-id="${obj.id}">
+                        <input type="checkbox" class="cluster-checkbox" ${isSelected ? 'checked' : ''}
+                               data-object-id="${obj.id}"
+                               onclick="event.stopPropagation(); toggleAddressSelection(${obj.id}, this.checked)">
+                        <div class="cluster-item-content">
+                            <div class="cluster-item-address">${obj.properties.address || "Адрес не указан"}</div>
+                            <div class="cluster-item-details">
+                                Статус: <span class="balloon-status ${isOccupied ? 'occupied' : 'free'}">${obj.properties.fullStatus || "не указан"}</span><br>
+                                Район: ${obj.properties.district || "не указан"}<br>
+                                Подъездов: ${obj.properties.entrances || "не указано"}
                             </div>
                         </div>
-                    `;
-                }
+                    </div>
+                `;
+            }
+        });
+        
+        content += `
+            </div>
+            <div class="balloon-controls">
+                <button class="balloon-btn ${allSelected ? 'deselect-all' : 'select-all'}" onclick="event.stopPropagation(); ${allSelected ? 'deselectAllInCluster' : 'selectAllInCluster'}([${addressIds.join(',')}])">
+                    ${allSelected ? 'Снять выделение' : 'Выбрать все адреса кластера'}
+                </button>
+                <button class="balloon-btn select-every-other" onclick="event.stopPropagation(); selectEveryOtherInCluster([${addressIds.join(',')}])">
+                    Выбрать через один адрес
+                </button>
+                <button class="balloon-btn hide-unselected" onclick="event.stopPropagation(); hideUnselectedAddressesInBalloon([${addressIds.join(',')}])">
+                    Скрыть невыбранные в кластере
+                </button>
+            </div>
+        `;
+        
+        return content;
+    }
+    
+    window.toggleAddressSelection = function(addressId, isSelected) {
+        if (isSelected) {
+            selectedAddresses.add(addressId);
+        } else {
+            selectedAddresses.delete(addressId);
+        }
+        
+        updateAddressSelectionOnMap(addressId, isSelected);
+        updateAddressItemSelection(addressId, isSelected);
+        updateSelectedCount();
+        
+        // Обновляем соответствующий балун частично
+        if (isMobile) {
+            updateMobileBalloonSelection(addressId, isSelected);
+        } else {
+            updateDesktopBalloonSelection(addressId, isSelected);
+        }
+    };
+    
+    function updateAddressSelectionOnMap(addressId, isSelected) {
+        const object = objectManager.objects.getById(addressId);
+        if (object) {
+            const originalColor = object.properties.status === 'occupied' ? '#F44336' : '#4CAF50';
+            objectManager.objects.setObjectOptions(addressId, {
+                iconColor: isSelected ? '#FF9800' : originalColor
             });
-            
-            content += `
-                </div>
-                <div class="balloon-controls">
-                    <button class="balloon-btn ${buttonClass}">
-                        ${buttonText}
-                    </button>
-                    <button class="balloon-btn select-every-other">
-                        Выбрать через один адрес
-                    </button>
-                    <button class="balloon-btn hide-unselected">
-                        Скрыть невыбранные в кластере
-                    </button>
-                </div>
-            `;
-            
-            return content;
         }
-        
-        window.toggleAddressSelection = function(addressId, isSelected) {
+    }
+    
+    function updateAddressItemSelection(addressId, isSelected) {
+        const addressItem = document.querySelector(`.address-item[data-id="${addressId}"]`);
+        if (addressItem) {
+            const checkbox = addressItem.querySelector('.address-checkbox');
+            if (checkbox) checkbox.checked = isSelected;
+            
             if (isSelected) {
-                selectedAddresses.add(addressId);
+                addressItem.classList.add('selected');
             } else {
-                selectedAddresses.delete(addressId);
-            }
-            
-            updateAddressSelectionOnMap(addressId, isSelected);
-            updateAddressItemSelection(addressId, isSelected);
-            updateSelectedCount();
-            
-            // Обновляем кастомный мобильный балун
-            if (isMobile) {
-                updateCustomMobileBalloon();
-            }
-            
-            if (currentActiveClusterId && currentClusterObjects) {
-                updateClusterBalloonButton(currentActiveClusterId);
-            }
-        };
-        
-        function updateAddressSelectionOnMap(addressId, isSelected) {
-            const object = objectManager.objects.getById(addressId);
-            if (object) {
-                const originalColor = object.properties.status === 'occupied' ? '#F44336' : '#4CAF50';
-                objectManager.objects.setObjectOptions(addressId, {
-                    iconColor: isSelected ? '#FF9800' : originalColor
-                });
+                addressItem.classList.remove('selected');
             }
         }
+    }
+    
+    window.selectAllInCluster = function(addressIds) {
+        addressIds.forEach(id => {
+            selectedAddresses.add(id);
+            updateAddressSelectionOnMap(id, true);
+            updateAddressItemSelection(id, true);
+        });
         
-        function updateAddressItemSelection(addressId, isSelected) {
-            const addressItem = document.querySelector(`.address-item[data-id="${addressId}"]`);
-            if (addressItem) {
-                const checkbox = addressItem.querySelector('.address-checkbox');
-                if (checkbox) checkbox.checked = isSelected;
-                
-                if (isSelected) {
-                    addressItem.classList.add('selected');
-                } else {
-                    addressItem.classList.remove('selected');
-                }
-            }
+        updateSelectedCount();
+        showNotification(`Выбрано адресов: ${addressIds.length}`);
+        
+        // Полное обновление балуна при массовых действиях
+        if (isMobile) {
+            refreshMobileBalloon();
+        } else {
+            refreshDesktopBalloon();
         }
+    };
+    
+    window.deselectAllInCluster = function(addressIds) {
+        addressIds.forEach(id => {
+            selectedAddresses.delete(id);
+            updateAddressSelectionOnMap(id, false);
+            updateAddressItemSelection(id, false);
+        });
         
-        window.selectAllInCluster = function(addressIds) {
-            addressIds.forEach(id => {
+        updateSelectedCount();
+        showNotification(`Снято выделение: ${addressIds.length} адресов`);
+        
+        // Полное обновление балуна при массовых действиях
+        if (isMobile) {
+            refreshMobileBalloon();
+        } else {
+            refreshDesktopBalloon();
+        }
+    };
+    
+    window.selectEveryOtherInCluster = function(addressIds) {
+        addressIds.forEach(id => {
+            if (selectedAddresses.has(id)) {
+                selectedAddresses.delete(id);
+            }
+        });
+        
+        addressIds.forEach((id, index) => {
+            if (index % 2 === 0) {
                 selectedAddresses.add(id);
                 updateAddressSelectionOnMap(id, true);
                 updateAddressItemSelection(id, true);
-            });
-            
-            updateSelectedCount();
-            showNotification(`Выбрано адресов: ${addressIds.length}`);
-            
-            // Обновляем кастомный мобильный балун
-            if (isMobile) {
-                updateCustomMobileBalloon();
-            }
-            
-            updateClusterBalloonButton(currentActiveClusterId);
-        };
-        
-        window.deselectAllInCluster = function(addressIds) {
-            addressIds.forEach(id => {
-                selectedAddresses.delete(id);
-                updateAddressSelectionOnMap(id, false);
-                updateAddressItemSelection(id, false);
-            });
-            
-            updateSelectedCount();
-            showNotification(`Снято выделение: ${addressIds.length} адресов`);
-            
-            // Обновляем кастомный мобильный балун
-            if (isMobile) {
-                updateCustomMobileBalloon();
-            }
-            
-            updateClusterBalloonButton(currentActiveClusterId);
-        };
-        
-        window.selectEveryOtherInCluster = function(addressIds) {
-            addressIds.forEach(id => {
+            } else {
                 if (selectedAddresses.has(id)) {
                     selectedAddresses.delete(id);
                 }
-            });
-            
-            addressIds.forEach((id, index) => {
-                if (index % 2 === 0) {
-                    selectedAddresses.add(id);
-                    updateAddressSelectionOnMap(id, true);
-                    updateAddressItemSelection(id, true);
-                } else {
-                    if (selectedAddresses.has(id)) {
-                        selectedAddresses.delete(id);
-                    }
-                    updateAddressSelectionOnMap(id, false);
-                    updateAddressItemSelection(id, false);
-                }
-            });
-            
-            updateSelectedCount();
-            showNotification(`Выбрано через один: ${Math.ceil(addressIds.length / 2)} адресов`);
-            
-            // Обновляем кастомный мобильный балун
-            if (isMobile) {
-                updateCustomMobileBalloon();
+                updateAddressSelectionOnMap(id, false);
+                updateAddressItemSelection(id, false);
             }
-            
-            updateClusterBalloonButton(currentActiveClusterId);
-        };
+        });
         
-        window.hideUnselectedAddressesInBalloon = function(addressIds) {
-            if (!addressIds || addressIds.length === 0) {
-                if (currentClusterObjects && currentClusterObjects.length > 0) {
-                    addressIds = currentClusterObjects.map(obj => obj.id);
-                } else if (currentActiveObjectId) {
-                    addressIds = [currentActiveObjectId];
-                } else {
-                    showNotification('Нет адресов для обработки', true);
-                    return;
+        updateSelectedCount();
+        showNotification(`Выбрано через один: ${Math.ceil(addressIds.length / 2)} адресов`);
+        
+        // Полное обновление балуна при массовых действиях
+        if (isMobile) {
+            refreshMobileBalloon();
+        } else {
+            refreshDesktopBalloon();
+        }
+    };
+    
+    window.hideSingleAddress = function(addressId) {
+        if (isBalloonRefreshing) return;
+        
+        const selectedInBalloon = selectedAddresses.has(addressId) ? [addressId] : [];
+        
+        if (selectedInBalloon.length === 0) {
+            // Скрываем полностью
+            isHidingUnselectedInCurrentCluster = true;
+            currentClusterHiddenAddresses = [addressId];
+            
+            const currentFilter = objectManager._filterFunction;
+            
+            objectManager.setFilter(obj => {
+                if (obj.id === addressId) {
+                    return false;
                 }
+                else if (currentFilter) {
+                    return currentFilter(obj);
+                }
+                else {
+                    return true;
+                }
+            });
+            
+            const visibleIds = new Set();
+            currentAddresses.forEach(addr => {
+                if (addr.id === addressId) {
+                    visibleIds.delete(addr.id);
+                } else if (!currentFilter || currentFilter({ id: addr.id, properties: { status: addr.isOccupied ? 'occupied' : 'free', district: addr.district } })) {
+                    visibleIds.add(addr.id);
+                }
+            });
+            
+            const filtered = currentAddresses.filter(addr => visibleIds.has(addr.id));
+            updateAddressList(filtered);
+            
+            showNotification(`Адрес скрыт`);
+            
+            // Закрываем балун после скрытия
+            if (isMobile) {
+                closeCustomMobileBalloon();
+            } else {
+                if (lastOpenedObjectId) {
+                    objectManager.objects.balloon.close(lastOpenedObjectId);
+                }
+                lastOpenedObjectId = null;
             }
             
-            const selectedInBalloon = addressIds.filter(id => selectedAddresses.has(id));
-            
-            if (selectedInBalloon.length === 0) {
-                isHidingUnselectedInCurrentCluster = true;
-                currentClusterHiddenAddresses = addressIds;
-                
-                const currentFilter = objectManager._filterFunction;
-                
-                objectManager.setFilter(obj => {
-                    if (addressIds.includes(obj.id)) {
-                        return false;
-                    }
-                    else if (currentFilter) {
-                        return currentFilter(obj);
-                    }
-                    else {
-                        return true;
-                    }
-                });
-                
-                const visibleIds = new Set();
-                currentAddresses.forEach(addr => {
-                    if (addressIds.includes(addr.id)) {
-                        visibleIds.delete(addr.id);
-                    } else if (!currentFilter || currentFilter({ id: addr.id, properties: { status: addr.isOccupied ? 'occupied' : 'free', district: addr.district } })) {
-                        visibleIds.add(addr.id);
-                    }
-                });
-                
-                const filtered = currentAddresses.filter(addr => visibleIds.has(addr.id));
-                updateAddressList(filtered);
-                
-                if (currentActiveClusterId) {
-                    objectManager.clusters.balloon.close(currentActiveClusterId);
-                    currentActiveClusterId = null;
-                    currentClusterObjects = [];
-                }
-                else if (currentActiveObjectId) {
-                    objectManager.objects.balloon.close(currentActiveObjectId);
-                    currentActiveObjectId = null;
-                }
-                
-                showNotification(`Скрыты все адреса из балуна: ${addressIds.length} адресов`);
-                
-                if (isMobile) {
-                    closeCustomMobileBalloon();
-                }
-                
+            return;
+        }
+        
+        // Этот адрес выбран, поэтому просто закрываем балун
+        if (isMobile) {
+            closeCustomMobileBalloon();
+        } else {
+            if (lastOpenedObjectId) {
+                objectManager.objects.balloon.close(lastOpenedObjectId);
+            }
+            lastOpenedObjectId = null;
+        }
+    };
+    
+    window.hideUnselectedAddressesInBalloon = function(addressIds) {
+        if (isBalloonRefreshing) return;
+        
+        if (!addressIds || addressIds.length === 0) {
+            if (currentClusterObjects && currentClusterObjects.length > 0) {
+                addressIds = currentClusterObjects.map(obj => obj.id);
+            } else {
+                showNotification('Нет адресов для обработки', true);
                 return;
             }
-            
+        }
+        
+        const selectedInBalloon = addressIds.filter(id => selectedAddresses.has(id));
+        
+        if (selectedInBalloon.length === 0) {
+            // Скрываем все адреса в кластере
             isHidingUnselectedInCurrentCluster = true;
             currentClusterHiddenAddresses = addressIds;
             
@@ -2146,7 +2392,7 @@
             
             objectManager.setFilter(obj => {
                 if (addressIds.includes(obj.id)) {
-                    return selectedInBalloon.includes(obj.id);
+                    return false;
                 }
                 else if (currentFilter) {
                     return currentFilter(obj);
@@ -2159,9 +2405,7 @@
             const visibleIds = new Set();
             currentAddresses.forEach(addr => {
                 if (addressIds.includes(addr.id)) {
-                    if (selectedInBalloon.includes(addr.id)) {
-                        visibleIds.add(addr.id);
-                    }
+                    visibleIds.delete(addr.id);
                 } else if (!currentFilter || currentFilter({ id: addr.id, properties: { status: addr.isOccupied ? 'occupied' : 'free', district: addr.district } })) {
                     visibleIds.add(addr.id);
                 }
@@ -2170,1300 +2414,1358 @@
             const filtered = currentAddresses.filter(addr => visibleIds.has(addr.id));
             updateAddressList(filtered);
             
-            showNotification(`Скрыты невыбранные адреса в кластере: ${addressIds.length - selectedInBalloon.length} из ${addressIds.length}`);
+            showNotification(`Скрыты все адреса из кластера: ${addressIds.length} адресов`);
             
-            if (!isMobile) {
-                if (currentActiveClusterId) {
-                    objectManager.clusters.balloon.close(currentActiveClusterId);
-                } else if (currentActiveObjectId) {
-                    objectManager.objects.balloon.close(currentActiveObjectId);
+            // Закрываем балун после скрытия
+            if (isMobile) {
+                closeCustomMobileBalloon();
+            } else {
+                if (lastOpenedClusterId) {
+                    objectManager.clusters.balloon.close(lastOpenedClusterId);
                 }
-                currentActiveClusterId = null;
-                currentActiveObjectId = null;
-                currentClusterObjects = [];
+                lastOpenedClusterId = null;
+            }
+            
+            return;
+        }
+        
+        // Скрываем только невыбранные
+        isHidingUnselectedInCurrentCluster = true;
+        currentClusterHiddenAddresses = addressIds;
+        
+        const currentFilter = objectManager._filterFunction;
+        
+        objectManager.setFilter(obj => {
+            if (addressIds.includes(obj.id)) {
+                return selectedInBalloon.includes(obj.id);
+            }
+            else if (currentFilter) {
+                return currentFilter(obj);
             }
             else {
-                closeCustomMobileBalloon();
+                return true;
             }
-        };
+        });
         
-        window.copySingleAddress = function(address, status, district, entrances) {
-            let text = address;
-            
-            const details = [];
-            if (status && status !== 'undefined') details.push(status);
-            if (district && district !== 'undefined' && district !== 'не указан') details.push(district);
-            if (entrances && entrances !== 'undefined' && entrances !== 'не указано' && entrances !== 0) details.push(`Подъездов: ${entrances}`);
-            
-            if (details.length > 0) {
-                text += ` (${details.join(', ')})`;
-            }
-            
-            navigator.clipboard.writeText(text).then(() => {
-                showNotification('Адрес скопирован в буфер обмена');
-            }).catch(err => {
-                console.error('Ошибка копирования адреса:', err);
-                showNotification('Не удалось скопировать адрес', true);
-            });
-        };
-        
-        window.selectAllAddresses = function() {
-            const visibleAddresses = currentAddresses.filter(addr => 
-                document.querySelector(`.address-item[data-id="${addr.id}"]`)
-            );
-            
-            visibleAddresses.forEach(addr => {
-                selectedAddresses.add(addr.id);
-                updateAddressSelectionOnMap(addr.id, true);
-                updateAddressItemSelection(addr.id, true);
-            });
-            
-            updateSelectedCount();
-            showNotification(`Выбрано всех адресов: ${visibleAddresses.length}`);
-        };
-        
-        window.selectEveryOtherAddress = function() {
-            const visibleItems = Array.from(document.querySelectorAll('.address-item'));
-            
-            selectedAddresses.clear();
-            
-            visibleItems.forEach((item, index) => {
-                const addressId = parseInt(item.getAttribute('data-id'));
-                if (index % 2 === 0) {
-                    selectedAddresses.add(addressId);
-                    updateAddressSelectionOnMap(addressId, true);
-                    item.classList.add('selected');
-                    const checkbox = item.querySelector('.address-checkbox');
-                    if (checkbox) checkbox.checked = true;
-                } else {
-                    updateAddressSelectionOnMap(addressId, false);
-                    item.classList.remove('selected');
-                    const checkbox = item.querySelector('.address-checkbox');
-                    if (checkbox) checkbox.checked = false;
+        const visibleIds = new Set();
+        currentAddresses.forEach(addr => {
+            if (addressIds.includes(addr.id)) {
+                if (selectedInBalloon.includes(addr.id)) {
+                    visibleIds.add(addr.id);
                 }
-            });
-            
-            updateSelectedCount();
-            showNotification(`Выбрано через один: ${Math.ceil(visibleItems.length / 2)} адресов`);
-        };
-        
-        window.hideUnselectedAddresses = function() {
-            if (selectedAddresses.size === 0) {
-                showNotification('Нет выбранных адресов для скрытия', true);
-                return;
+            } else if (!currentFilter || currentFilter({ id: addr.id, properties: { status: addr.isOccupied ? 'occupied' : 'free', district: addr.district } })) {
+                visibleIds.add(addr.id);
             }
-            
-            isHidingUnselected = true;
+        });
+        
+        const filtered = currentAddresses.filter(addr => visibleIds.has(addr.id));
+        updateAddressList(filtered);
+        
+        showNotification(`Скрыты невыбранные адреса в кластере: ${addressIds.length - selectedInBalloon.length} из ${addressIds.length}`);
+        
+        // Закрываем балун после скрытия
+        if (isMobile) {
+            closeCustomMobileBalloon();
+        } else {
+            if (lastOpenedClusterId) {
+                objectManager.clusters.balloon.close(lastOpenedClusterId);
+            }
+            lastOpenedClusterId = null;
+        }
+    };
+    
+    window.copySingleAddress = function(address, status, district, entrances) {
+        let text = address;
+        
+        const details = [];
+        if (status && status !== 'undefined') details.push(status);
+        if (district && district !== 'undefined' && district !== 'не указан') details.push(district);
+        if (entrances && entrances !== 'undefined' && entrances !== 'не указано' && entrances !== 0) details.push(`Подъездов: ${entrances}`);
+        
+        if (details.length > 0) {
+            text += ` (${details.join(', ')})`;
+        }
+        
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('Адрес скопирован в буфер обмена');
+        }).catch(err => {
+            console.error('Ошибка копирования адреса:', err);
+            showNotification('Не удалось скопировать адрес', true);
+        });
+    };
+    
+    window.selectAllAddresses = function() {
+        const visibleAddresses = currentAddresses.filter(addr => 
+            document.querySelector(`.address-item[data-id="${addr.id}"]`)
+        );
+        
+        visibleAddresses.forEach(addr => {
+            selectedAddresses.add(addr.id);
+            updateAddressSelectionOnMap(addr.id, true);
+            updateAddressItemSelection(addr.id, true);
+        });
+        
+        updateSelectedCount();
+        showNotification(`Выбрано всех адресов: ${visibleAddresses.length}`);
+    };
+    
+    window.selectEveryOtherAddress = function() {
+        const visibleItems = Array.from(document.querySelectorAll('.address-item'));
+        
+        selectedAddresses.clear();
+        
+        visibleItems.forEach((item, index) => {
+            const addressId = parseInt(item.getAttribute('data-id'));
+            if (index % 2 === 0) {
+                selectedAddresses.add(addressId);
+                updateAddressSelectionOnMap(addressId, true);
+                item.classList.add('selected');
+                const checkbox = item.querySelector('.address-checkbox');
+                if (checkbox) checkbox.checked = true;
+            } else {
+                updateAddressSelectionOnMap(addressId, false);
+                item.classList.remove('selected');
+                const checkbox = item.querySelector('.address-checkbox');
+                if (checkbox) checkbox.checked = false;
+            }
+        });
+        
+        updateSelectedCount();
+        showNotification(`Выбрано через один: ${Math.ceil(visibleItems.length / 2)} адресов`);
+    };
+    
+    window.hideUnselectedAddresses = function() {
+        if (selectedAddresses.size === 0) {
+            showNotification('Нет выбранных адресов для скрытия', true);
+            return;
+        }
+        
+        isHidingUnselected = true;
+        isHidingUnselectedInCurrentCluster = false;
+        currentClusterHiddenAddresses = [];
+        
+        objectManager.setFilter(obj => {
+            return selectedAddresses.has(obj.id);
+        });
+        
+        const filtered = currentAddresses.filter(addr => selectedAddresses.has(addr.id));
+        updateAddressList(filtered);
+        
+        showNotification(`Скрыто невыбранных адресов: ${currentAddresses.length - selectedAddresses.size}`);
+    };
+    
+    window.restoreAllAddresses = function() {
+        if (isHidingUnselectedInCurrentCluster && currentClusterHiddenAddresses.length > 0) {
             isHidingUnselectedInCurrentCluster = false;
             currentClusterHiddenAddresses = [];
             
-            objectManager.setFilter(obj => {
-                return selectedAddresses.has(obj.id);
-            });
+            applyFilters();
             
-            const filtered = currentAddresses.filter(addr => selectedAddresses.has(addr.id));
-            updateAddressList(filtered);
+            showNotification('Адреса в кластере восстановлены');
+        } else if (isHidingUnselected) {
+            isHidingUnselected = false;
+            isHidingUnselectedInCurrentCluster = false;
+            currentClusterHiddenAddresses = [];
             
-            showNotification(`Скрыто невыбранных адресов: ${currentAddresses.length - selectedAddresses.size}`);
-        };
-        
-        window.restoreAllAddresses = function() {
-            if (isHidingUnselectedInCurrentCluster && currentClusterHiddenAddresses.length > 0) {
-                isHidingUnselectedInCurrentCluster = false;
-                currentClusterHiddenAddresses = [];
-                
-                applyFilters();
-                
-                showNotification('Адреса в кластере восстановлены');
-            } else if (isHidingUnselected) {
-                isHidingUnselected = false;
-                isHidingUnselectedInCurrentCluster = false;
-                currentClusterHiddenAddresses = [];
-                
-                applyFilters();
-                
-                showNotification('Все адреса восстановлены');
-            } else {
-                applyFilters();
-                showNotification('Фильтры применены');
-            }
-        };
-        
-		async function copySelectedAddresses() {
-			if (selectedAddresses.size === 0) {
-				showNotification('Нет выбранных адресов для копирования', true);
-				return;
-			}
-			
-			// === БЛОК 1: Информация из шапки ===
-			const buildingsCount = document.getElementById('buildings-count').textContent;
-			const hiddenBuildings = document.getElementById('hidden-buildings').textContent;
-			const selectedStands = document.getElementById('selected-stands').textContent;
-			const hiddenStands = document.getElementById('hidden-stands').textContent;
-			const monthlyPrice = document.getElementById('monthly-price').textContent;
-			
-			let headerBlock = `PR МАРКЕТ Рязань - Карта стендов у домофонов\n`;
-			headerBlock += `==================================================\n`;
-			headerBlock += `Дата отчёта: ${new Date().toLocaleDateString('ru-RU')}\n`;
-			headerBlock += `Зданий на карте: ${buildingsCount} | Скрыто: ${hiddenBuildings}\n`;
-			headerBlock += `Стендов выбрано: ${selectedStands} | Скрыто: ${hiddenStands}\n`;
-			headerBlock += `Стоимость в месяц: ${monthlyPrice}\n`;
-			headerBlock += `==================================================\n\n`;
-			
-			// === БЛОК 2: Выбранные адреса ===
-			let addressesBlock = `ВЫБРАННЫЕ АДРЕСА (${selectedAddresses.size}):\n`;
-			addressesBlock += `==================================================\n`;
-			
-			// Сортируем адреса для удобства чтения
-			const sortedAddresses = [];
-			selectedAddresses.forEach(id => {
-				const addr = currentAddresses.find(a => a.id === id);
-				if (addr) sortedAddresses.push(addr);
-			});
-			
-			// Сортируем по району, затем по адресу
-			sortedAddresses.sort((a, b) => {
-				if (a.district && b.district) {
-					const districtCompare = a.district.localeCompare(b.district);
-					if (districtCompare !== 0) return districtCompare;
-				}
-				return a.address.localeCompare(b.address);
-			});
-			
-			// Формируем список адресов в нужном формате
-			sortedAddresses.forEach(addr => {
-				const parts = [];
-				parts.push(addr.address);
-				if (addr.district && addr.district !== 'не указан') {
-					parts.push(addr.district);
-				}
-				parts.push(addr.status);
-				parts.push(`стендов: ${addr.entrances || 0}`);
-				
-				addressesBlock += parts.join(', ') + '\n';
-			});
-			
-			addressesBlock += `\n`;
-			
-			// === БЛОК 3: Метки на карте ===
-			let markersBlock = `МЕТКИ НА КАРТЕ (${userMarkers.length}):\n`;
-			markersBlock += `==================================================\n`;
-			
-			if (userMarkers.length > 0) {
-				// Сортируем метки по дате добавления (новые сверху)
-				const sortedMarkers = [...userMarkers].sort((a, b) => 
-					new Date(b.date) - new Date(a.date)
-				);
-				
-				sortedMarkers.forEach((marker, index) => {
-					const date = new Date(marker.date).toLocaleDateString('ru-RU');
-					markersBlock += `${index + 1}. ${marker.text} (${marker.address})\n`;
-					markersBlock += `   Добавлено: ${date}\n`;
-				});
-			} else {
-				markersBlock += `Нет добавленных меток\n`;
-			}
-			
-			markersBlock += `\n==================================================\n`;
-			markersBlock += `Сгенерировано в системе PR МАРКЕТ Рязань`;
-			
-			// === ОБЪЕДИНЯЕМ ВСЕ БЛОКИ ===
-			let text = headerBlock + addressesBlock + markersBlock;
-			
-			try {
-				await navigator.clipboard.writeText(text);
-				showNotification(`Отчёт скопирован в буфер обмена!\nВыбрано адресов: ${selectedAddresses.size}, Меток: ${userMarkers.length}`);
-			} catch (err) {
-				console.error('Ошибка копирования отчёта:', err);
-				showNotification('Не удалось скопировать отчёт', true);
-			}
-		}
-        
-        function checkStatusFilter(status) {
-            const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
-            const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
-            return selectedStatuses.includes(status);
+            applyFilters();
+            
+            showNotification('Все адреса восстановлены');
+        } else {
+            applyFilters();
+            showNotification('Фильтры применены');
         }
-
-        function checkDistrictFilter(district) {
-            const districtCheckboxes = document.querySelectorAll('.district-filter:checked');
-            const selectedDistricts = Array.from(districtCheckboxes)
-                .map(cb => cb.value)
-                .filter(value => value !== 'all');
-            
-            if (document.querySelector('.district-filter[value="all"]').checked) {
-                return true;
-            }
-            
-            return selectedDistricts.length === 0 || selectedDistricts.includes(district);
-        }
-
-        function applyFilters() {
-            const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
-            const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
-            
-            if (selectedStatuses.length === 0) {
-                objectManager.setFilter(() => false);
-                updateAddressList([]);
-                
-                updatePanelHeaderStats();
-                return;
-            }
-            
-            const hasDistrictFilter = document.querySelectorAll('.district-filter:checked').length > 0;
-            const allDistrictsChecked = document.querySelector('.district-filter[value="all"]').checked;
-            
-            if (!hasDistrictFilter || !allDistrictsChecked) {
-                const districtCheckboxes = document.querySelectorAll('.district-filter:checked');
-                const selectedDistricts = Array.from(districtCheckboxes)
-                    .map(cb => cb.value)
-                    .filter(value => value !== 'all');
-                
-                if (selectedDistricts.length === 0) {
-                    objectManager.setFilter(() => false);
-                    updateAddressList([]);
-                    
-                    updatePanelHeaderStats();
-                    return;
-                }
-            }
-            
-            if (isHidingUnselected) {
-                objectManager.setFilter(obj => {
-                    const isSelected = selectedAddresses.has(obj.id);
-                    if (!isSelected) return false;
-                    
-                    const statusMatch = checkStatusFilter(obj.properties.status);
-                    const districtMatch = checkDistrictFilter(obj.properties.district);
-                    
-                    return statusMatch && districtMatch;
-                });
-                
-                const filtered = currentAddresses.filter(addr => {
-                    if (!selectedAddresses.has(addr.id)) return false;
-                    
-                    const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
-                    const districtMatch = checkDistrictFilter(addr.district);
-                    
-                    return statusMatch && districtMatch;
-                });
-                
-                updateAddressList(filtered);
-            } else {
-                objectManager.setFilter(obj => {
-                    const statusMatch = checkStatusFilter(obj.properties.status);
-                    const districtMatch = checkDistrictFilter(obj.properties.district);
-                    return statusMatch && districtMatch;
-                });
-                
-                const filtered = currentAddresses.filter(addr => {
-                    const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
-                    const districtMatch = checkDistrictFilter(addr.district);
-                    return statusMatch && districtMatch;
-                });
-                
-                updateAddressList(filtered);
-            }
-            
-            updatePanelHeaderStats();
+    };
+    
+    async function copySelectedAddresses() {
+        if (selectedAddresses.size === 0) {
+            showNotification('Нет выбранных адресов для копирования', true);
+            return;
         }
         
-        // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ПОЛЬЗОВАТЕЛЬСКИМИ МЕТКАМИ ==========
+        // === БЛОК 1: Информация из шапки ===
+        const buildingsCount = document.getElementById('buildings-count').textContent;
+        const hiddenBuildings = document.getElementById('hidden-buildings').textContent;
+        const selectedStands = document.getElementById('selected-stands').textContent;
+        const hiddenStands = document.getElementById('hidden-stands').textContent;
+        const monthlyPrice = document.getElementById('monthly-price').textContent;
         
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+        let headerBlock = `PR МАРКЕТ Рязань - Карта стендов у домофонов\n`;
+        headerBlock += `==================================================\n`;
+        headerBlock += `Дата отчёта: ${new Date().toLocaleDateString('ru-RU')}\n`;
+        headerBlock += `Зданий на карте: ${buildingsCount} | Скрыто: ${hiddenBuildings}\n`;
+        headerBlock += `Стендов выбрано: ${selectedStands} | Скрыто: ${hiddenStands}\n`;
+        headerBlock += `Стоимость в месяц: ${monthlyPrice}\n`;
+        headerBlock += `==================================================\n\n`;
         
-        function initMarkerAdding() {
-            const addBtn = document.getElementById('add-new-marker');
-            const modal = document.getElementById('add-marker-modal');
-            const cancelBtn = document.getElementById('cancel-marker');
-            const saveBtn = document.getElementById('save-marker');
-            const importFile = document.getElementById('import-file');
-            const pickOnMapBtn = document.getElementById('pick-on-map');
-            const useCurrentLocationBtn = document.getElementById('use-current-location');
-            
-            if (!addBtn) return;
-            
-            addBtn.addEventListener('click', () => {
-                isAddingMarker = true;
-                modal.style.display = 'flex';
-                
-                // Сброс всех полей
-                document.getElementById('marker-address').value = '';
-                document.getElementById('marker-text').value = '';
-                document.querySelector('input[name="marker-color"][value="#2196F3"]').checked = true;
-                
-                showNotification('Выберите способ добавления метки');
-            });
-            
-            cancelBtn.addEventListener('click', () => {
-                isAddingMarker = false;
-                modal.style.display = 'none';
-                if (tempMarker) {
-                    map.geoObjects.remove(tempMarker);
-                    tempMarker = null;
-                }
-                disableMarkerAddingMode();
-            });
-            
-            saveBtn.addEventListener('click', saveUserMarker);
-            
-            // Выбор на карте
-            pickOnMapBtn.addEventListener('click', () => {
-                modal.style.display = 'none';
-                showNotification('Кликните на карте в нужном месте');
-                enableMarkerAddingMode();
-            });
-            
-            // Использовать текущее местоположение
-            useCurrentLocationBtn.addEventListener('click', () => {
-                if (navigator.geolocation) {
-                    showNotification('Определяем ваше местоположение...');
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const lat = position.coords.latitude;
-                            const lng = position.coords.longitude;
-                            
-                            // Определить адрес по координатам
-                            updateAddressFromCoords([lng, lat]);
-                            
-                            // Показать на карте
-                            showOnMap([lng, lat]);
-                            
-                            showNotification('Местоположение определено! Введите название метки');
-                        },
-                        (error) => {
-                            console.error('Ошибка геолокации:', error);
-                            showNotification('Не удалось определить ваше местоположение', true);
-                        },
-                        {
-                            enableHighAccuracy: true,
-                            timeout: 10000,
-                            maximumAge: 0
-                        }
-                    );
-                } else {
-                    showNotification('Геолокация не поддерживается вашим браузером', true);
-                }
-            });
-            
-            if (importFile) {
-                importFile.addEventListener('change', (e) => {
-                    if (e.target.files[0]) {
-                        importMarkers(e.target.files[0]);
-                        e.target.value = '';
-                    }
-                });
+        // === БЛОК 2: Выбранные адреса ===
+        let addressesBlock = `ВЫБРАННЫЕ АДРЕСА (${selectedAddresses.size}):\n`;
+        addressesBlock += `==================================================\n`;
+        
+        // Сортируем адреса для удобства чтения
+        const sortedAddresses = [];
+        selectedAddresses.forEach(id => {
+            const addr = currentAddresses.find(a => a.id === id);
+            if (addr) sortedAddresses.push(addr);
+        });
+        
+        // Сортируем по району, затем по адресу
+        sortedAddresses.sort((a, b) => {
+            if (a.district && b.district) {
+                const districtCompare = a.district.localeCompare(b.district);
+                if (districtCompare !== 0) return districtCompare;
             }
-            
-            loadUserMarkers();
-        }
+            return a.address.localeCompare(b.address);
+        });
         
-        function updateAddressFromCoords(coords) {
-            ymaps.geocode(coords).then((res) => {
-                const firstGeoObject = res.geoObjects.get(0);
-                if (firstGeoObject) {
-                    document.getElementById('marker-address').value = firstGeoObject.getAddressLine();
-                } else {
-                    document.getElementById('marker-address').value = 
-                        `Координаты: ${coords[1].toFixed(6)}, ${coords[0].toFixed(6)}`;
-                }
-            }).catch(() => {
-                document.getElementById('marker-address').value = 
-                    `Координаты: ${coords[1].toFixed(6)}, ${coords[0].toFixed(6)}`;
-            });
-        }
+        // Формируем список адресов в нужном формате
+        sortedAddresses.forEach(addr => {
+            const parts = [];
+            parts.push(addr.address);
+            if (addr.district && addr.district !== 'не указан') {
+                parts.push(addr.district);
+            }
+            parts.push(addr.status);
+            parts.push(`стендов: ${addr.entrances || 0}`);
+            
+            addressesBlock += parts.join(', ') + '\n';
+        });
         
-        function showOnMap(coords) {
-            if (tempMarker) {
-                map.geoObjects.remove(tempMarker);
-            }
-            
-            tempMarker = new ymaps.Placemark(coords, {
-                hintContent: 'Предпросмотр метки',
-                balloonContent: 'Это будет ваша метка'
-            }, {
-                preset: 'islands#circleIcon',
-                iconColor: '#FF5722',
-                draggable: true
-            });
-            
-            map.geoObjects.add(tempMarker);
-            
-            // Центрировать карту на метке
-            map.panTo(coords, {
-                flying: true,
-                duration: 300
-            });
-        }
+        addressesBlock += `\n`;
         
-        function enableMarkerAddingMode() {
-            if (markerClickEvent) {
-                map.events.remove('click', markerClickEvent);
-            }
-            
-            markerClickEvent = (e) => {
-                if (!isAddingMarker) return;
-                
-                const coords = e.get('coords');
-                
-                // Определить адрес
-                updateAddressFromCoords(coords);
-                
-                // Показать метку
-                showOnMap(coords);
-                
-                // Показать модальное окно с заполненными данными
-                document.getElementById('add-marker-modal').style.display = 'flex';
-                
-                // Фокус на названии метки
-                setTimeout(() => {
-                    document.getElementById('marker-text').focus();
-                }, 100);
-            };
-            
-            map.events.add('click', markerClickEvent);
-        }
+        // === БЛОК 3: Метки на карте ===
+        let markersBlock = `МЕТКИ НА КАРТЕ (${userMarkers.length}):\n`;
+        markersBlock += `==================================================\n`;
         
-        function disableMarkerAddingMode() {
-            if (markerClickEvent) {
-                map.events.remove('click', markerClickEvent);
-                markerClickEvent = null;
-            }
-        }
-        
-        function saveUserMarker() {
-            const addressInput = document.getElementById('marker-address');
-            const textInput = document.getElementById('marker-text');
-            
-            const address = addressInput.value.trim();
-            const text = textInput.value.trim();
-            
-            const colorRadio = document.querySelector('input[name="marker-color"]:checked');
-            const color = colorRadio ? colorRadio.value : '#2196F3';
-            
-            if (!address) {
-                showNotification('Адрес не определен', true);
-                return;
-            }
-            
-            if (!text) {
-                showNotification('Введите название для метки', true);
-                textInput.focus();
-                return;
-            }
-            
-            if (!tempMarker) {
-                showNotification('Сначала выберите место на карте', true);
-                return;
-            }
-            
-            const coords = tempMarker.geometry.getCoordinates();
-            const markerId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            
-            const markerData = {
-                id: markerId,
-                address: address,
-                text: text,
-                coords: coords,
-                color: color,
-                date: new Date().toISOString()
-            };
-            
-            userMarkers.push(markerData);
-            
-            localStorage.setItem('userMarkers', JSON.stringify(userMarkers));
-            
-            createUserMarker(markerData);
-            
-            document.getElementById('add-marker-modal').style.display = 'none';
-            isAddingMarker = false;
-            
-            if (tempMarker) {
-                map.geoObjects.remove(tempMarker);
-                tempMarker = null;
-            }
-            
-            updateUserMarkersList();
-            
-            showNotification('Метка "' + text + '" сохранена!');
-            
-            disableMarkerAddingMode();
-        }
-        
-        function createUserMarker(markerData) {
-            const placemark = new ymaps.Placemark(markerData.coords, {
-                balloonContentHeader: escapeHtml(markerData.text),
-                balloonContentBody: `
-                    <div style="margin: 8px 0;">
-                        <strong>Адрес:</strong> ${escapeHtml(markerData.address)}<br>
-                        <strong>Добавлено:</strong> ${new Date(markerData.date).toLocaleDateString('ru-RU')}
-                    </div>
-                    <div style="margin-top: 12px;">
-                        <button onclick="zoomToMarker('${markerData.id}')" 
-                                style="padding: 6px 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 8px; font-size: 12px;">
-                            Перейти
-                        </button>
-                        <button onclick="deleteUserMarker('${markerData.id}')" 
-                                style="padding: 6px 12px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                            Удалить
-                        </button>
-                    </div>
-                `,
-                hintContent: markerData.text
-            }, {
-                preset: 'islands#circleIcon',
-                iconColor: markerData.color,
-                draggable: true
-            });
-            
-            placemark.userMarkerId = markerData.id;
-            
-            placemark.events.add('dragend', () => {
-                const newCoords = placemark.geometry.getCoordinates();
-                
-                const markerIndex = userMarkers.findIndex(m => m.id === markerData.id);
-                if (markerIndex !== -1) {
-                    userMarkers[markerIndex].coords = newCoords;
-                    localStorage.setItem('userMarkers', JSON.stringify(userMarkers));
-                    
-                    ymaps.geocode(newCoords).then((res) => {
-                        const firstGeoObject = res.geoObjects.get(0);
-                        if (firstGeoObject) {
-                            userMarkers[markerIndex].address = firstGeoObject.getAddressLine();
-                            localStorage.setItem('userMarkers', JSON.stringify(userMarkers));
-                            updateUserMarkersList();
-                        }
-                    });
-                }
-            });
-            
-            map.geoObjects.add(placemark);
-            return placemark;
-        }
-        
-        function loadUserMarkers() {
-            map.geoObjects.each((geoObject) => {
-                if (geoObject.userMarkerId) {
-                    map.geoObjects.remove(geoObject);
-                }
-            });
-            
-            userMarkers.forEach(markerData => {
-                createUserMarker(markerData);
-            });
-            
-            updateUserMarkersList();
-        }
-        
-        function updateUserMarkersList() {
-            const list = document.getElementById('user-markers-list');
-            if (!list) return;
-            
-            if (userMarkers.length === 0) {
-                list.innerHTML = `
-                    <div style="padding: 40px 20px; color: #888; text-align: center; font-size: 14px;">
-                        <div style="margin-bottom: 10px; font-size: 48px;">📍</div>
-                        <div>Нет добавленных меток</div>
-                        <div style="font-size: 12px; margin-top: 8px;">Нажмите "Добавить новую метку"</div>
-                    </div>
-                `;
-                return;
-            }
-            
+        if (userMarkers.length > 0) {
+            // Сортируем метки по дате добавления (новые сверху)
             const sortedMarkers = [...userMarkers].sort((a, b) => 
                 new Date(b.date) - new Date(a.date)
             );
             
-            list.innerHTML = sortedMarkers.map(marker => `
-                <div class="user-marker-item" data-marker-id="${marker.id}">
-                    <div class="marker-address">
-                        <span class="marker-color-badge" style="background-color: ${marker.color};"></span>
-                        ${escapeHtml(marker.text)}
-                    </div>
-                    <div class="marker-details">
-                        <span style="font-size: 11px;">${escapeHtml(marker.address.length > 40 ? marker.address.substring(0, 40) + '...' : marker.address)}</span>
-                        <div class="marker-actions">
-                            <button class="marker-action-btn zoom" onclick="event.stopPropagation(); zoomToMarker('${marker.id}')" title="Показать на карте">
-                                📍
-                            </button>
-                            <button class="marker-action-btn delete" onclick="event.stopPropagation(); deleteUserMarker('${marker.id}')" title="Удалить">
-                                🗑️
-                            </button>
-                        </div>
+            sortedMarkers.forEach((marker, index) => {
+                const date = new Date(marker.date).toLocaleDateString('ru-RU');
+                markersBlock += `${index + 1}. ${marker.text} (${marker.address})\n`;
+                markersBlock += `   Добавлено: ${date}\n`;
+            });
+        } else {
+            markersBlock += `Нет добавленных меток\n`;
+        }
+        
+        markersBlock += `\n==================================================\n`;
+        markersBlock += `Сгенерировано в системе PR МАРКЕТ Рязань`;
+        
+        // === ОБЪЕДИНЯЕМ ВСЕ БЛОКИ ===
+        let text = headerBlock + addressesBlock + markersBlock;
+        
+        try {
+            await navigator.clipboard.writeText(text);
+            showNotification(`Отчёт скопирован в буфер обмена!\nВыбрано адресов: ${selectedAddresses.size}, Меток: ${userMarkers.length}`);
+        } catch (err) {
+            console.error('Ошибка копирования отчёта:', err);
+            showNotification('Не удалось скопировать отчёт', true);
+        }
+    }
+    
+    function checkStatusFilter(status) {
+        const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
+        const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
+        return selectedStatuses.includes(status);
+    }
+
+    function checkDistrictFilter(district) {
+        const districtCheckboxes = document.querySelectorAll('.district-filter:checked');
+        const selectedDistricts = Array.from(districtCheckboxes)
+            .map(cb => cb.value)
+            .filter(value => value !== 'all');
+        
+        if (document.querySelector('.district-filter[value="all"]').checked) {
+            return true;
+        }
+        
+        return selectedDistricts.length === 0 || selectedDistricts.includes(district);
+    }
+
+	function applyFilters() {
+		if (isLoading) return;
+		
+		// Показываем индикатор за короткое время
+		if (!filterTimer) {
+			filterTimer = setTimeout(() => {
+				showLoading('Применение фильтров...');
+			}, 100);
+		}
+		
+		const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
+		const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
+		
+		if (selectedStatuses.length === 0) {
+			objectManager.setFilter(() => false);
+			updateAddressList([]);
+			hideLoading();
+			clearTimeout(filterTimer);
+			filterTimer = null;
+			updatePanelHeaderStats();
+			return;
+		}
+		
+		const hasDistrictFilter = document.querySelectorAll('.district-filter:checked').length > 0;
+		const allDistrictsChecked = document.querySelector('.district-filter[value="all"]').checked;
+		
+		if (!hasDistrictFilter || !allDistrictsChecked) {
+			const districtCheckboxes = document.querySelectorAll('.district-filter:checked');
+			const selectedDistricts = Array.from(districtCheckboxes)
+				.map(cb => cb.value)
+				.filter(value => value !== 'all');
+			
+			if (selectedDistricts.length === 0) {
+				objectManager.setFilter(() => false);
+				updateAddressList([]);
+				
+				hideLoading();
+				clearTimeout(filterTimer);
+				filterTimer = null;
+				updatePanelHeaderStats();
+				return;
+			}
+		}
+		
+		if (isHidingUnselected) {
+			objectManager.setFilter(obj => {
+				const isSelected = selectedAddresses.has(obj.id);
+				if (!isSelected) return false;
+				
+				const statusMatch = checkStatusFilter(obj.properties.status);
+				const districtMatch = checkDistrictFilter(obj.properties.district);
+				
+				return statusMatch && districtMatch;
+			});
+			
+			const filtered = currentAddresses.filter(addr => {
+				if (!selectedAddresses.has(addr.id)) return false;
+				
+				const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
+				const districtMatch = checkDistrictFilter(addr.district);
+				
+				return statusMatch && districtMatch;
+			});
+			
+			updateAddressList(filtered);
+		} else {
+			objectManager.setFilter(obj => {
+				const statusMatch = checkStatusFilter(obj.properties.status);
+				const districtMatch = checkDistrictFilter(obj.properties.district);
+				return statusMatch && districtMatch;
+			});
+			
+			const filtered = currentAddresses.filter(addr => {
+				const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
+				const districtMatch = checkDistrictFilter(addr.district);
+				return statusMatch && districtMatch;
+			});
+			
+			updateAddressList(filtered);
+		}
+		
+		// В конце скрываем индикатор
+		setTimeout(() => {
+			hideLoading();
+			clearTimeout(filterTimer);
+			filterTimer = null;
+		}, 300);
+		
+		updatePanelHeaderStats();
+	}
+    
+    // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ПОЛЬЗОВАТЕЛЬСКИМИ МЕТКАМИ ==========
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function initMarkerAdding() {
+        const addBtn = document.getElementById('add-new-marker');
+        const modal = document.getElementById('add-marker-modal');
+        const cancelBtn = document.getElementById('cancel-marker');
+        const saveBtn = document.getElementById('save-marker');
+        const importFile = document.getElementById('import-file');
+        const pickOnMapBtn = document.getElementById('pick-on-map');
+        const useCurrentLocationBtn = document.getElementById('use-current-location');
+        
+        if (!addBtn) return;
+        
+        addBtn.addEventListener('click', () => {
+            isAddingMarker = true;
+            modal.style.display = 'flex';
+            
+            // Сброс всех полей
+            document.getElementById('marker-address').value = '';
+            document.getElementById('marker-text').value = '';
+            document.querySelector('input[name="marker-color"][value="#2196F3"]').checked = true;
+            
+            showNotification('Выберите способ добавления метки');
+        });
+        
+        cancelBtn.addEventListener('click', () => {
+            isAddingMarker = false;
+            modal.style.display = 'none';
+            if (tempMarker) {
+                map.geoObjects.remove(tempMarker);
+                tempMarker = null;
+            }
+            disableMarkerAddingMode();
+        });
+        
+        saveBtn.addEventListener('click', saveUserMarker);
+        
+        // Выбор на карте
+        pickOnMapBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            showNotification('Кликните на карте в нужном месте');
+            enableMarkerAddingMode();
+        });
+        
+        // Использовать текущее местоположение
+        useCurrentLocationBtn.addEventListener('click', () => {
+            if (navigator.geolocation) {
+                showNotification('Определяем ваше местоположение...');
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Определить адрес по координатам
+                        updateAddressFromCoords([lng, lat]);
+                        
+                        // Показать на карте
+                        showOnMap([lng, lat]);
+                        
+                        showNotification('Местоположение определено! Введите название метки');
+                    },
+                    (error) => {
+                        console.error('Ошибка геолокации:', error);
+                        showNotification('Не удалось определить ваше местоположение', true);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                showNotification('Геолокация не поддерживается вашим браузером', true);
+            }
+        });
+        
+        if (importFile) {
+            importFile.addEventListener('change', (e) => {
+                if (e.target.files[0]) {
+                    importMarkers(e.target.files[0]);
+                    e.target.value = '';
+                }
+            });
+        }
+        
+        loadUserMarkers();
+    }
+    
+    function updateAddressFromCoords(coords) {
+        ymaps.geocode(coords).then((res) => {
+            const firstGeoObject = res.geoObjects.get(0);
+            if (firstGeoObject) {
+                document.getElementById('marker-address').value = firstGeoObject.getAddressLine();
+            } else {
+                document.getElementById('marker-address').value = 
+                    `Координаты: ${coords[1].toFixed(6)}, ${coords[0].toFixed(6)}`;
+            }
+        }).catch(() => {
+            document.getElementById('marker-address').value = 
+                `Координаты: ${coords[1].toFixed(6)}, ${coords[0].toFixed(6)}`;
+        });
+    }
+    
+    function showOnMap(coords) {
+        if (tempMarker) {
+            map.geoObjects.remove(tempMarker);
+        }
+        
+        tempMarker = new ymaps.Placemark(coords, {
+            hintContent: 'Предпросмотр метки',
+            balloonContent: 'Это будет ваша метка'
+        }, {
+            preset: 'islands#circleIcon',
+            iconColor: '#FF5722',
+            draggable: true
+        });
+        
+        map.geoObjects.add(tempMarker);
+        
+        // Центрировать карту на метке
+        map.panTo(coords, {
+            flying: true,
+            duration: 300
+        });
+    }
+    
+    function enableMarkerAddingMode() {
+        if (markerClickEvent) {
+            map.events.remove('click', markerClickEvent);
+        }
+        
+        markerClickEvent = (e) => {
+            if (!isAddingMarker) return;
+            
+            const coords = e.get('coords');
+            
+            // Определить адрес
+            updateAddressFromCoords(coords);
+            
+            // Показать метку
+            showOnMap(coords);
+            
+            // Показать модальное окно с заполненными данными
+            document.getElementById('add-marker-modal').style.display = 'flex';
+            
+            // Фокус на названии метки
+            setTimeout(() => {
+                document.getElementById('marker-text').focus();
+            }, 100);
+        };
+        
+        map.events.add('click', markerClickEvent);
+    }
+    
+    function disableMarkerAddingMode() {
+        if (markerClickEvent) {
+            map.events.remove('click', markerClickEvent);
+            markerClickEvent = null;
+        }
+    }
+    
+    function saveUserMarker() {
+        const addressInput = document.getElementById('marker-address');
+        const textInput = document.getElementById('marker-text');
+        
+        const address = addressInput.value.trim();
+        const text = textInput.value.trim();
+        
+        const colorRadio = document.querySelector('input[name="marker-color"]:checked');
+        const color = colorRadio ? colorRadio.value : '#2196F3';
+        
+        if (!address) {
+            showNotification('Адрес не определен', true);
+            return;
+        }
+        
+        if (!text) {
+            showNotification('Введите название для метки', true);
+            textInput.focus();
+            return;
+        }
+        
+        if (!tempMarker) {
+            showNotification('Сначала выберите место на карте', true);
+            return;
+        }
+        
+        const coords = tempMarker.geometry.getCoordinates();
+        const markerId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        const markerData = {
+            id: markerId,
+            address: address,
+            text: text,
+            coords: coords,
+            color: color,
+            date: new Date().toISOString()
+        };
+        
+        userMarkers.push(markerData);
+        
+        localStorage.setItem('userMarkers', JSON.stringify(userMarkers));
+        
+        createUserMarker(markerData);
+        
+        document.getElementById('add-marker-modal').style.display = 'none';
+        isAddingMarker = false;
+        
+        if (tempMarker) {
+            map.geoObjects.remove(tempMarker);
+            tempMarker = null;
+        }
+        
+        updateUserMarkersList();
+        
+        showNotification('Метка "' + text + '" сохранена!');
+        
+        disableMarkerAddingMode();
+    }
+    
+    function createUserMarker(markerData) {
+        const placemark = new ymaps.Placemark(markerData.coords, {
+            balloonContentHeader: escapeHtml(markerData.text),
+            balloonContentBody: `
+                <div style="margin: 8px 0;">
+                    <strong>Адрес:</strong> ${escapeHtml(markerData.address)}<br>
+                    <strong>Добавлено:</strong> ${new Date(markerData.date).toLocaleDateString('ru-RU')}
+                </div>
+                <div style="margin-top: 12px;">
+                    <button onclick="zoomToMarker('${markerData.id}')" 
+                            style="padding: 6px 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 8px; font-size: 12px;">
+                        Перейти
+                    </button>
+                    <button onclick="deleteUserMarker('${markerData.id}')" 
+                            style="padding: 6px 12px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                        Удалить
+                    </button>
+                </div>
+            `,
+            hintContent: markerData.text
+        }, {
+            preset: 'islands#circleIcon',
+            iconColor: markerData.color,
+            draggable: true
+        });
+        
+        placemark.userMarkerId = markerData.id;
+        
+        placemark.events.add('dragend', () => {
+            const newCoords = placemark.geometry.getCoordinates();
+            
+            const markerIndex = userMarkers.findIndex(m => m.id === markerData.id);
+            if (markerIndex !== -1) {
+                userMarkers[markerIndex].coords = newCoords;
+                localStorage.setItem('userMarkers', JSON.stringify(userMarkers));
+                
+                ymaps.geocode(newCoords).then((res) => {
+                    const firstGeoObject = res.geoObjects.get(0);
+                    if (firstGeoObject) {
+                        userMarkers[markerIndex].address = firstGeoObject.getAddressLine();
+                        localStorage.setItem('userMarkers', JSON.stringify(userMarkers));
+                        updateUserMarkersList();
+                    }
+                });
+            }
+        });
+        
+        map.geoObjects.add(placemark);
+        return placemark;
+    }
+    
+    function loadUserMarkers() {
+        map.geoObjects.each((geoObject) => {
+            if (geoObject.userMarkerId) {
+                map.geoObjects.remove(geoObject);
+            }
+        });
+        
+        userMarkers.forEach(markerData => {
+            createUserMarker(markerData);
+        });
+        
+        updateUserMarkersList();
+    }
+    
+    function updateUserMarkersList() {
+        const list = document.getElementById('user-markers-list');
+        if (!list) return;
+        
+        if (userMarkers.length === 0) {
+            list.innerHTML = `
+                <div style="padding: 40px 20px; color: #888; text-align: center; font-size: 14px;">
+                    <div style="margin-bottom: 10px; font-size: 48px;">📍</div>
+                    <div>Нет добавленных меток</div>
+                    <div style="font-size: 12px; margin-top: 8px;">Нажмите "Добавить новую метку"</div>
+                </div>
+            `;
+            return;
+        }
+        
+        const sortedMarkers = [...userMarkers].sort((a, b) => 
+            new Date(b.date) - new Date(a.date)
+        );
+        
+        list.innerHTML = sortedMarkers.map(marker => `
+            <div class="user-marker-item" data-marker-id="${marker.id}">
+                <div class="marker-address">
+                    <span class="marker-color-badge" style="background-color: ${marker.color};"></span>
+                    ${escapeHtml(marker.text)}
+                </div>
+                <div class="marker-details">
+                    <span style="font-size: 11px;">${escapeHtml(marker.address.length > 40 ? marker.address.substring(0, 40) + '...' : marker.address)}</span>
+                    <div class="marker-actions">
+                        <button class="marker-action-btn zoom" onclick="event.stopPropagation(); zoomToMarker('${marker.id}')" title="Показать на карте">
+                            📍
+                        </button>
+                        <button class="marker-action-btn delete" onclick="event.stopPropagation(); deleteUserMarker('${marker.id}')" title="Удалить">
+                            🗑️
+                        </button>
                     </div>
                 </div>
-            `).join('');
-            
-            document.querySelectorAll('.user-marker-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('marker-action-btn')) {
-                        const markerId = item.getAttribute('data-marker-id');
-                        zoomToMarker(markerId);
-                    }
+            </div>
+        `).join('');
+        
+        document.querySelectorAll('.user-marker-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('marker-action-btn')) {
+                    const markerId = item.getAttribute('data-marker-id');
+                    zoomToMarker(markerId);
+                }
+            });
+        });
+    }
+    
+    window.zoomToMarker = function(markerId) {
+        const marker = userMarkers.find(m => m.id === markerId);
+        if (!marker) return;
+        
+        const markerTab = document.querySelector('.tab[data-tab="my-markers"]');
+        const currentTab = document.querySelector('.tab.active');
+        if (currentTab.getAttribute('data-tab') !== 'my-markers' && markerTab) {
+            markerTab.click();
+        }
+        
+        map.panTo(marker.coords, {
+            flying: true,
+            zoom: 17
+        });
+        
+        let foundMarker = null;
+        map.geoObjects.each((geoObject) => {
+            if (geoObject.userMarkerId === markerId) {
+                foundMarker = geoObject;
+            }
+        });
+        
+        if (foundMarker) {
+            setTimeout(() => {
+                foundMarker.balloon.open();
+                
+                document.querySelectorAll('.user-marker-item').forEach(item => {
+                    item.classList.remove('selected');
                 });
-            });
+                document.querySelector(`.user-marker-item[data-marker-id="${markerId}"]`)?.classList.add('selected');
+            }, 500);
         }
         
-        window.zoomToMarker = function(markerId) {
-            const marker = userMarkers.find(m => m.id === markerId);
-            if (!marker) return;
-            
-            const markerTab = document.querySelector('.tab[data-tab="my-markers"]');
-            const currentTab = document.querySelector('.tab.active');
-            if (currentTab.getAttribute('data-tab') !== 'my-markers' && markerTab) {
-                markerTab.click();
-            }
-            
-            map.panTo(marker.coords, {
-                flying: true,
-                zoom: 17
-            });
-            
-            let foundMarker = null;
-            map.geoObjects.each((geoObject) => {
-                if (geoObject.userMarkerId === markerId) {
-                    foundMarker = geoObject;
-                }
-            });
-            
-            if (foundMarker) {
-                setTimeout(() => {
-                    foundMarker.balloon.open();
-                    
-                    document.querySelectorAll('.user-marker-item').forEach(item => {
-                        item.classList.remove('selected');
-                    });
-                    document.querySelector(`.user-marker-item[data-marker-id="${markerId}"]`)?.classList.add('selected');
-                }, 500);
-            }
-            
-            showNotification('Переход к метке: ' + marker.text);
-        };
+        showNotification('Переход к метке: ' + marker.text);
+    };
+    
+    window.deleteUserMarker = function(markerId) {
+        if (!confirm('Удалить эту метку?')) return;
         
-        window.deleteUserMarker = function(markerId) {
-            if (!confirm('Удалить эту метку?')) return;
-            
-            const markerIndex = userMarkers.findIndex(m => m.id === markerId);
-            if (markerIndex === -1) return;
-            
-            const markerName = userMarkers[markerIndex].text;
-            userMarkers.splice(markerIndex, 1);
-            
-            localStorage.setItem('userMarkers', JSON.stringify(userMarkers));
-            
-            map.geoObjects.each((geoObject) => {
-                if (geoObject.userMarkerId === markerId) {
-                    map.geoObjects.remove(geoObject);
-                }
-            });
-            
-            updateUserMarkersList();
-            
-            showNotification('Метка "' + markerName + '" удалена');
-        };
+        const markerIndex = userMarkers.findIndex(m => m.id === markerId);
+        if (markerIndex === -1) return;
         
-        window.exportMarkers = function() {
-            if (userMarkers.length === 0) {
-                showNotification('Нет меток для экспорта', true);
-                return;
+        const markerName = userMarkers[markerIndex].text;
+        userMarkers.splice(markerIndex, 1);
+        
+        localStorage.setItem('userMarkers', JSON.stringify(userMarkers));
+        
+        map.geoObjects.each((geoObject) => {
+            if (geoObject.userMarkerId === markerId) {
+                map.geoObjects.remove(geoObject);
             }
-            
-            const dataStr = JSON.stringify(userMarkers, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = `мои_метки_${new Date().toISOString().split('T')[0]}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.style.display = 'none';
-            document.body.appendChild(linkElement);
-            linkElement.click();
-            document.body.removeChild(linkElement);
-            
-            showNotification('Метки экспортированы в файл');
-        };
+        });
         
-        window.importMarkers = function(file) {
-            if (!file) return;
-            
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    const importedMarkers = JSON.parse(e.target.result);
-                    
-                    if (!Array.isArray(importedMarkers)) {
-                        throw new Error('Неверный формат файла');
-                    }
-                    
-                    const validMarkers = importedMarkers.filter(marker => 
-                        marker.address && marker.text && marker.coords && marker.color
-                    );
-                    
-                    if (validMarkers.length === 0) {
-                        throw new Error('Файл не содержит валидных меток');
-                    }
-                    
-                    validMarkers.forEach(marker => {
-                        marker.id = 'imported_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                        if (!marker.date) marker.date = new Date().toISOString();
-                        userMarkers.push(marker);
-                    });
-                    
-                    localStorage.setItem('userMarkers', JSON.stringify(userMarkers));
-                    
-                    loadUserMarkers();
-                    
-                    showNotification(`Импортировано ${validMarkers.length} меток`);
-                } catch (error) {
-                    console.error('Ошибка импорта:', error);
-                    showNotification('Ошибка импорта: неверный формат файла', true);
-                }
-            };
-            
-            reader.onerror = function() {
-                showNotification('Ошибка чтения файла', true);
-            };
-            
-            reader.readAsText(file);
-        };
+        updateUserMarkersList();
         
-        function updateClusterBalloonButton(clusterId) {
-            const cluster = objectManager.clusters.getById(clusterId);
-            if (!cluster) return;
-            
-            const geoObjects = cluster.properties.geoObjects || [];
-            const addressIds = geoObjects.map(obj => obj.id);
-            const allSelected = addressIds.every(id => selectedAddresses.has(id));
-            
-            const balloonElement = document.querySelector('.ymaps-2-1-79-balloon__content');
-            if (balloonElement) {
-                const button = balloonElement.querySelector('.balloon-btn.select-all, .balloon-btn.deselect-all');
-                if (button) {
-                    if (allSelected) {
-                        button.textContent = "Снять выделение";
-                        button.className = "balloon-btn deselect-all";
-                        button.onclick = () => deselectAllInCluster(addressIds);
-                    } else {
-                        button.textContent = "Выбрать все адреса кластера";
-                        button.className = "balloon-btn select-all";
-                        button.onclick = () => selectAllInCluster(addressIds);
-                    }
-                }
-            }
+        showNotification('Метка "' + markerName + '" удалена');
+    };
+    
+    window.exportMarkers = function() {
+        if (userMarkers.length === 0) {
+            showNotification('Нет меток для экспорта', true);
+            return;
         }
         
-        ymaps.ready(() => {
-            const ClusterBalloonContentLayout = ymaps.templateLayoutFactory.createClass(
-                '<div class="cluster-balloon-container">' +
-                '<h2>Адресов в кластере: $[properties.geoObjects.length]</h2>' +
-                '<div class="cluster-balloon-content" data-cluster-id="$[id]"></div>' +
-                '<div class="balloon-controls">' +
-                '<button class="balloon-btn select-all">Выбрать все адреса кластера</button>' +
-                '<button class="balloon-btn select-every-other">Выбрать через один адрес</button>' +
-                '<button class="balloon-btn hide-unselected">Скрыть невыбранные в кластере</button>' +
-                '</div>' +
-                '</div>',
-                {
-                    build: function() {
-                        ClusterBalloonContentLayout.superclass.build.call(this);
-                        
-                        const element = this.getElement();
-                        element.style.maxWidth = '400px';
-                        element.style.maxHeight = '350px';
-                        element.style.padding = '16px';
-                        element.style.boxSizing = 'border-box';
-                        
-                        const data = this.getData();
-                        const clusterObject = data.object;
-                        
-                        if (!clusterObject) {
-                            console.error('Ошибка: объект кластера не найден');
-                            return;
-                        }
-                        
-                        const geoObjects = clusterObject.properties.geoObjects || [];
-                        currentClusterObjects = geoObjects;
-                        currentActiveClusterId = clusterObject.id;
-                        currentActiveObjectId = null;
-                        currentClusterData = clusterObject;
-                        
-                        const sortedObjects = [...geoObjects].sort((a, b) => {
-                            const addressA = a.properties.address || '';
-                            const addressB = b.properties.address || '';
-                            return addressA.localeCompare(addressB);
-                        });
-                        
-                        const addressIds = sortedObjects.map(obj => obj.id);
-                        
-                        const contentContainer = element.querySelector('.cluster-balloon-content');
-                        contentContainer.innerHTML = '';
-                        contentContainer.style.maxHeight = '200px';
-                        contentContainer.style.overflowY = 'auto';
-                        contentContainer.style.marginBottom = '12px';
-                        
-                        contentContainer.setAttribute('data-cluster-id', clusterObject.id);
-                        
-                        sortedObjects.forEach((obj, index) => {
-                            if (obj && obj.properties) {
-                                const isOccupied = obj.properties.status === 'occupied';
-                                const isSelected = selectedAddresses.has(obj.id);
-                                
-                                const item = document.createElement('div');
-                                item.className = 'cluster-checkbox-item';
-                                item.style.cssText = 'display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;';
-                                
-                                item.innerHTML = `
-                                    <input type="checkbox" class="cluster-checkbox" ${isSelected ? 'checked' : ''} style="transform: scale(1.1); margin-top: 3px;">
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: 500; margin-bottom: 4px; font-size: 14px;">${obj.properties.address || "Адрес не указан"}</div>
-                                        <div style="font-size: 12px; color: #666; line-height: 1.4;">
-                                            Статус: <span style="font-weight: 600; color: ${isOccupied ? '#F44336' : '#4CAF50'}">${obj.properties.fullStatus || "не указан"}</span><br>
-                                            Район: ${obj.properties.district || "не указан"}<br>
-                                            Подъездов: ${obj.properties.entrances || "не указано"}
-                                        </div>
-                                    </div>
-                                `;
-                                
-                                const checkbox = item.querySelector('.cluster-checkbox');
-                                checkbox.addEventListener('change', (e) => {
-                                    e.stopPropagation();
-                                    toggleAddressSelection(obj.id, checkbox.checked);
-                                });
-                                
-                                contentContainer.appendChild(item);
-                            }
-                        });
-                        
-                        const selectAllBtn = element.querySelector('.balloon-btn.select-all');
-                        const selectEveryOtherBtn = element.querySelector('.balloon-btn.select-every-other');
-                        const hideUnselectedBtn = element.querySelector('.balloon-btn.hide-unselected');
-                        
-                        const allSelected = addressIds.every(id => selectedAddresses.has(id));
-                        
-                        if (selectAllBtn) {
-                            if (allSelected) {
-                                selectAllBtn.textContent = "Снять выделение";
-                                selectAllBtn.className = "balloon-btn deselect-all";
-                            }
+        const dataStr = JSON.stringify(userMarkers, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        
+        const exportFileDefaultName = `мои_метки_${new Date().toISOString().split('T')[0]}.json`;
+        
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.style.display = 'none';
+        document.body.appendChild(linkElement);
+        linkElement.click();
+        document.body.removeChild(linkElement);
+        
+        showNotification('Метки экспортированы в файл');
+    };
+    
+    window.importMarkers = function(file) {
+        if (!file) return;
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            try {
+                const importedMarkers = JSON.parse(e.target.result);
+                
+                if (!Array.isArray(importedMarkers)) {
+                    throw new Error('Неверный формат файла');
+                }
+                
+                const validMarkers = importedMarkers.filter(marker => 
+                    marker.address && marker.text && marker.coords && marker.color
+                );
+                
+                if (validMarkers.length === 0) {
+                    throw new Error('Файл не содержит валидных меток');
+                }
+                
+                validMarkers.forEach(marker => {
+                    marker.id = 'imported_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    if (!marker.date) marker.date = new Date().toISOString();
+                    userMarkers.push(marker);
+                });
+                
+                localStorage.setItem('userMarkers', JSON.stringify(userMarkers));
+                
+                loadUserMarkers();
+                
+                showNotification(`Импортировано ${validMarkers.length} меток`);
+            } catch (error) {
+                console.error('Ошибка импорта:', error);
+                showNotification('Ошибка импорта: неверный формат файла', true);
+            }
+        };
+        
+        reader.onerror = function() {
+            showNotification('Ошибка чтения файла', true);
+        };
+        
+        reader.readAsText(file);
+    };
+    
+    ymaps.ready(() => {
+        const ClusterBalloonContentLayout = ymaps.templateLayoutFactory.createClass(
+            '<div class="cluster-balloon-container" data-cluster-id="$[id]">' +
+            '<h2>Адресов в кластере: $[properties.geoObjects.length]</h2>' +
+            '<div class="cluster-balloon-content"></div>' +
+            '<div class="balloon-controls">' +
+            '<button class="balloon-btn select-all">Выбрать все адреса кластера</button>' +
+            '<button class="balloon-btn select-every-other">Выбрать через один адрес</button>' +
+            '<button class="balloon-btn hide-unselected">Скрыть невыбранные в кластере</button>' +
+            '</div>' +
+            '</div>',
+            {
+                build: function() {
+                    ClusterBalloonContentLayout.superclass.build.call(this);
+                    
+                    const element = this.getElement();
+                    element.style.maxWidth = '400px';
+                    element.style.maxHeight = '350px';
+                    element.style.padding = '16px';
+                    element.style.boxSizing = 'border-box';
+                    
+                    const data = this.getData();
+                    const clusterObject = data.object;
+                    
+                    if (!clusterObject) {
+                        console.error('Ошибка: объект кластера не найден');
+                        return;
+                    }
+                    
+                    const geoObjects = clusterObject.properties.geoObjects || [];
+                    currentClusterObjects = geoObjects;
+                    currentClusterData = clusterObject;
+                    lastOpenedClusterId = clusterObject.id;
+                    lastOpenedObjectId = null;
+                    
+                    const sortedObjects = [...geoObjects].sort((a, b) => {
+                        const addressA = a.properties.address || '';
+                        const addressB = b.properties.address || '';
+                        return addressA.localeCompare(addressB);
+                    });
+                    
+                    const addressIds = sortedObjects.map(obj => obj.id);
+                    const allSelected = addressIds.every(id => selectedAddresses.has(id));
+                    
+                    const contentContainer = element.querySelector('.cluster-balloon-content');
+                    contentContainer.innerHTML = '';
+                    contentContainer.style.maxHeight = '200px';
+                    contentContainer.style.overflowY = 'auto';
+                    contentContainer.style.marginBottom = '12px';
+                    
+                    element.setAttribute('data-cluster-id', clusterObject.id);
+                    
+                    sortedObjects.forEach((obj, index) => {
+                        if (obj && obj.properties) {
+                            const isOccupied = obj.properties.status === 'occupied';
+                            const isSelected = selectedAddresses.has(obj.id);
                             
-                            selectAllBtn.addEventListener('click', (e) => {
+                            const item = document.createElement('div');
+                            item.className = 'cluster-checkbox-item';
+                            item.style.cssText = 'display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;';
+                            item.setAttribute('data-object-id', obj.id);
+                            
+                            item.innerHTML = `
+                                <input type="checkbox" class="cluster-checkbox" ${isSelected ? 'checked' : ''} 
+                                       data-object-id="${obj.id}" style="transform: scale(1.1); margin-top: 3px;">
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 500; margin-bottom: 4px; font-size: 14px;">${obj.properties.address || "Адрес не указан"}</div>
+                                    <div style="font-size: 12px; color: #666; line-height: 1.4;">
+                                        Статус: <span style="font-weight: 600; color: ${isOccupied ? '#F44336' : '#4CAF50'}">${obj.properties.fullStatus || "не указан"}</span><br>
+                                        Район: ${obj.properties.district || "не указан"}<br>
+                                        Подъездов: ${obj.properties.entrances || "не указано"}
+                                    </div>
+                                </div>
+                            `;
+                            
+                            const checkbox = item.querySelector('.cluster-checkbox');
+                            checkbox.addEventListener('change', (e) => {
                                 e.stopPropagation();
-                                
-                                if (allSelected) {
-                                    deselectAllInCluster(addressIds);
-                                } else {
-                                    selectAllInCluster(addressIds);
-                                }
+                                toggleAddressSelection(obj.id, checkbox.checked);
                             });
+                            
+                            contentContainer.appendChild(item);
                         }
-                        
-                        if (selectEveryOtherBtn) {
-                            selectEveryOtherBtn.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                selectEveryOtherInCluster(addressIds);
-                            });
-                        }
-                        
-                        if (hideUnselectedBtn) {
-                            hideUnselectedBtn.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                hideUnselectedAddressesInBalloon(addressIds);
-                            });
-                        }
-                    },
+                    });
                     
-                    clear: function() {
-                        currentClusterObjects = [];
-                        currentActiveClusterId = null;
-                        ClusterBalloonContentLayout.superclass.clear.call(this);
+                    const selectAllBtn = element.querySelector('.balloon-btn.select-all');
+                    const selectEveryOtherBtn = element.querySelector('.balloon-btn.select-every-other');
+                    const hideUnselectedBtn = element.querySelector('.balloon-btn.hide-unselected');
+                    
+                    if (selectAllBtn) {
+                        if (allSelected) {
+                            selectAllBtn.textContent = "Снять выделение";
+                            selectAllBtn.className = "balloon-btn deselect-all";
+                            selectAllBtn.onclick = (e) => {
+                                e.stopPropagation();
+                                deselectAllInCluster(addressIds);
+                            };
+                        } else {
+                            selectAllBtn.textContent = "Выбрать все адреса кластера";
+                            selectAllBtn.className = "balloon-btn select-all";
+                            selectAllBtn.onclick = (e) => {
+                                e.stopPropagation();
+                                selectAllInCluster(addressIds);
+                            };
+                        }
                     }
-                }
-            );
-
-            const ObjectBalloonContentLayout = ymaps.templateLayoutFactory.createClass(
-                '<div class="object-balloon-container">' +
-                '<div class="object-content"></div>' +
-                '<div class="balloon-controls">' +
-                '<button class="balloon-btn hide-unselected">Скрыть невыбранные</button>' +
-                '</div>' +
-                '<button class="balloon-copy-button">Копировать адрес</button>' +
-                '</div>',
-                {
-                    build: function() {
-                        ObjectBalloonContentLayout.superclass.build.call(this);
-                        
-                        const element = this.getElement();
-                        element.style.maxWidth = '350px';
-                        element.style.padding = '16px';
-                        element.style.boxSizing = 'border-box';
-                        
-                        const data = this.getData();
-                        const object = data.object;
-                        const properties = object.properties;
-                        
-                        currentActiveObjectId = object.id;
-                        currentActiveClusterId = null;
-                        
-                        const contentContainer = element.querySelector('.object-content');
-                        const isOccupied = properties.status === 'occupied';
-                        const isSelected = selectedAddresses.has(object.id);
-                        const district = properties.district || 'не указан';
-                        const entrances = properties.entrances || 'не указано';
-                        
-                        contentContainer.innerHTML = `
-                            <div style="padding: 8px 0;">
-                                <b>Адрес:</b> ${properties.address}<br>
-                                <b>Статус:</b> <span style="font-weight: 600; color: ${isOccupied ? '#F44336' : '#4CAF50'}">${properties.fullStatus}</span><br>
-                                <b>Район:</b> ${district}<br>
-                                <b>Подъездов:</b> ${entrances}<br>
-                            </div>
-                            <div style="margin: 10px 0;">
-                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                    <input type="checkbox" class="object-checkbox" ${isSelected ? 'checked' : ''} style="transform: scale(1.1);">
-                                    <span>Выбрать этот адрес</span>
-                                </label>
-                            </div>
-                        `;
-                        
-                        const checkbox = contentContainer.querySelector('.object-checkbox');
-                        checkbox.addEventListener('change', (e) => {
+                    
+                    if (selectEveryOtherBtn) {
+                        selectEveryOtherBtn.onclick = (e) => {
                             e.stopPropagation();
-                            toggleAddressSelection(object.id, checkbox.checked);
-                        });
-                        
-                        const hideUnselectedBtn = element.querySelector('.balloon-btn.hide-unselected');
-                        const copyBtn = element.querySelector('.balloon-copy-button');
-                        
-                        if (hideUnselectedBtn) {
-                            hideUnselectedBtn.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                hideUnselectedAddressesInBalloon([object.id]);
-                            });
-                        }
-                        
-                        if (copyBtn) {
-                            copyBtn.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                copySingleAddress(
-                                    properties.address,
-                                    properties.fullStatus,
-                                    district,
-                                    properties.entrances
-                                );
-                            });
-                        }
-                    },
-                    
-                    clear: function() {
-                        currentActiveObjectId = null;
-                        ObjectBalloonContentLayout.superclass.clear.call(this);
+                            selectEveryOtherInCluster(addressIds);
+                        };
                     }
-                }
-            );
-
-            window.addEventListener('resize', () => {
-                isMobile = window.innerWidth <= 768;
-            });
-
-            document.getElementById('balloon-overlay').addEventListener('click', () => {
-                closeCustomMobileBalloon();
-            });
-            
-            document.getElementById('mobile-balloon-close').addEventListener('click', () => {
-                closeCustomMobileBalloon();
-            });
-
-            map = new ymaps.Map('map', {
-                center: [54.6294, 39.7417],
-                zoom: 12
-            });
-
-            objectManager = new ymaps.ObjectManager({
-                clusterize: true,
-                gridSize: 64,
-                clusterDisableClickZoom: true,
-                clusterBalloonContentLayout: ClusterBalloonContentLayout,
-                clusterBalloonPanelMaxMapArea: 0
-            });
-            
-            objectManager.clusters.options.set('preset', 'islands#invertedBlueClusterIcons');
-            objectManager.objects.options.set('preset', 'islands#circleDotIcon');
-            objectManager.objects.options.set('balloonContentLayout', ObjectBalloonContentLayout);
-            
-            objectManager.clusters.events.add('click', function(e) {
-                const clusterId = e.get('objectId');
-                const cluster = objectManager.clusters.getById(clusterId);
-                const clusterObjects = cluster.properties.geoObjects;
-                
-                if (clusterObjects && clusterObjects.length > 0) {
-                    currentClusterObjects = clusterObjects;
-                    currentActiveClusterId = clusterId;
-                    currentActiveObjectId = null;
                     
-                    currentClusterData = {
-                        id: clusterId,
-                        properties: cluster.properties,
-                        geometry: cluster.geometry
-                    };
-                }
+                    if (hideUnselectedBtn) {
+                        hideUnselectedBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            hideUnselectedAddressesInBalloon(addressIds);
+                        };
+                    }
+                },
                 
-                if (isMobile) {
-                    const content = createClusterBalloonContent(cluster.properties.geoObjects);
-                    showCustomMobileBalloon(content, cluster.geometry.coordinates);
-                    objectManager.clusters.balloon.close(clusterId);
-                } else {
-                    objectManager.clusters.balloon.open(clusterId);
+                clear: function() {
+                    currentClusterObjects = [];
+                    currentClusterData = null;
+                    ClusterBalloonContentLayout.superclass.clear.call(this);
                 }
-            });
+            }
+        );
 
-            objectManager.objects.events.add('click', function(e) {
-                const objectId = e.get('objectId');
-                const object = objectManager.objects.getById(objectId);
+        const ObjectBalloonContentLayout = ymaps.templateLayoutFactory.createClass(
+            '<div class="object-balloon-container" data-object-id="$[id]">' +
+            '<div class="object-content"></div>' +
+            '<div class="balloon-controls">' +
+            '<button class="balloon-btn hide-unselected">Скрыть невыбранные</button>' +
+            '</div>' +
+            '<button class="balloon-copy-button">Копировать адрес</button>' +
+            '</div>',
+            {
+                build: function() {
+                    ObjectBalloonContentLayout.superclass.build.call(this);
+                    
+                    const element = this.getElement();
+                    element.style.maxWidth = '350px';
+                    element.style.padding = '16px';
+                    element.style.boxSizing = 'border-box';
+                    
+                    const data = this.getData();
+                    const object = data.object;
+                    const properties = object.properties;
+                    
+                    lastOpenedObjectId = object.id;
+                    lastOpenedClusterId = null;
+                    
+                    const contentContainer = element.querySelector('.object-content');
+                    const isOccupied = properties.status === 'occupied';
+                    const isSelected = selectedAddresses.has(object.id);
+                    const district = properties.district || 'не указан';
+                    const entrances = properties.entrances || 'не указано';
+                    
+                    element.setAttribute('data-object-id', object.id);
+                    
+                    contentContainer.innerHTML = `
+                        <div style="padding: 8px 0;">
+                            <b>Адрес:</b> ${properties.address}<br>
+                            <b>Статус:</b> <span style="font-weight: 600; color: ${isOccupied ? '#F44336' : '#4CAF50'}">${properties.fullStatus}</span><br>
+                            <b>Район:</b> ${district}<br>
+                            <b>Подъездов:</b> ${entrances}<br>
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" class="object-checkbox" ${isSelected ? 'checked' : ''} 
+                                       data-object-id="${object.id}" style="transform: scale(1.1);">
+                                <span>Выбрать этот адрес</span>
+                            </label>
+                        </div>
+                    `;
+                    
+                    const checkbox = contentContainer.querySelector('.object-checkbox');
+                    checkbox.addEventListener('change', (e) => {
+                        e.stopPropagation();
+                        toggleAddressSelection(object.id, checkbox.checked);
+                    });
+                    
+                    const hideUnselectedBtn = element.querySelector('.balloon-btn.hide-unselected');
+                    const copyBtn = element.querySelector('.balloon-copy-button');
+                    
+                    if (hideUnselectedBtn) {
+                        hideUnselectedBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            hideSingleAddress(object.id);
+                        };
+                    }
+                    
+                    if (copyBtn) {
+                        copyBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            copySingleAddress(
+                                properties.address,
+                                properties.fullStatus,
+                                district,
+                                properties.entrances
+                            );
+                        };
+                    }
+                },
                 
-                currentActiveObjectId = objectId;
-                currentActiveClusterId = null;
-                
-                if (isMobile) {
-                    const content = createObjectBalloonContent(object.properties, objectId);
-                    showCustomMobileBalloon(content, object.geometry.coordinates);
-                    objectManager.objects.balloon.close(objectId);
-                } else {
-                    objectManager.objects.balloon.open(objectId);
+                clear: function() {
+                    ObjectBalloonContentLayout.superclass.clear.call(this);
                 }
-            });
-            
-            map.geoObjects.add(objectManager);
-            
-            setupTabs();
-            setupPanel();
-            
-            document.getElementById('copy-selected').addEventListener('click', copySelectedAddresses);
-            
-            document.querySelectorAll('.status-filter').forEach(checkbox => {
-                checkbox.addEventListener('change', (e) => {
-                    const filterValue = e.target.value;
-                    const isChecked = e.target.checked;
-                    handleFilterChange('status', filterValue, isChecked);
-                });
-            });
-            
-            initMarkerAdding();
-            loadData();
+            }
+        );
+
+        window.addEventListener('resize', () => {
+            isMobile = window.innerWidth <= 768;
         });
 
-        function processData(data) {
-            const districts = new Set();
-            currentAddresses = [];
-            totalEntrances = 0;
-            selectedAddresses.clear();
-            isHidingUnselected = false;
-            isHidingUnselectedInCurrentCluster = false;
-            currentClusterHiddenAddresses = [];
-            objectManager.removeAll();
-            
-            resetDistrictFilter();
-            
-            let processedCount = 0;
-            let skippedCount = 0;
-            
-            data.table.rows.forEach((row, i) => {
-                if (!row.c) {
-                    skippedCount++;
-                    return;
-                }
-                
-                const address = row.c[0]?.v || '';
-                const lngStr = row.c[1]?.v || '';
-                const latStr = row.c[2]?.v || '';
-                const status = row.c[3]?.v || '';
-                const district = row.c[4]?.v || '';
-                const entrances = row.c[5]?.v ? parseInt(row.c[5].v) || 0 : 0;
-                
-                if (!latStr || !lngStr) {
-                    skippedCount++;
-                    return;
-                }
-                
-                const lat = parseFloat(latStr.toString().replace(',', '.'));
-                const lng = parseFloat(lngStr.toString().replace(',', '.'));
-                
-                if (isNaN(lat) || isNaN(lng)) {
-                    skippedCount++;
-                    return;
-                }
-                
-                if (district) districts.add(district);
-                
-                const isOccupied = status.includes('Занято');
-                
-                objectManager.add({
-                    id: i,
-                    type: 'Feature',
-                    geometry: { type: 'Point', coordinates: [lng, lat] },
-                    properties: {
-                        address: address,
-                        fullStatus: status,
-                        status: isOccupied ? 'occupied' : 'free',
-                        district: district,
-                        entrances: entrances,
-                        hintContent: address
-                    },
-                    options: {
-                        iconColor: isOccupied ? '#F44336' : '#4CAF50'
-                    }
-                });
-                
-                currentAddresses.push({
-                    id: i,
-                    address: address,
-                    status: status,
-                    district: district,
-                    coordinates: [lng, lat],
-                    isOccupied: isOccupied,
-                    entrances: entrances
-                });
-                
-                totalEntrances += entrances;
-                processedCount++;
-            });
-            
-            currentAddresses.sort((a, b) => {
-                const addressA = a.address || '';
-                const addressB = b.address || '';
-                return addressA.localeCompare(addressB);
-            });
-            
-            populateDistrictFilter(districts);
-            applyFilters();
-            
-            if (objectManager.objects.getLength() > 0) {
-                map.setBounds(objectManager.getBounds(), { checkZoomRange: true });
-            }
-        }
+        document.getElementById('balloon-overlay').addEventListener('click', () => {
+            closeCustomMobileBalloon();
+        });
         
-        function updateAddressList(addresses) {
-            const list = document.getElementById('address-list');
+        document.getElementById('mobile-balloon-close').addEventListener('click', () => {
+            closeCustomMobileBalloon();
+        });
+
+        map = new ymaps.Map('map', {
+            center: [54.6294, 39.7417],
+            zoom: 12
+        });
+
+        objectManager = new ymaps.ObjectManager({
+            clusterize: true,
+            gridSize: 64,
+            clusterDisableClickZoom: true,
+            clusterBalloonContentLayout: ClusterBalloonContentLayout,
+            clusterBalloonPanelMaxMapArea: 0
+        });
+        
+        objectManager.clusters.options.set('preset', 'islands#invertedBlueClusterIcons');
+        objectManager.objects.options.set('preset', 'islands#circleDotIcon');
+        objectManager.objects.options.set('balloonContentLayout', ObjectBalloonContentLayout);
+        
+        objectManager.clusters.events.add('click', function(e) {
+            const clusterId = e.get('objectId');
+            const cluster = objectManager.clusters.getById(clusterId);
+            const clusterObjects = cluster.properties.geoObjects;
             
-            updatePanelHeaderStats();
-            
-            if (addresses.length === 0) {
-                list.innerHTML = '<div class="empty-list">Нет адресов, соответствующих фильтрам</div>';
-                return;
+            if (clusterObjects && clusterObjects.length > 0) {
+                currentClusterObjects = clusterObjects;
+                currentClusterData = cluster;
             }
             
-            list.innerHTML = '';
-            addresses.forEach(addr => {
-                const isSelected = selectedAddresses.has(addr.id);
-                const item = document.createElement('div');
-                item.className = `address-item ${isSelected ? 'selected' : ''}`;
-                item.setAttribute('data-id', addr.id);
-                item.innerHTML = `
-                    <input type="checkbox" class="address-checkbox" ${isSelected ? 'checked' : ''}
-                           onchange="toggleAddressSelection(${addr.id}, this.checked)">
-                    <div class="address-header">
-                        <strong>${addr.address}</strong>
-                        <span class="${addr.isOccupied ? 'status-occupied' : 'status-free'}">
-                            ${addr.status}
-                        </span>
-                    </div>
-                    <div class="address-details">
-                        Район: ${addr.district || 'не указан'}
-                        ${addr.entrances ? `<span class="entrances-count">Подъездов: ${addr.entrances}</span>` : ''}
-                    </div>
-                `;
-                item.addEventListener('click', (e) => {
-                    if (e.target.type !== 'checkbox') {
-                        map.panTo(addr.coordinates, {
-                            flying: true,
-                            zoom: 17
-                        }).then(function() {
-                            const object = objectManager.objects.getById(addr.id);
-                            if (object) {
-                                if (isMobile) {
-                                    const content = createObjectBalloonContent(object.properties, addr.id);
-                                    showCustomMobileBalloon(content, object.geometry.coordinates);
-                                } else {
-                                    objectManager.objects.balloon.open(addr.id);
-                                }
-                            }
-                        });
-                    }
-                });
-                list.appendChild(item);
-            });
+            if (isMobile) {
+                const content = createClusterBalloonContent(cluster.properties.geoObjects);
+                updateCustomMobileBalloon(content, cluster.geometry.coordinates);
+                objectManager.clusters.balloon.close(clusterId);
+            } else {
+                objectManager.clusters.balloon.open(clusterId);
+            }
+        });
+
+        objectManager.objects.events.add('click', function(e) {
+            const objectId = e.get('objectId');
+            const object = objectManager.objects.getById(objectId);
             
-            updateSelectedCount();
-        }
+            if (isMobile) {
+                const content = createObjectBalloonContent(object.properties, objectId);
+                updateCustomMobileBalloon(content, object.geometry.coordinates);
+                objectManager.objects.balloon.close(objectId);
+            } else {
+                objectManager.objects.balloon.open(objectId);
+            }
+        });
         
-        function resetDistrictFilter() {
-            document.getElementById('districts-container').innerHTML = '';
-            
-            const allDistrictsItem = document.createElement('label');
-            allDistrictsItem.className = 'checkbox-item';
-            allDistrictsItem.innerHTML = `
-                <input type="checkbox" class="district-filter" value="all" checked>
-                <span>Все районы</span>
-            `;
-            document.getElementById('districts-container').appendChild(allDistrictsItem);
-            
-            allDistrictsItem.querySelector('input').addEventListener('change', (e) => {
+        map.geoObjects.add(objectManager);
+        
+        setupTabs();
+        setupPanel();
+        
+        document.getElementById('copy-selected').addEventListener('click', copySelectedAddresses);
+        
+        document.querySelectorAll('.status-filter').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const filterValue = e.target.value;
                 const isChecked = e.target.checked;
-                handleFilterChange('district', 'all', isChecked);
+                handleFilterChange('status', filterValue, isChecked);
             });
+        });
+        
+        initMarkerAdding();
+        loadData();
+    });
+
+function processData(data) {
+    const districts = new Set();
+    currentAddresses = [];
+    totalEntrances = 0;
+    selectedAddresses.clear();
+    isHidingUnselected = false;
+    isHidingUnselectedInCurrentCluster = false;
+    currentClusterHiddenAddresses = [];
+    objectManager.removeAll();
+    
+    resetDistrictFilter();
+    
+    let processedCount = 0;
+    let skippedCount = 0;
+    
+    data.table.rows.forEach((row, i) => {
+        if (!row.c) {
+            skippedCount++;
+            return;
         }
         
-        function populateDistrictFilter(districts) {
-            const container = document.getElementById('districts-container');
-            
-            const sortedDistricts = Array.from(districts).sort();
-            
-            sortedDistricts.forEach(district => {
-                const item = document.createElement('label');
-                item.className = 'checkbox-item';
-                item.innerHTML = `
-                    <input type="checkbox" class="district-filter" value="${district}" checked>
-                    <span>${district}</span>
-                `;
-                container.appendChild(item);
-                
-                item.querySelector('input').addEventListener('change', (e) => {
-                    const isChecked = e.target.checked;
-                    handleFilterChange('district', district, isChecked);
-                });
-            });
-            
-            const allDistrictsCheckbox = container.querySelector('.district-filter[value="all"]');
-            const districtCheckboxes = container.querySelectorAll('.district-filter:not([value="all"])');
-            
-            allDistrictsCheckbox.addEventListener('change', function() {
-                const isChecked = this.checked;
-                districtCheckboxes.forEach(cb => {
-                    cb.checked = isChecked;
-                });
-                handleFilterChange('district', 'all', isChecked);
-            });
-            
-            districtCheckboxes.forEach(cb => {
-                cb.addEventListener('change', function() {
-                    const allChecked = Array.from(districtCheckboxes).every(c => c.checked);
-                    allDistrictsCheckbox.checked = allChecked;
-                    applyFilters();
-                });
-            });
+        const address = row.c[0]?.v || '';
+        const lngStr = row.c[1]?.v || '';
+        const latStr = row.c[2]?.v || '';
+        const status = row.c[3]?.v || '';
+        const district = row.c[4]?.v || '';
+        const entrances = row.c[5]?.v ? parseInt(row.c[5].v) || 0 : 0;
+        
+        if (!latStr || !lngStr) {
+            skippedCount++;
+            return;
         }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && isAddingMarker) {
-                document.getElementById('cancel-marker').click();
+        
+        const lat = parseFloat(latStr.toString().replace(',', '.'));
+        const lng = parseFloat(lngStr.toString().replace(',', '.'));
+        
+        if (isNaN(lat) || isNaN(lng)) {
+            skippedCount++;
+            return;
+        }
+        
+        if (district) districts.add(district);
+        
+        const isOccupied = status.includes('Занято');
+        
+        objectManager.add({
+            id: i,
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [lng, lat] },
+            properties: {
+                address: address,
+                fullStatus: status,
+                status: isOccupied ? 'occupied' : 'free',
+                district: district,
+                entrances: entrances,
+                hintContent: address
+            },
+            options: {
+                iconColor: isOccupied ? '#F44336' : '#4CAF50'
             }
         });
-    </script>
+        
+        currentAddresses.push({
+            id: i,
+            address: address,
+            status: status,
+            district: district,
+            coordinates: [lng, lat],
+            isOccupied: isOccupied,
+            entrances: entrances
+        });
+        
+        totalEntrances += entrances;
+        processedCount++;
+    });
+    
+    currentAddresses.sort((a, b) => {
+        const addressA = a.address || '';
+        const addressB = b.address || '';
+        return addressA.localeCompare(addressB);
+    });
+    
+    populateDistrictFilter(districts);
+    applyFilters(); // Эта функция обновит список адресов
+    
+    if (objectManager.objects.getLength() > 0) {
+        map.setBounds(objectManager.getBounds(), { checkZoomRange: true });
+    }
+}
+    
+	function updateAddressList(addresses) {
+		const list = document.getElementById('address-list');
+		const emptyText = document.getElementById('address-list-empty');
+		
+		updatePanelHeaderStats();
+		
+		if (addresses.length === 0) {
+			if (emptyText) {
+				emptyText.textContent = 'Нет адресов, соответствующих фильтрам';
+				emptyText.style.display = 'block';
+			}
+			
+			// Удаляем все элементы кроме пустого сообщения
+			Array.from(list.children).forEach(child => {
+				if (child.id !== 'address-list-empty') {
+					list.removeChild(child);
+				}
+			});
+			
+			return;
+		}
+		
+		// Скрываем пустое сообщение
+		if (emptyText) {
+			emptyText.style.display = 'none';
+		}
+		
+		// Удаляем старые элементы (кроме пустого сообщения)
+		Array.from(list.children).forEach(child => {
+			if (child.id !== 'address-list-empty') {
+				list.removeChild(child);
+			}
+		});
+		
+		// Добавляем новые адреса
+		addresses.forEach(addr => {
+			const isSelected = selectedAddresses.has(addr.id);
+			const item = document.createElement('div');
+			item.className = `address-item ${isSelected ? 'selected' : ''}`;
+			item.setAttribute('data-id', addr.id);
+			item.innerHTML = `
+				<input type="checkbox" class="address-checkbox" ${isSelected ? 'checked' : ''}
+					   onchange="toggleAddressSelection(${addr.id}, this.checked)">
+				<div class="address-header">
+					<strong>${addr.address}</strong>
+					<span class="${addr.isOccupied ? 'status-occupied' : 'status-free'}">
+						${addr.status}
+					</span>
+				</div>
+				<div class="address-details">
+					Район: ${addr.district || 'не указан'}
+					${addr.entrances ? `<span class="entrances-count">Подъездов: ${addr.entrances}</span>` : ''}
+				</div>
+			`;
+			item.addEventListener('click', (e) => {
+				if (e.target.type !== 'checkbox') {
+					map.panTo(addr.coordinates, {
+						flying: true,
+						zoom: 17
+					}).then(function() {
+						const object = objectManager.objects.getById(addr.id);
+						if (object) {
+							if (isMobile) {
+								const content = createObjectBalloonContent(object.properties, addr.id);
+								updateCustomMobileBalloon(content, object.geometry.coordinates);
+							} else {
+								objectManager.objects.balloon.open(addr.id);
+							}
+						}
+					});
+				}
+			});
+			list.appendChild(item);
+		});
+		
+		updateSelectedCount();
+	}
+    
+    function resetDistrictFilter() {
+        document.getElementById('districts-container').innerHTML = '';
+        
+        const allDistrictsItem = document.createElement('label');
+        allDistrictsItem.className = 'checkbox-item';
+        allDistrictsItem.innerHTML = `
+            <input type="checkbox" class="district-filter" value="all" checked>
+            <span>Все районы</span>
+        `;
+        document.getElementById('districts-container').appendChild(allDistrictsItem);
+        
+        allDistrictsItem.querySelector('input').addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            handleFilterChange('district', 'all', isChecked);
+        });
+    }
+    
+    function populateDistrictFilter(districts) {
+        const container = document.getElementById('districts-container');
+        
+        const sortedDistricts = Array.from(districts).sort();
+        
+        sortedDistricts.forEach(district => {
+            const item = document.createElement('label');
+            item.className = 'checkbox-item';
+            item.innerHTML = `
+                <input type="checkbox" class="district-filter" value="${district}" checked>
+                <span>${district}</span>
+            `;
+            container.appendChild(item);
+            
+            item.querySelector('input').addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                handleFilterChange('district', district, isChecked);
+            });
+        });
+        
+        const allDistrictsCheckbox = container.querySelector('.district-filter[value="all"]');
+        const districtCheckboxes = container.querySelectorAll('.district-filter:not([value="all"])');
+        
+        allDistrictsCheckbox.addEventListener('change', function() {
+            const isChecked = this.checked;
+            districtCheckboxes.forEach(cb => {
+                cb.checked = isChecked;
+            });
+            handleFilterChange('district', 'all', isChecked);
+        });
+        
+        districtCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                const allChecked = Array.from(districtCheckboxes).every(c => c.checked);
+                allDistrictsCheckbox.checked = allChecked;
+                applyFilters();
+            });
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isAddingMarker) {
+            document.getElementById('cancel-marker').click();
+        }
+    });
+</script>
 </body>
 </html>
+
