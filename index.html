@@ -11,7 +11,7 @@
 		#map-container { width: 100%; height: 100%; position: relative; }
 		#map { width: 100%; height: 100%; }
 		
-			#address-list-empty {
+		#address-list-empty {
 			padding: 40px 20px;
 			text-align: center;
 			color: #888;
@@ -19,20 +19,22 @@
 			background: white;
 		}
 
-		/* Основная панель - УВЕЛИЧЕНА ВЫСОТА */
+		/* Основная панель */
 		#main-panel {
 			position: absolute;
 			top: 10px;
 			left: 10px;
-			width: 420px; /* Немного шире */
+			width: 420px;
 			max-width: 90vw;
 			background: white;
 			border-radius: 12px;
 			box-shadow: 0 8px 32px rgba(0,0,0,0.15);
 			z-index: 1000;
 			overflow: hidden;
-			max-height: 96vh; /* УВЕЛИЧЕНО с 95vh */
+			max-height: 96vh;
 			border: 1px solid #e1e5e9;
+			display: flex;
+			flex-direction: column;
 		}
 
 		.panel-header {
@@ -43,7 +45,8 @@
 			cursor: pointer;
 			transition: all 0.3s ease;
 			color: white;
-			min-height: 140px; /* ДОБАВЛЕНО: минимальная высота */
+			min-height: 160px;
+			flex-shrink: 0;
 		}
 
 		.panel-header:hover {
@@ -75,15 +78,50 @@
 		.stats-row {
 			display: flex;
 			align-items: center;
-			gap: 6px;
+			justify-content: space-between;
 			font-size: 11px;
+			white-space: nowrap;
 		}
 
 		.stats-label {
 			color: rgba(255, 255, 255, 0.8);
 			font-weight: 600;
+			width: 80px;
+			flex-shrink: 0;
+		}
+		
+		.stats-column {
+			color: rgba(255, 255, 255, 0.8);
+			font-weight: 600;
+			text-align: center;
+			flex: 1;
+			min-width: 70px;
 		}
 
+		.stats-value {
+			color: white;
+			font-weight: 700;
+			text-align: center;
+			flex: 1;
+			min-width: 70px;
+		}
+
+		/* Первая строка (заголовки) */
+		.stats-row:first-child .stats-label {
+			color: rgba(255, 255, 255, 0.9);
+			font-weight: 700;
+		}
+
+		.stats-row:first-child .stats-column {
+			color: rgba(255, 255, 255, 0.9);
+			font-weight: 700;
+		}
+
+		/* Строки с данными */
+		.stats-row:not(:first-child) .stats-label {
+			text-align: left;
+			padding-left: 8px;
+		}
 		.stats-value {
 			color: white;
 			font-weight: 700;
@@ -105,6 +143,8 @@
 			border-radius: 6px;
 			font-size: 12px;
 			color: white;
+			flex-direction: column;
+			gap: 4px;
 		}
 
 		.price-value {
@@ -118,6 +158,12 @@
 			font-size: 11px;
 			color: #FF9800;
 			font-weight: 600;
+		}
+
+		.price-per-apartment {
+			font-size: 11px;
+			color: rgba(255, 255, 255, 0.9);
+			font-weight: 500;
 		}
 
 		/* Кнопка сворачивания/разворачивания */
@@ -154,15 +200,17 @@
 			transform: translateY(-50%) rotate(180deg) scale(1.05);
 		}
 
-		/* Основное содержимое панели - УВЕЛИЧЕНА МАКСИМАЛЬНАЯ ВЫСОТА */
+		/* Основное содержимое панели */
 		.panel-content {
-			max-height: calc(96vh - 140px); /* УВЕЛИЧЕНО с 95vh-120px */
+			max-height: calc(96vh - 160px);
 			transition: max-height 0.3s ease, opacity 0.3s ease;
 			overflow: hidden;
 			opacity: 1;
 			background: #fafbfc;
 			display: flex;
 			flex-direction: column;
+			flex: 1;
+			min-height: 0;
 		}
 
 		.collapsed .panel-content {
@@ -180,12 +228,12 @@
 
 		.tab {
 			flex: 1;
-			padding: 14px 8px; /* Уменьшены отступы по бокам */
+			padding: 14px 8px;
 			text-align: center;
 			background: none;
 			border: none;
 			cursor: pointer;
-			font-size: 13px; /* Уменьшен размер шрифта */
+			font-size: 13px;
 			color: #666;
 			transition: all 0.3s ease;
 			border-bottom: 3px solid transparent;
@@ -212,27 +260,30 @@
 		.tab-content {
 			display: none;
 			flex-direction: column;
-			height: calc(96vh - 270px); /* УВЕЛИЧЕНО и изменено с 260px на 270px */
+			height: 100%;
 			overflow: hidden;
 			background: white;
 			flex: 1;
+			min-height: 0;
 		}
 
 		.tab-content.active {
 			display: flex;
 		}
 
-		/* Контент фильтров */
+		/* Обновите эти стили в разделе .filters-content */
 		.filters-content {
 			display: flex;
 			flex-direction: column;
 			height: 100%;
+			overflow: hidden;
 			background: white;
+			min-height: 0;
 		}
 
 		/* Фиксированные секции фильтров */
 		.fixed-filter-section {
-			padding: 16px 20px; /* Уменьшены отступы */
+			padding: 16px 20px;
 			border-bottom: 1px solid #f0f0f0;
 			flex-shrink: 0;
 			background: white;
@@ -241,7 +292,7 @@
 		/* Статусы в одну строку */
 		.status-filters {
 			display: flex;
-			gap: 16px; /* Уменьшен gap */
+			gap: 16px;
 			align-items: center;
 			justify-content: space-between;
 		}
@@ -259,9 +310,9 @@
 			align-items: center;
 			gap: 6px;
 			cursor: pointer;
-			font-size: 13px; /* Уменьшен размер шрифта */
+			font-size: 13px;
 			font-weight: 500;
-			padding: 5px 8px; /* Уменьшены отступы */
+			padding: 5px 8px;
 			border-radius: 6px;
 			transition: background-color 0.2s ease;
 		}
@@ -280,18 +331,23 @@
 			font-weight: 600;
 		}
 
-		/* Прокручиваемая область для фильтров */
 		.scrollable-filters {
 			flex: 1;
 			overflow-y: auto;
-			padding: 0 20px; /* Уменьшены отступы */
+			padding: 0 20px;
 			background: white;
+			max-height: calc(100vh - 400px);
+			min-height: 0;
 		}
 
 		/* Секции фильтров */
 		.filter-section {
-			padding: 14px 0; /* Уменьшены отступы */
+			padding: 14px 0;
 			border-bottom: 1px solid #f0f0f0;
+		}
+		
+		.filter-section:last-child {
+		border-bottom: none;
 		}
 
 		.checkbox-group {
@@ -305,7 +361,7 @@
 			align-items: center;
 			gap: 8px;
 			cursor: pointer;
-			padding: 5px 0; /* Уменьшены отступы */
+			padding: 5px 0;
 			border-radius: 6px;
 			transition: background-color 0.2s ease;
 		}
@@ -319,11 +375,81 @@
 			transform: scale(1.1);
 		}
 
-		/* Кнопки управления выбором во вкладке адресов */
+        /* Стили для числовых фильтров */
+        .numeric-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .numeric-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .numeric-inputs input {
+            width: 70px;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            text-align: center;
+            -moz-appearance: textfield; /* Firefox */
+        }
+
+        .numeric-inputs input::-webkit-outer-spin-button,
+        .numeric-inputs input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .numeric-inputs span {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .numeric-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .numeric-btn {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .numeric-btn:hover {
+            background: #e9ecef;
+        }
+
+        .numeric-btn.set-min {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .numeric-btn.set-max {
+            border-color: #2196F3;
+            color: #2196F3;
+        }
+
+        .numeric-btn.reset {
+            border-color: #FF9800;
+            color: #FF9800;
+        }
+
+		/* Кнопки управления выбором во вкладке расчёта */
 		.selection-controls {
 			display: flex;
-			gap: 8px; /* Уменьшен gap */
-			padding: 12px; /* Уменьшены отступы */
+			gap: 8px;
+			padding: 12px;
 			border-bottom: 1px solid #e0e0e0;
 			background: #f8f9fa;
 			flex-wrap: wrap;
@@ -332,13 +458,13 @@
 
 		.selection-btn {
 			flex: 1;
-			min-width: 120px; /* Уменьшена минимальная ширина */
-			padding: 8px 10px; /* Уменьшены отступы */
+			min-width: 120px;
+			padding: 8px 10px;
 			background: white;
 			border: 1px solid #ddd;
 			border-radius: 6px;
 			cursor: pointer;
-			font-size: 12px; /* Уменьшен размер шрифта */
+			font-size: 12px;
 			color: #444;
 			transition: all 0.2s ease;
 			text-align: center;
@@ -379,16 +505,17 @@
 			color: #9c27b0;
 		}
 
-		/* Список адресов - ОБНОВЛЕНО */
+		/* Список адресов */
 		.address-list {
 			overflow-y: auto;
 			padding: 0;
 			flex: 1;
 			background: white;
+			min-height: 0;
 		}
 
 		.address-item {
-			padding: 10px 12px 10px 40px; /* Уменьшены вертикальные отступы и левый отступ */
+			padding: 10px 12px 10px 40px;
 			border-bottom: 1px solid #f0f0f0;
 			cursor: pointer;
 			transition: all 0.3s ease;
@@ -409,11 +536,11 @@
 
 		.address-checkbox {
 			position: absolute;
-			left: 12px; /* Уменьшено с 15px */
+			left: 12px;
 			top: 50%;
 			transform: translateY(-50%);
-			width: 16px; /* Уменьшено с 18px */
-			height: 16px; /* Уменьшено с 18px */
+			width: 16px;
+			height: 16px;
 			cursor: pointer;
 			margin: 0;
 		}
@@ -422,27 +549,27 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: flex-start;
-			margin-bottom: 4px; /* Уменьшено с 6px */
+			margin-bottom: 4px;
 			font-size: 14px;
 		}
 
 		.address-header strong {
-			font-size: 13px; /* Уменьшен размер шрифта */
+			font-size: 13px;
 			line-height: 1.3;
 			flex: 1;
 			margin-right: 8px;
 		}
 
 		.address-header span {
-			font-size: 11px; /* Уменьшен размер шрифта */
+			font-size: 11px;
 			font-weight: 600;
 			white-space: nowrap;
 		}
 
 		.address-details {
-			font-size: 11px; /* Уменьшен размер шрифта с 12px */
+			font-size: 11px;
 			color: #666;
-			line-height: 1.3; /* Уменьшен line-height */
+			line-height: 1.3;
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
@@ -451,7 +578,7 @@
 		}
 
 		.entrances-count {
-			font-size: 10px; /* Уменьшен размер шрифта с 11px */
+			font-size: 10px;
 			color: #888;
 			margin-left: 6px;
 			font-weight: 500;
@@ -461,12 +588,15 @@
 			white-space: nowrap;
 		}
 
-		/* Кнопка копирования - ПЕРЕМЕЩЕНА ВНИЗ */
+		/* Кнопка копирования */
 		.panel-footer {
-			padding: 12px 15px; /* Уменьшены отступы с 15px 20px */
+			padding: 12px 15px;
 			border-top: 2px solid #f0f0f0;
 			background: linear-gradient(to bottom, #fafbfc, #f8f9fa);
 			flex-shrink: 0;
+			position: sticky;
+			bottom: 0;
+			z-index: 10;
 		}
 
 		.copy-button {
@@ -474,10 +604,10 @@
 			background: linear-gradient(135deg, #00B14F, #009944);
 			color: white;
 			border: none;
-			padding: 12px; /* Уменьшены отступы с 13px */
+			padding: 12px;
 			border-radius: 8px;
 			cursor: pointer;
-			font-size: 14px; /* Уменьшен размер шрифта */
+			font-size: 14px;
 			font-weight: 600;
 			transition: all 0.3s ease;
 			box-shadow: 0 2px 8px rgba(0, 177, 79, 0.3);
@@ -499,10 +629,10 @@
 		}
 
 		.empty-list {
-			padding: 40px 20px; /* Уменьшены отступы */
+			padding: 40px 20px;
 			text-align: center;
 			color: #888;
-			font-size: 13px; /* Уменьшен размер шрифта */
+			font-size: 13px;
 			background: white;
 		}
 
@@ -529,11 +659,11 @@
 			font-weight: 500;
 			margin-bottom: 4px;
 			color: #333;
-			font-size: 13px; /* Уменьшен размер шрифта */
+			font-size: 13px;
 		}
 
 		.marker-details {
-			font-size: 11px; /* Уменьшен размер шрифта */
+			font-size: 11px;
 			color: #666;
 			display: flex;
 			justify-content: space-between;
@@ -550,15 +680,15 @@
 
 		.marker-actions {
 			display: flex;
-			gap: 4px; /* Уменьшен gap */
+			gap: 4px;
 		}
 
 		.marker-action-btn {
-			padding: 3px 6px; /* Уменьшены отступы */
+			padding: 3px 6px;
 			border: none;
 			border-radius: 4px;
 			cursor: pointer;
-			font-size: 10px; /* Уменьшен размер шрифта */
+			font-size: 10px;
 			background: #f0f0f0;
 			color: #333;
 		}
@@ -983,30 +1113,30 @@
 
 		/* Стили для вкладки "Мои метки" */
 		#my-markers-tab > div {
-			padding: 16px; /* Уменьшено с 20px */
+			padding: 16px;
 		}
 
 		#my-markers-tab h4 {
-			margin: 0 0 10px 0; /* Уменьшено с 12px */
+			margin: 0 0 10px 0;
 			color: #333;
 			text-align: left;
-			font-size: 14px; /* Добавлен размер шрифта */
+			font-size: 14px;
 		}
 
 		/* Медиа-запросы для мобильных устройств */
 		@media (max-width: 768px) {
 			#main-panel {
 				width: 360px;
-				max-height: 92vh; /* Уменьшено для мобильных */
+				max-height: 92vh;
 				border-radius: 10px;
 			}
 			
 			.panel-content {
-				max-height: calc(92vh - 140px);
+				max-height: calc(92vh - 150px);
 			}
 			
 			.tab-content {
-				height: calc(92vh - 265px); /* Подогнано под мобильную версию */
+				height: 100%;
 			}
 			
 			.tab {
@@ -1016,6 +1146,7 @@
 			
 			.scrollable-filters {
 				padding: 0 16px;
+				max-height: calc(100vh - 350px);
 			}
 			
 			.notification {
@@ -1042,7 +1173,7 @@
 			
 			.panel-header {
 				padding: 14px 50px 14px 16px;
-				min-height: 130px;
+				min-height: 150px;
 			}
 			
 			.panel-header h3 {
@@ -1101,7 +1232,7 @@
 			
 			/* Мобильные стили для адресов */
 			.address-item {
-				padding: 8px 10px 8px 35px; /* Еще меньше на мобильных */
+				padding: 8px 10px 8px 35px;
 			}
 			
 			.address-checkbox {
@@ -1181,7 +1312,7 @@
 			.custom-balloon-content {
 				flex: 1;
 				overflow-y: auto;
-				padding: 16px 16px 16px 16px; /* Отступ для кнопок */
+				padding: 16px 16px 16px 16px;
 				max-height: calc(85vh - 120px);
 			}
 			
@@ -1228,7 +1359,7 @@
 			}
 			
 			.tab-content {
-				height: calc(98vh - 275px); /* Подогнано для очень низких экранов */
+				height: 100%;
 			}
 			
 			.custom-balloon-content {
@@ -1278,12 +1409,33 @@
 				padding: 8px;
 			}
 		}
-	   
+		
 		/* Индикатор загрузки */
 		@keyframes spin {
 			0% { transform: rotate(0deg); }
 			100% { transform: rotate(360deg); }
 		}
+		
+		/* Стили для отображения дополнительной информации */
+		.address-details div {
+			font-size: 11px;
+			line-height: 1.4;
+		}
+
+		.address-details div:first-child {
+			color: #666;
+		}
+
+		.address-details div:last-child {
+			color: #2196F3;
+			font-weight: 500;
+			background: #f0f7ff;
+			padding: 2px 6px;
+			border-radius: 3px;
+			margin-top: 2px;
+			display: inline-block;
+		}
+
     </style>
 </head>
 <body>
@@ -1391,26 +1543,41 @@
             <div class="panel-header" id="panel-header">
                 <h3>PR МАРКЕТ Рязань</h3>
                 <div class="panel-subtitle">Карта стендов у домофонов</div>
-                <div class="panel-stats-grid">
-                    <div class="stats-row">
-                        <span class="stats-label">ЗДАНИЙ НА КАРТЕ:</span>
-                        <span id="buildings-count" class="stats-value">0</span>
-                        <span class="stats-divider">|</span>
-                        <span class="stats-label">СКРЫТО:</span>
-                        <span id="hidden-buildings" class="stats-value">0</span>
-                    </div>
-                    <div class="stats-row">
-                        <span class="stats-label">СТЕНДОВ ВЫБРАНО:</span>
-                        <span id="selected-stands" class="stats-value">0</span>
-                        <span class="stats-divider">|</span>
-                        <span class="stats-label">СКРЫТО:</span>
-                        <span id="hidden-stands" class="stats-value">0</span>
-                    </div>
-                </div>
+				<div class="panel-stats-grid">
+					<div class="stats-row">
+						<div class="stats-label" style="width: 80px;">&nbsp;</div>
+						<div class="stats-column">НА КАРТЕ</div>
+						<div class="stats-column">ВЫБРАНО</div>
+						<div class="stats-column">СКРЫТО</div>
+					</div>
+					<div class="stats-row">
+						<div class="stats-label">ЗДАНИЙ</div>
+						<div id="buildings-visible" class="stats-value">0</div>
+						<div id="buildings-selected" class="stats-value">0</div>
+						<div id="buildings-hidden" class="stats-value">0</div>
+					</div>
+					<div class="stats-row">
+						<div class="stats-label">СТЕНДОВ</div>
+						<div id="stands-visible" class="stats-value">0</div>
+						<div id="stands-selected" class="stats-value">0</div>
+						<div id="stands-hidden" class="stats-value">0</div>
+					</div>
+					<div class="stats-row">
+						<div class="stats-label">КВАРТИР</div>
+						<div id="apartments-visible" class="stats-value">0</div>
+						<div id="apartments-selected" class="stats-value">0</div>
+						<div id="apartments-hidden" class="stats-value">0</div>
+					</div>
+				</div>
                 <div class="price-section">
-                    <span>Стоимость в месяц:</span>
-                    <div id="price-container">
-                        <span id="monthly-price" class="price-value">0 р.</span>
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <span>Стоимость в месяц:</span>
+                        <div id="price-container">
+                            <span id="monthly-price" class="price-value">0 р.</span>
+                        </div>
+                    </div>
+                    <div id="per-apartment-container" class="price-per-apartment" style="width: 100%; text-align: right;">
+                        Или 0.00 р. за квартиру
                     </div>
                 </div>
                 <button class="toggle-button" title="Свернуть/развернуть">▼</button>
@@ -1421,42 +1588,95 @@
                 <!-- Вкладки -->
                 <div class="tabs">
                     <button class="tab active" data-tab="filters">Фильтры</button>
-                    <button class="tab" data-tab="addresses">Адреса</button>
+                    <button class="tab" data-tab="calculation">Расчёт</button>
                     <button class="tab" data-tab="my-markers">Мои метки</button>
                 </div>
-                
-                <!-- Содержимое вкладки фильтров -->
-                <div id="filters-tab" class="tab-content active">
-                    <div class="filters-content">
-                        <!-- Фиксированная секция статуса -->
-                        <div class="fixed-filter-section">
-                            <div class="status-filters">
-                                <div class="status-filter-group">
-                                    <label>
-                                        <input type="checkbox" class="status-filter" value="free" checked> 
-                                        <span class="status-free">Свободно</span>
-                                    </label>
-                                </div>
-                                <div class="status-filter-group">
-                                    <label>
-                                        <input type="checkbox" class="status-filter" value="occupied" checked> 
-                                        <span class="status-occupied">Занято</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Прокручиваемая секция районов -->
-                        <div class="scrollable-filters">
+				
+				<!-- Содержимое вкладки фильтров -->
+				<div id="filters-tab" class="tab-content active">
+					<div class="filters-content">
+						<!-- Фиксированная секция статусов -->
+						<div class="fixed-filter-section">
+							<div class="status-filters">
+								<div class="status-filter-group">
+									<label>
+										<input type="checkbox" class="status-filter" value="free" checked> 
+										<span class="status-free">Свободно</span>
+									</label>
+								</div>
+								<div class="status-filter-group">
+									<label>
+										<input type="checkbox" class="status-filter" value="occupied" checked> 
+										<span class="status-occupied">Занято</span>
+									</label>
+								</div>
+							</div>
+						</div>
+						
+						<!-- Прокручиваемая область районов -->
+						<div class="scrollable-filters">
+							<div class="filter-section">
+								<div class="checkbox-group" id="districts-container">
+									<!-- Чекбоксы районов будут добавляться здесь -->
+								</div>
+							</div>
+                            
+                            <!-- Фильтр по этажам -->
                             <div class="filter-section">
-                                <div class="checkbox-group" id="districts-container"></div>
+                                <div style="font-weight: 600; margin-bottom: 8px; font-size: 13px; color: #333;">Этажи</div>
+                                <div class="numeric-filter">
+                                    <div class="numeric-inputs">
+                                        <input type="number" id="floors-min" placeholder="мин" min="0" step="1">
+                                        <span>-</span>
+                                        <input type="number" id="floors-max" placeholder="макс" min="0" step="1">
+                                    </div>
+                                    <div class="numeric-buttons">
+                                        <button class="numeric-btn set-min" data-for="floors-min">Min</button>
+                                        <button class="numeric-btn set-max" data-for="floors-max">Max</button>
+                                        <button class="numeric-btn reset" data-for="floors">Сбросить</button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
+                            
+                            <!-- Фильтр по количеству квартир -->
+                            <div class="filter-section">
+                                <div style="font-weight: 600; margin-bottom: 8px; font-size: 13px; color: #333;">Квартир в здании</div>
+                                <div class="numeric-filter">
+                                    <div class="numeric-inputs">
+                                        <input type="number" id="apartments-min" placeholder="мин" min="0" step="1">
+                                        <span>-</span>
+                                        <input type="number" id="apartments-max" placeholder="макс" min="0" step="1">
+                                    </div>
+                                    <div class="numeric-buttons">
+                                        <button class="numeric-btn set-min" data-for="apartments-min">Min</button>
+                                        <button class="numeric-btn set-max" data-for="apartments-max">Max</button>
+                                        <button class="numeric-btn reset" data-for="apartments">Сбросить</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Фильтр по среднему количеству квартир в подъезде -->
+                            <div class="filter-section">
+                                <div style="font-weight: 600; margin-bottom: 8px; font-size: 13px; color: #333;">Квартир в подъезде (средн.)</div>
+                                <div class="numeric-filter">
+                                    <div class="numeric-inputs">
+                                        <input type="number" id="avg-apartments-min" placeholder="мин" min="0" step="1">
+                                        <span>-</span>
+                                        <input type="number" id="avg-apartments-max" placeholder="макс" min="0" step="1">
+                                    </div>
+                                    <div class="numeric-buttons">
+                                        <button class="numeric-btn set-min" data-for="avg-apartments-min">Min</button>
+                                        <button class="numeric-btn set-max" data-for="avg-apartments-max">Max</button>
+                                        <button class="numeric-btn reset" data-for="avg-apartments">Сбросить</button>
+                                    </div>
+                                </div>
+                            </div>
+						</div>
+					</div>
+				</div>
                 
-                <!-- Содержимое вкладки адреса -->
-                <div id="addresses-tab" class="tab-content">
+                <!-- Содержимое вкладки расчёта -->
+                <div id="calculation-tab" class="tab-content">
                     <!-- Кнопки управления выбором -->
                     <div class="selection-controls">
                         <button id="select-all-btn" class="selection-btn select-all">Выбрать все</button>
@@ -1539,6 +1759,11 @@
     let isLoading = false;
     let filterTimer = null;
 
+    // Переменные для числовых фильтров
+    let minFloors = 0, maxFloors = 0;
+    let minApartments = 0, maxApartments = 0;
+    let minAvgApartments = 0, maxAvgApartments = 0;
+
     // Функции для расчета стоимости
     function calculatePrice(standsCount) {
         if (standsCount < 100) {
@@ -1599,44 +1824,86 @@
         }
     }
 
-    function updatePanelHeaderStats() {
-        const visibleBuildings = currentAddresses.filter(addr => 
-            document.querySelector(`.address-item[data-id="${addr.id}"]`)
-        ).length;
-        const hiddenBuildings = currentAddresses.length - visibleBuildings;
-        
-        let selectedStands = 0;
-        selectedAddresses.forEach(id => {
-            const addr = currentAddresses.find(a => a.id === id);
-            if (addr) selectedStands += (addr.entrances || 0);
-        });
-        
-        let hiddenStands = 0;
-        const visibleIds = new Set(currentAddresses
-            .filter(addr => document.querySelector(`.address-item[data-id="${addr.id}"]`))
-            .map(addr => addr.id));
-        
-        currentAddresses.forEach(addr => {
-            if (!visibleIds.has(addr.id)) {
-                hiddenStands += (addr.entrances || 0);
-            }
-        });
-        
-        document.getElementById('buildings-count').textContent = visibleBuildings;
-        document.getElementById('hidden-buildings').textContent = hiddenBuildings;
-        document.getElementById('selected-stands').textContent = selectedStands;
-        document.getElementById('hidden-stands').textContent = hiddenStands;
-        
-        const priceInfo = calculatePrice(selectedStands);
-        const priceContainer = document.getElementById('price-container');
-        
-        if (priceInfo.message) {
-            priceContainer.innerHTML = `<span id="monthly-price" class="price-warning">${priceInfo.message}</span>`;
+function updatePanelHeaderStats() {
+    let buildingsVisible = 0, buildingsSelected = 0, buildingsHidden = 0;
+    let standsVisible = 0, standsSelected = 0, standsHidden = 0;
+    let apartmentsVisible = 0, apartmentsSelected = 0, apartmentsHidden = 0;
+
+    currentAddresses.forEach(addr => {
+        const isVisible = document.querySelector(`.address-item[data-id="${addr.id}"]`) !== null;
+        const isSelected = selectedAddresses.has(addr.id);
+        const apartments = addr.apartments || 0;
+        const entrances = addr.entrances || 0;
+
+        // Подсчёт для зданий
+        if (isVisible) {
+            buildingsVisible++;
+            if (isSelected) buildingsSelected++;
         } else {
-            const formattedPrice = priceInfo.total.toLocaleString('ru-RU') + ' р.';
-            priceContainer.innerHTML = `<span id="monthly-price" class="price-value">${formattedPrice}</span>`;
+            buildingsHidden++;
+        }
+
+        // Подсчёт для стендов (подъездов)
+        if (isVisible) {
+            standsVisible += entrances;
+            if (isSelected) standsSelected += entrances;
+        } else {
+            standsHidden += entrances;
+        }
+
+        // Подсчёт для квартир
+        if (isVisible) {
+            apartmentsVisible += apartments;
+            if (isSelected) apartmentsSelected += apartments;
+        } else {
+            apartmentsHidden += apartments;
+        }
+    });
+
+    // Обновление отображения для зданий
+    document.getElementById('buildings-visible').textContent = buildingsVisible;
+    document.getElementById('buildings-selected').textContent = buildingsSelected;
+    document.getElementById('buildings-hidden').textContent = buildingsHidden;
+
+    // Обновление отображения для стендов
+    document.getElementById('stands-visible').textContent = standsVisible;
+    document.getElementById('stands-selected').textContent = standsSelected;
+    document.getElementById('stands-hidden').textContent = standsHidden;
+
+    // Обновление отображения для квартир
+    document.getElementById('apartments-visible').textContent = apartmentsVisible;
+    document.getElementById('apartments-selected').textContent = apartmentsSelected;
+    document.getElementById('apartments-hidden').textContent = apartmentsHidden;
+
+    // Расчет стоимости
+    let selectedStands = 0;
+    selectedAddresses.forEach(id => {
+        const addr = currentAddresses.find(a => a.id === id);
+        if (addr && document.querySelector(`.address-item[data-id="${addr.id}"]`)) {
+            selectedStands += (addr.entrances || 0);
+        }
+    });
+    
+    const priceInfo = calculatePrice(selectedStands);
+    const priceContainer = document.getElementById('price-container');
+    const perApartmentContainer = document.getElementById('per-apartment-container');
+    
+    if (priceInfo.message) {
+        priceContainer.innerHTML = `<span id="monthly-price" class="price-warning">${priceInfo.message}</span>`;
+        perApartmentContainer.innerHTML = ``;
+    } else {
+        const formattedPrice = priceInfo.total.toLocaleString('ru-RU') + ' р.';
+        priceContainer.innerHTML = `<span id="monthly-price" class="price-value">${formattedPrice}</span>`;
+        
+        // Расчёт стоимости за квартиру
+        if (apartmentsSelected > 0) {
+            const perApartment = (priceInfo.total / apartmentsSelected).toFixed(2);
+            perApartmentContainer.innerHTML = `Или ${perApartment} р. за квартиру`;
+        } else {
+            perApartmentContainer.innerHTML = ``;
         }
     }
+}
 
     function showNotification(message, isError = false) {
         const notification = document.getElementById('notification');
@@ -1712,119 +1979,137 @@
         return currentAddresses.filter(addr => addr.district === district);
     }
     
-    function deselectAddressesByStatus(status) {
-        const addresses = getAddressesByStatus(status);
-        const addressesToDeselect = [];
-        
-        addresses.forEach(addr => {
-            if (selectedAddresses.has(addr.id)) {
-                addressesToDeselect.push(addr.id);
-            }
-        });
-        
-        if (addressesToDeselect.length > 0) {
-            addressesToDeselect.forEach(id => {
-                selectedAddresses.delete(id);
-                updateAddressSelectionOnMap(id, false);
-                updateAddressItemSelection(id, false);
-            });
-            
-            return addressesToDeselect.length;
-        }
-        
-        return 0;
-    }
-    
-    function deselectAddressesByDistrict(district) {
-        const addresses = getAddressesByDistrict(district);
-        const addressesToDeselect = [];
-        
-        addresses.forEach(addr => {
-            if (selectedAddresses.has(addr.id)) {
-                addressesToDeselect.push(addr.id);
-            }
-        });
-        
-        if (addressesToDeselect.length > 0) {
-            addressesToDeselect.forEach(id => {
-                selectedAddresses.delete(id);
-                updateAddressSelectionOnMap(id, false);
-                updateAddressItemSelection(id, false);
-            });
-            
-            return addressesToDeselect.length;
-        }
-        
-        return 0;
-    }
-    
     function handleFilterChange(filterType, filterValue, isChecked) {
+        // При снятии чекбокса с района НЕ снимаем выделение, просто скрываем
+        // При изменении числовых фильтров - просто скрываем/показываем
+        
+        // Только для изменения числовых фильтров
+        if (filterType === 'numeric') {
+            // Применяем фильтры без снятия выделения
+            applyFilters();
+            return;
+        }
+        
         if (!isChecked) {
-            let deselectedCount = 0;
+            let hiddenCount = 0;
             let filterName = '';
             
             if (filterType === 'status') {
-                deselectedCount = deselectAddressesByStatus(filterValue);
+                // НЕ снимаем выделение, просто скрываем
+                const addresses = getAddressesByStatus(filterValue);
+                hiddenCount = addresses.length;
                 filterName = filterValue === 'free' ? 'Свободно' : 'Занято';
+                showNotification(`Скрыто адресов (${filterName}): ${hiddenCount}`);
             } else if (filterType === 'district') {
                 if (filterValue !== 'all') {
-                    deselectedCount = deselectAddressesByDistrict(filterValue);
+                    const addresses = getAddressesByDistrict(filterValue);
+                    hiddenCount = addresses.length;
                     filterName = filterValue;
-                } else {
-                    const previouslySelected = [...selectedAddresses];
-                    previouslySelected.forEach(addressId => {
-                        selectedAddresses.delete(addressId);
-                        updateAddressSelectionOnMap(addressId, false);
-                        updateAddressItemSelection(addressId, false);
-                    });
-                    deselectedCount = previouslySelected.length;
-                    filterName = 'Все районы';
+                    // НЕ снимаем выделение, просто скрываем
+                    showNotification(`Скрыто адресов в районе "${filterName}": ${hiddenCount}`);
                 }
-            }
-            
-            if (deselectedCount > 0) {
-                showNotification(`Снято выделение с ${deselectedCount} адресов (фильтр: ${filterName})`);
             }
         }
         
         applyFilters();
     }
     
-function setupTabs() {
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const tabName = tab.getAttribute('data-tab');
-            
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(tc => tc.classList.remove('active'));
-            
-            tab.classList.add('active');
-            document.getElementById(`${tabName}-tab`).classList.add('active');
-            
-            if (tabName === 'my-markers') {
-                updateUserMarkersList();
-            } else if (tabName === 'addresses') {
-                // Обновляем список при переключении на вкладку адресов
-                const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
-                const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
-                
-                if (selectedStatuses.length > 0) {
-                    // Если есть активные фильтры, применяем их
-                    applyFilters();
-                } else {
-                    // Иначе показываем все адреса
-                    const filtered = currentAddresses.filter(addr => {
-                        return true; // Показываем все адреса
-                    });
-                    updateAddressList(filtered);
-                }
-            }
-        });
-    });
-}
+    // Обновленные функции проверки числовых фильтров
+    function checkFloorsFilter(floors) {
+        // Если значение не задано в фильтре - пропускаем проверку
+        const minInput = document.getElementById('floors-min');
+        const maxInput = document.getElementById('floors-max');
+        const min = minInput.value !== '' ? parseInt(minInput.value) : null;
+        const max = maxInput.value !== '' ? parseInt(maxInput.value) : null;
+        
+        // Если оба поля пустые - фильтр не активен
+        if (min === null && max === null) return true;
+        
+        // Если floors не определен в данных - не показываем
+        if (floors === undefined || floors === null || floors === 0) return false;
+        
+        // Проверяем диапазон
+        if (min !== null && floors < min) return false;
+        if (max !== null && floors > max) return false;
+        
+        return true;
+    }
+
+    function checkApartmentsFilter(apartments) {
+        // Если значение не задано в фильтре - пропускаем проверку
+        const minInput = document.getElementById('apartments-min');
+        const maxInput = document.getElementById('apartments-max');
+        const min = minInput.value !== '' ? parseInt(minInput.value) : null;
+        const max = maxInput.value !== '' ? parseInt(maxInput.value) : null;
+        
+        // Если оба поля пустые - фильтр не активен
+        if (min === null && max === null) return true;
+        
+        // Если apartments не определен в данных - не показываем
+        if (apartments === undefined || apartments === null || apartments === 0) return false;
+        
+        // Проверяем диапазон
+        if (min !== null && apartments < min) return false;
+        if (max !== null && apartments > max) return false;
+        
+        return true;
+    }
+
+    function checkAvgApartmentsFilter(avgApartments) {
+        // Если значение не задано в фильтре - пропускаем проверку
+        const minInput = document.getElementById('avg-apartments-min');
+        const maxInput = document.getElementById('avg-apartments-max');
+        const min = minInput.value !== '' ? parseFloat(minInput.value) : null;
+        const max = maxInput.value !== '' ? parseFloat(maxInput.value) : null;
+        
+        // Если оба поля пустые - фильтр не активен
+        if (min === null && max === null) return true;
+        
+        // Если avgApartments не определен в данных - не показываем
+        if (avgApartments === undefined || avgApartments === null || avgApartments === 0) return false;
+        
+        // Проверяем диапазон
+        if (min !== null && avgApartments < min) return false;
+        if (max !== null && avgApartments > max) return false;
+        
+        return true;
+    }
+
+	function setupTabs() {
+		const tabs = document.querySelectorAll('.tab');
+		const tabContents = document.querySelectorAll('.tab-content');
+		
+		tabs.forEach(tab => {
+			tab.addEventListener('click', () => {
+				const tabName = tab.getAttribute('data-tab');
+				
+				tabs.forEach(t => t.classList.remove('active'));
+				tabContents.forEach(tc => tc.classList.remove('active'));
+				
+				tab.classList.add('active');
+				document.getElementById(`${tabName}-tab`).classList.add('active');
+				
+				if (tabName === 'my-markers') {
+					updateUserMarkersList();
+				} else if (tabName === 'calculation') {
+					// Обновляем список при переключении на вкладку расчёта
+					const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
+					const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
+					
+					if (selectedStatuses.length > 0) {
+						// Если есть активные фильтры, применяем их
+						applyFilters();
+					} else {
+						// Иначе показываем все адреса
+						const filtered = currentAddresses.filter(addr => {
+							return true; // Показываем все адреса
+						});
+						updateAddressList(filtered);
+					}
+				}
+			});
+		});
+	}
     
     function setupPanel() {
         const panel = document.getElementById('main-panel');
@@ -1878,35 +2163,34 @@ function setupTabs() {
     function updateCustomMobileBalloon(content, coordinates) {
         if (!isMobile || isBalloonRefreshing) return;
         
-        const overlay = document.getElementById('balloon-overlay');
-        const balloon = document.getElementById('custom-mobile-balloon');
-        const balloonContent = document.getElementById('custom-balloon-content');
-        const mobileButtons = document.getElementById('mobile-balloon-buttons');
-        
-        // Плавное обновление
-        balloonContent.style.opacity = '0';
-        setTimeout(() => {
-            balloonContent.innerHTML = content;
-            
-            // Создаем кнопки для мобильной версии
-// Создаем кнопки для мобильной версии
-if (mobileButtons) {
-    mobileButtons.innerHTML = '';
-}
-            
-            balloonContent.style.opacity = '1';
-        }, 150);
-        
-        overlay.classList.add('active');
-        balloon.classList.add('active');
-        
-        if (coordinates) {
-            map.panTo(coordinates, {
-                flying: true,
-                duration: 300
-            });
-        }
-    }
+		const overlay = document.getElementById('balloon-overlay');
+		const balloon = document.getElementById('custom-mobile-balloon');
+		const balloonContent = document.getElementById('custom-balloon-content');
+		const mobileButtons = document.getElementById('mobile-balloon-buttons');
+		
+		// Плавное обновление
+		balloonContent.style.opacity = '0';
+		setTimeout(() => {
+			balloonContent.innerHTML = content;
+			
+			// Создаем кнопки для мобильной версии
+			if (mobileButtons) {
+				mobileButtons.innerHTML = '';
+			}
+				
+				balloonContent.style.opacity = '1';
+		}, 150);
+		
+		overlay.classList.add('active');
+		balloon.classList.add('active');
+		
+		if (coordinates) {
+			map.panTo(coordinates, {
+				flying: true,
+				duration: 300
+			});
+		}
+	}
     
     function closeCustomMobileBalloon() {
         const overlay = document.getElementById('balloon-overlay');
@@ -2107,95 +2391,121 @@ if (mobileButtons) {
         });
     }
     
-    function createObjectBalloonContent(properties, objectId) {
-        const isOccupied = properties.status === 'occupied';
-        const isSelected = selectedAddresses.has(objectId);
-        
-        return `
-            <div style="padding: 8px 0;">
-                <b>Адрес:</b> ${properties.address}<br>
-                <b>Статус:</b> <span class="balloon-status ${isOccupied ? 'occupied' : 'free'}">${properties.fullStatus}</span><br>
-                <b>Район:</b> ${properties.district || 'не указан'}<br>
-                ${properties.entrances ? `<b>Подъездов:</b> ${properties.entrances}<br>` : ''}
-            </div>
-            <div style="margin: 10px 0;">
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="checkbox" class="object-checkbox" ${isSelected ? 'checked' : ''} 
-                           data-object-id="${objectId}" style="transform: scale(1.1);"
-                           onclick="event.stopPropagation(); toggleAddressSelection(${objectId}, this.checked)">
-                    <span>Выбрать этот адрес</span>
-                </label>
-            </div>
-            <div class="balloon-controls">
-                <button class="balloon-btn hide-unselected" onclick="event.stopPropagation(); hideSingleAddress(${objectId})">
-                    Скрыть невыбранные
-                </button>
-            </div>
-            <button class="balloon-copy-button" onclick="event.stopPropagation(); copySingleAddress('${properties.address.replace(/'/g, "\\'")}', '${properties.fullStatus.replace(/'/g, "\\'")}', '${(properties.district || '').replace(/'/g, "\\'")}', ${properties.entrances || 0})">
-                Копировать адрес
-            </button>
-        `;
+function createObjectBalloonContent(properties, objectId) {
+    const isOccupied = properties.status === 'occupied';
+    const isSelected = selectedAddresses.has(objectId);
+    
+    let balloonContent = `
+        <div style="padding: 8px 0;">
+            <b>Адрес:</b> ${properties.address}<br>
+            <b>Статус:</b> <span class="balloon-status ${isOccupied ? 'occupied' : 'free'}">${properties.fullStatus}</span><br>
+            <b>Район:</b> ${properties.district || 'не указан'}<br>
+    `;
+    
+    if (properties.entrances) {
+        balloonContent += `<b>Подъездов:</b> ${properties.entrances}<br>`;
     }
     
-    function createClusterBalloonContent(geoObjects) {
-        const sortedGeoObjects = [...geoObjects].sort((a, b) => {
-            const addressA = a.properties.address || '';
-            const addressB = b.properties.address || '';
-            return addressA.localeCompare(addressB);
-        });
-        
-        const addressIds = sortedGeoObjects.map(obj => obj.id);
-        
-        const allSelected = addressIds.every(id => selectedAddresses.has(id));
-        
-        let content = `
-            <h2 style="margin: 0 0 12px 0; font-size: 16px; color: #333; font-weight: 600;">
-                Адресов в кластере: ${sortedGeoObjects.length}
-            </h2>
-            <div class="cluster-balloon" style="max-height: 200px; overflow-y: auto; margin-bottom: 12px;">
-        `;
-        
-        sortedGeoObjects.forEach((obj, index) => {
-            if (obj && obj.properties) {
-                const isOccupied = obj.properties.status === 'occupied';
-                const isSelected = selectedAddresses.has(obj.id);
-                
-                content += `
-                    <div class="cluster-checkbox-item" data-object-id="${obj.id}">
-                        <input type="checkbox" class="cluster-checkbox" ${isSelected ? 'checked' : ''}
-                               data-object-id="${obj.id}"
-                               onclick="event.stopPropagation(); toggleAddressSelection(${obj.id}, this.checked)">
-                        <div class="cluster-item-content">
-                            <div class="cluster-item-address">${obj.properties.address || "Адрес не указан"}</div>
-                            <div class="cluster-item-details">
-                                Статус: <span class="balloon-status ${isOccupied ? 'occupied' : 'free'}">${obj.properties.fullStatus || "не указан"}</span><br>
-                                Район: ${obj.properties.district || "не указан"}<br>
-                                Подъездов: ${obj.properties.entrances || "не указано"}
-                            </div>
+    if (properties.floors !== null && properties.floors !== 0) {
+        balloonContent += `<b>Этажей:</b> ${properties.floors}<br>`;
+    }
+    
+    if (properties.apartments !== null && properties.apartments !== 0) {
+        balloonContent += `<b>Квартир всего:</b> ${properties.apartments}<br>`;
+    }
+    
+    if (properties.avgApartmentsPerEntrance) {
+        const avgApartmentsFormatted = Math.round(properties.avgApartmentsPerEntrance);
+        balloonContent += `<b>Квартир в подъезде:</b> ~${avgApartmentsFormatted}<br>`;
+    }
+    
+    balloonContent += `
+        </div>
+        <div style="margin: 10px 0;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" class="object-checkbox" ${isSelected ? 'checked' : ''} 
+                       data-object-id="${objectId}" style="transform: scale(1.1);"
+                       onclick="event.stopPropagation(); toggleAddressSelection(${objectId}, this.checked)">
+                <span>Выбрать этот адрес</span>
+            </label>
+        </div>
+        <div class="balloon-controls">
+            <button class="balloon-btn hide-unselected" onclick="event.stopPropagation(); hideSingleAddress(${objectId})">
+                Скрыть невыбранные
+            </button>
+        </div>
+        <button class="balloon-copy-button" onclick="event.stopPropagation(); copySingleAddress('${properties.address.replace(/'/g, "\\'")}', '${properties.fullStatus.replace(/'/g, "\\'")}', '${(properties.district || '').replace(/'/g, "\\'")}', ${properties.entrances || 0}, ${properties.floors || 0}, ${properties.apartments || 0}, ${properties.avgApartmentsPerEntrance || 0})">
+            Копировать адрес
+        </button>
+    `;
+    
+    return balloonContent;
+}
+    
+function createClusterBalloonContent(geoObjects) {
+    const sortedGeoObjects = [...geoObjects].sort((a, b) => {
+        const addressA = a.properties.address || '';
+        const addressB = b.properties.address || '';
+        return addressA.localeCompare(addressB);
+    });
+    
+    const addressIds = sortedGeoObjects.map(obj => obj.id);
+    const allSelected = addressIds.every(id => selectedAddresses.has(id));
+    
+    let content = `
+        <h2 style="margin: 0 0 12px 0; font-size: 16px; color: #333; font-weight: 600;">
+            Адресов в кластере: ${sortedGeoObjects.length}
+        </h2>
+        <div class="cluster-balloon" style="max-height: 200px; overflow-y: auto; margin-bottom: 12px;">
+    `;
+    
+    sortedGeoObjects.forEach((obj, index) => {
+        if (obj && obj.properties) {
+            const isOccupied = obj.properties.status === 'occupied';
+            const isSelected = selectedAddresses.has(obj.id);
+            const avgApartmentsFormatted = obj.properties.avgApartmentsPerEntrance 
+                ? Math.round(obj.properties.avgApartmentsPerEntrance)
+                : '0';
+            
+            content += `
+                <div class="cluster-checkbox-item" data-object-id="${obj.id}">
+                    <input type="checkbox" class="cluster-checkbox" ${isSelected ? 'checked' : ''}
+                           data-object-id="${obj.id}"
+                           onclick="event.stopPropagation(); toggleAddressSelection(${obj.id}, this.checked)">
+                    <div class="cluster-item-content">
+                        <div class="cluster-item-address">${obj.properties.address || "Адрес не указан"}</div>
+                        <div class="cluster-item-details">
+                            Статус: <span class="balloon-status ${isOccupied ? 'occupied' : 'free'}">${obj.properties.fullStatus || "не указан"}</span><br>
+                            Район: ${obj.properties.district || "не указан"}<br>
+                            Подъездов: ${obj.properties.entrances || "не указано"}<br>
+                            ${obj.properties.floors !== null && obj.properties.floors !== 0 ? `Этажей: ${obj.properties.floors}<br>` : ''}
+                            ${obj.properties.apartments !== null && obj.properties.apartments !== 0 ? `Квартир: ${obj.properties.apartments}<br>` : ''}
+                            Квартир в подъезде: ~${avgApartmentsFormatted}
                         </div>
                     </div>
-                `;
-            }
-        });
-        
-        content += `
-            </div>
-            <div class="balloon-controls">
-                <button class="balloon-btn ${allSelected ? 'deselect-all' : 'select-all'}" onclick="event.stopPropagation(); ${allSelected ? 'deselectAllInCluster' : 'selectAllInCluster'}([${addressIds.join(',')}])">
-                    ${allSelected ? 'Снять выделение' : 'Выбрать все адреса кластера'}
-                </button>
-                <button class="balloon-btn select-every-other" onclick="event.stopPropagation(); selectEveryOtherInCluster([${addressIds.join(',')}])">
-                    Выбрать через один адрес
-                </button>
-                <button class="balloon-btn hide-unselected" onclick="event.stopPropagation(); hideUnselectedAddressesInBalloon([${addressIds.join(',')}])">
-                    Скрыть невыбранные в кластере
-                </button>
-            </div>
-        `;
-        
-        return content;
-    }
+                </div>
+            `;
+        }
+    });
     
+    content += `
+        </div>
+        <div class="balloon-controls">
+            <button class="balloon-btn ${allSelected ? 'deselect-all' : 'select-all'}" onclick="event.stopPropagation(); ${allSelected ? 'deselectAllInCluster' : 'selectAllInCluster'}(${JSON.stringify(addressIds)})">
+                ${allSelected ? 'Снять выделение' : 'Выбрать все адреса кластера'}
+            </button>
+            <button class="balloon-btn select-every-other" onclick="event.stopPropagation(); selectEveryOtherInCluster([${addressIds.join(',')}])">
+                Выбрать через один адрес
+            </button>
+            <button class="balloon-btn hide-unselected" onclick="event.stopPropagation(); hideUnselectedAddressesInBalloon([${addressIds.join(',')}])">
+                Скрыть невыбранные в кластере
+            </button>
+        </div>
+    `;
+    
+    return content;
+}
+
     window.toggleAddressSelection = function(addressId, isSelected) {
         if (isSelected) {
             selectedAddresses.add(addressId);
@@ -2474,25 +2784,31 @@ if (mobileButtons) {
         }
     };
     
-    window.copySingleAddress = function(address, status, district, entrances) {
-        let text = address;
-        
-        const details = [];
-        if (status && status !== 'undefined') details.push(status);
-        if (district && district !== 'undefined' && district !== 'не указан') details.push(district);
-        if (entrances && entrances !== 'undefined' && entrances !== 'не указано' && entrances !== 0) details.push(`Подъездов: ${entrances}`);
-        
-        if (details.length > 0) {
-            text += ` (${details.join(', ')})`;
-        }
-        
-        navigator.clipboard.writeText(text).then(() => {
-            showNotification('Адрес скопирован в буфер обмена');
-        }).catch(err => {
-            console.error('Ошибка копирования адреса:', err);
-            showNotification('Не удалось скопировать адрес', true);
-        });
-    };
+	window.copySingleAddress = function(address, status, district, entrances, floors, apartments, avgApartmentsPerEntrance) {
+		let text = address;
+		
+		const details = [];
+		if (status && status !== 'undefined') details.push(status);
+		if (district && district !== 'undefined' && district !== 'не указан') details.push(district);
+		if (entrances && entrances !== 'undefined' && entrances !== 'не указано' && entrances !== 0) details.push(`Подъездов: ${entrances}`);
+		if (floors && floors !== 'undefined' && floors !== 'не указано' && floors !== 0) details.push(`Этажей: ${floors}`);
+		if (apartments && apartments !== 'undefined' && apartments !== 'не указано' && apartments !== 0) details.push(`Квартир: ${apartments}`);
+		if (avgApartmentsPerEntrance && avgApartmentsPerEntrance !== 'undefined' && avgApartmentsPerEntrance !== 'не указано' && avgApartmentsPerEntrance !== 0) {
+			const avgFormatted = Math.round(avgApartmentsPerEntrance);
+			details.push(`Ср. в подъезде: ${avgFormatted} кв.`);
+		}
+		
+		if (details.length > 0) {
+			text += ` (${details.join(', ')})`;
+		}
+		
+		navigator.clipboard.writeText(text).then(() => {
+			showNotification('Адрес скопирован в буфер обмена');
+		}).catch(err => {
+			console.error('Ошибка копирования адреса:', err);
+			showNotification('Не удалось скопировать адрес', true);
+		});
+	};
     
     window.selectAllAddresses = function() {
         const visibleAddresses = currentAddresses.filter(addr => 
@@ -2576,95 +2892,109 @@ if (mobileButtons) {
         }
     };
     
-    async function copySelectedAddresses() {
-        if (selectedAddresses.size === 0) {
-            showNotification('Нет выбранных адресов для копирования', true);
-            return;
-        }
-        
-        // === БЛОК 1: Информация из шапки ===
-        const buildingsCount = document.getElementById('buildings-count').textContent;
-        const hiddenBuildings = document.getElementById('hidden-buildings').textContent;
-        const selectedStands = document.getElementById('selected-stands').textContent;
-        const hiddenStands = document.getElementById('hidden-stands').textContent;
-        const monthlyPrice = document.getElementById('monthly-price').textContent;
-        
-        let headerBlock = `PR МАРКЕТ Рязань - Карта стендов у домофонов\n`;
-        headerBlock += `==================================================\n`;
-        headerBlock += `Дата отчёта: ${new Date().toLocaleDateString('ru-RU')}\n`;
-        headerBlock += `Зданий на карте: ${buildingsCount} | Скрыто: ${hiddenBuildings}\n`;
-        headerBlock += `Стендов выбрано: ${selectedStands} | Скрыто: ${hiddenStands}\n`;
-        headerBlock += `Стоимость в месяц: ${monthlyPrice}\n`;
-        headerBlock += `==================================================\n\n`;
-        
-        // === БЛОК 2: Выбранные адреса ===
-        let addressesBlock = `ВЫБРАННЫЕ АДРЕСА (${selectedAddresses.size}):\n`;
-        addressesBlock += `==================================================\n`;
-        
-        // Сортируем адреса для удобства чтения
-        const sortedAddresses = [];
-        selectedAddresses.forEach(id => {
-            const addr = currentAddresses.find(a => a.id === id);
-            if (addr) sortedAddresses.push(addr);
-        });
-        
-        // Сортируем по району, затем по адресу
-        sortedAddresses.sort((a, b) => {
-            if (a.district && b.district) {
-                const districtCompare = a.district.localeCompare(b.district);
-                if (districtCompare !== 0) return districtCompare;
-            }
-            return a.address.localeCompare(b.address);
-        });
-        
-        // Формируем список адресов в нужном формате
-        sortedAddresses.forEach(addr => {
-            const parts = [];
-            parts.push(addr.address);
-            if (addr.district && addr.district !== 'не указан') {
-                parts.push(addr.district);
-            }
-            parts.push(addr.status);
-            parts.push(`стендов: ${addr.entrances || 0}`);
-            
-            addressesBlock += parts.join(', ') + '\n';
-        });
-        
-        addressesBlock += `\n`;
-        
-        // === БЛОК 3: Метки на карте ===
-        let markersBlock = `МЕТКИ НА КАРТЕ (${userMarkers.length}):\n`;
-        markersBlock += `==================================================\n`;
-        
-        if (userMarkers.length > 0) {
-            // Сортируем метки по дате добавления (новые сверху)
-            const sortedMarkers = [...userMarkers].sort((a, b) => 
-                new Date(b.date) - new Date(a.date)
-            );
-            
-            sortedMarkers.forEach((marker, index) => {
-                const date = new Date(marker.date).toLocaleDateString('ru-RU');
-                markersBlock += `${index + 1}. ${marker.text} (${marker.address})\n`;
-                markersBlock += `   Добавлено: ${date}\n`;
-            });
-        } else {
-            markersBlock += `Нет добавленных меток\n`;
-        }
-        
-        markersBlock += `\n==================================================\n`;
-        markersBlock += `Сгенерировано в системе PR МАРКЕТ Рязань`;
-        
-        // === ОБЪЕДИНЯЕМ ВСЕ БЛОКИ ===
-        let text = headerBlock + addressesBlock + markersBlock;
-        
-        try {
-            await navigator.clipboard.writeText(text);
-            showNotification(`Отчёт скопирован в буфер обмена!\nВыбрано адресов: ${selectedAddresses.size}, Меток: ${userMarkers.length}`);
-        } catch (err) {
-            console.error('Ошибка копирования отчёта:', err);
-            showNotification('Не удалось скопировать отчёт', true);
-        }
+async function copySelectedAddresses() {
+    if (selectedAddresses.size === 0) {
+        showNotification('Нет выбранных адресов для копирования', true);
+        return;
     }
+    
+    // === БЛОК 1: Информация из шапки ===
+    const buildingsVisible = document.getElementById('buildings-visible').textContent;
+    const buildingsSelected = document.getElementById('buildings-selected').textContent;
+    const buildingsHidden = document.getElementById('buildings-hidden').textContent;
+    const standsVisible = document.getElementById('stands-visible').textContent;
+    const standsSelected = document.getElementById('stands-selected').textContent;
+    const standsHidden = document.getElementById('stands-hidden').textContent;
+    const apartmentsVisible = document.getElementById('apartments-visible').textContent;
+    const apartmentsSelected = document.getElementById('apartments-selected').textContent;
+    const apartmentsHidden = document.getElementById('apartments-hidden').textContent;
+    const monthlyPrice = document.getElementById('monthly-price').textContent;
+    const perApartmentText = document.getElementById('per-apartment-container').textContent;
+    
+    let headerBlock = `PR МАРКЕТ Рязань - Карта стендов у домофонов\n`;
+    headerBlock += `==================================================\n`;
+    headerBlock += `Дата отчёта: ${new Date().toLocaleDateString('ru-RU')}\n\n`;
+    headerBlock += `         НА КАРТЕ   ВЫБРАНО   СКРЫТО\n`;
+    headerBlock += `ЗДАНИЙ   ${buildingsVisible.padStart(7)}     ${buildingsSelected.padStart(7)}     ${buildingsHidden.padStart(7)}\n`;
+    headerBlock += `СТЕНДОВ  ${standsVisible.padStart(7)}     ${standsSelected.padStart(7)}     ${standsHidden.padStart(7)}\n`;
+    headerBlock += `КВАРТИР  ${apartmentsVisible.padStart(7)}     ${apartmentsSelected.padStart(7)}     ${apartmentsHidden.padStart(7)}\n\n`;
+    headerBlock += `Стоимость в месяц: ${monthlyPrice}\n`;
+    if (perApartmentText) {
+        headerBlock += `${perApartmentText}\n`;
+    }
+    headerBlock += `==================================================\n\n`;
+		
+		// === БЛОК 2: Выбранные адреса ===
+		let addressesBlock = `ВЫБРАННЫЕ АДРЕСА (${selectedAddresses.size}):\n`;
+		addressesBlock += `==================================================\n`;
+		
+		const sortedAddresses = [];
+		selectedAddresses.forEach(id => {
+			const addr = currentAddresses.find(a => a.id === id);
+			if (addr) sortedAddresses.push(addr);
+		});
+		
+		// Сортируем по району, затем по адресу
+		sortedAddresses.sort((a, b) => {
+			if (a.district && b.district) {
+				const districtCompare = a.district.localeCompare(b.district);
+				if (districtCompare !== 0) return districtCompare;
+			}
+			return a.address.localeCompare(b.address);
+		});
+		
+		// Формируем список адресов в нужном формате
+		sortedAddresses.forEach(addr => {
+			const parts = [];
+			parts.push(addr.address);
+			if (addr.district && addr.district !== 'не указан') {
+				parts.push(addr.district);
+			}
+			parts.push(addr.status);
+			parts.push(`стендов: ${addr.entrances || 0}`);
+			if (addr.floors && addr.floors !== 0) parts.push(`этажей: ${addr.floors}`);
+			if (addr.apartments && addr.apartments !== 0) parts.push(`квартир: ${addr.apartments}`);
+			if (addr.avgApartmentsPerEntrance && addr.avgApartmentsPerEntrance !== 0) {
+				parts.push(`квартир в подъезде: ~${Math.round(addr.avgApartmentsPerEntrance)}`);
+			}
+			
+			addressesBlock += parts.join(', ') + '\n';
+		});
+		
+		addressesBlock += `\n`;
+		
+		// === БЛОК 3: Метки на карте ===
+		let markersBlock = `МЕТКИ НА КАРТЕ (${userMarkers.length}):\n`;
+		markersBlock += `==================================================\n`;
+		
+		if (userMarkers.length > 0) {
+			const sortedMarkers = [...userMarkers].sort((a, b) => 
+				new Date(b.date) - new Date(a.date)
+			);
+			
+			sortedMarkers.forEach((marker, index) => {
+				const date = new Date(marker.date).toLocaleDateString('ru-RU');
+				markersBlock += `${index + 1}. ${marker.text} (${marker.address})\n`;
+				markersBlock += `   Добавлено: ${date}\n`;
+			});
+		} else {
+			markersBlock += `Нет добавленных меток\n`;
+		}
+		
+		markersBlock += `\n==================================================\n`;
+		markersBlock += `Сгенерировано в системе PR МАРКЕТ Рязань`;
+		
+		// === ОБЪЕДИНЯЕМ ВСЕ БЛОКИ ===
+		let text = headerBlock + addressesBlock + markersBlock;
+		
+		try {
+			await navigator.clipboard.writeText(text);
+			showNotification(`Отчёт скопирован в буфер обмена!\nВыбрано адресов: ${selectedAddresses.size}, Меток: ${userMarkers.length}`);
+		} catch (err) {
+			console.error('Ошибка копирования отчёта:', err);
+			showNotification('Не удалось скопировать отчёт', true);
+		}
+	}
     
     function checkStatusFilter(status) {
         const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
@@ -2729,42 +3059,30 @@ if (mobileButtons) {
 			}
 		}
 		
-		if (isHidingUnselected) {
-			objectManager.setFilter(obj => {
-				const isSelected = selectedAddresses.has(obj.id);
-				if (!isSelected) return false;
-				
-				const statusMatch = checkStatusFilter(obj.properties.status);
-				const districtMatch = checkDistrictFilter(obj.properties.district);
-				
-				return statusMatch && districtMatch;
-			});
+		// Единая логика: просто скрываем адреса, не соответствующие фильтрам
+		// НЕ снимаем выделение с них
+		objectManager.setFilter(obj => {
+			const statusMatch = checkStatusFilter(obj.properties.status);
+			const districtMatch = checkDistrictFilter(obj.properties.district);
+			const floorsMatch = checkFloorsFilter(obj.properties.floors);
+			const apartmentsMatch = checkApartmentsFilter(obj.properties.apartments);
+			const avgApartmentsMatch = checkAvgApartmentsFilter(obj.properties.avgApartmentsPerEntrance);
 			
-			const filtered = currentAddresses.filter(addr => {
-				if (!selectedAddresses.has(addr.id)) return false;
-				
-				const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
-				const districtMatch = checkDistrictFilter(addr.district);
-				
-				return statusMatch && districtMatch;
-			});
-			
-			updateAddressList(filtered);
-		} else {
-			objectManager.setFilter(obj => {
-				const statusMatch = checkStatusFilter(obj.properties.status);
-				const districtMatch = checkDistrictFilter(obj.properties.district);
-				return statusMatch && districtMatch;
-			});
-			
-			const filtered = currentAddresses.filter(addr => {
-				const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
-				const districtMatch = checkDistrictFilter(addr.district);
-				return statusMatch && districtMatch;
-			});
-			
-			updateAddressList(filtered);
-		}
+			// Если адрес не проходит фильтр - просто скрываем его
+			// Выделение сохраняется для будущего показа
+			return statusMatch && districtMatch && floorsMatch && apartmentsMatch && avgApartmentsMatch;
+		});
+		
+		const filtered = currentAddresses.filter(addr => {
+			const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
+			const districtMatch = checkDistrictFilter(addr.district);
+			const floorsMatch = checkFloorsFilter(addr.floors);
+			const apartmentsMatch = checkApartmentsFilter(addr.apartments);
+			const avgApartmentsMatch = checkAvgApartmentsFilter(addr.avgApartmentsPerEntrance);
+			return statusMatch && districtMatch && floorsMatch && apartmentsMatch && avgApartmentsMatch;
+		});
+		
+		updateAddressList(filtered);
 		
 		// В конце скрываем индикатор
 		setTimeout(() => {
@@ -3242,6 +3560,405 @@ if (mobileButtons) {
         reader.readAsText(file);
     };
     
+    // ========== ФУНКЦИИ ДЛЯ НАСТРОЙКИ ЧИСЛОВЫХ ФИЛЬТРОВ ==========
+    
+    function setupNumericFilters() {
+        // Установка placeholder для полей ввода
+        document.getElementById('floors-min').placeholder = minFloors;
+        document.getElementById('floors-max').placeholder = maxFloors;
+        document.getElementById('apartments-min').placeholder = minApartments;
+        document.getElementById('apartments-max').placeholder = maxApartments;
+        document.getElementById('avg-apartments-min').placeholder = Math.round(minAvgApartments);
+        document.getElementById('avg-apartments-max').placeholder = Math.round(maxAvgApartments);
+        
+        // Обработчики для кнопок Min/Max/Сбросить
+        document.querySelectorAll('.numeric-btn.set-min').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-for');
+                const value = targetId.includes('floors') ? minFloors :
+                              targetId.includes('apartments') ? minApartments :
+                              minAvgApartments;
+                const input = document.getElementById(targetId);
+                input.value = Math.round(value);
+                applyFilters();
+            });
+        });
+        
+        document.querySelectorAll('.numeric-btn.set-max').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-for');
+                const value = targetId.includes('floors') ? maxFloors :
+                              targetId.includes('apartments') ? maxApartments :
+                              maxAvgApartments;
+                const input = document.getElementById(targetId);
+                input.value = Math.round(value);
+                applyFilters();
+            });
+        });
+        
+        document.querySelectorAll('.numeric-btn.reset').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const target = this.getAttribute('data-for');
+                document.getElementById(target + '-min').value = '';
+                document.getElementById(target + '-max').value = '';
+                applyFilters();
+            });
+        });
+        
+        // Обновленные обработчики для числовых полей
+        const numericInputs = document.querySelectorAll('.numeric-inputs input');
+        numericInputs.forEach(input => {
+            // Сохраняем предыдущее значение для восстановления при некорректном вводе
+            let lastValidValue = '';
+            
+            input.addEventListener('focus', () => {
+                lastValidValue = input.value;
+            });
+            
+            input.addEventListener('blur', () => {
+                // Если значение не является числом или пустое - очищаем
+                if (input.value !== '' && isNaN(input.value)) {
+                    input.value = '';
+                    showNotification('Введите числовое значение', true);
+                }
+                
+                // Если значение выходит за допустимые пределы
+                if (input.value !== '' && !isNaN(input.value)) {
+                    const value = parseFloat(input.value);
+                    const minValue = input.id.includes('floors') ? minFloors :
+                                    input.id.includes('apartments') ? minApartments :
+                                    minAvgApartments;
+                    const maxValue = input.id.includes('floors') ? maxFloors :
+                                    input.id.includes('apartments') ? maxApartments :
+                                    maxAvgApartments;
+                    
+                    if (value < minValue || value > maxValue) {
+                        input.value = '';
+                        showNotification(`Значение должно быть от ${minValue} до ${maxValue}`, true);
+                    }
+                }
+                
+                applyFilters();
+            });
+            
+            input.addEventListener('input', () => {
+                // Разрешаем только цифры
+                let value = input.value;
+                
+                // Если пытаемся ввести не цифру - очищаем
+                if (!/^\d*$/.test(value)) {
+                    input.value = value.replace(/\D/g, '');
+                    return;
+                }
+                
+                // Отложенное применение фильтров
+                clearTimeout(input._filterTimeout);
+                input._filterTimeout = setTimeout(() => {
+                    applyFilters();
+                }, 300);
+            });
+        });
+    }
+    
+    function processData(data) {
+        const districts = new Set();
+        currentAddresses = [];
+        totalEntrances = 0;
+        selectedAddresses.clear();
+        isHidingUnselected = false;
+        isHidingUnselectedInCurrentCluster = false;
+        currentClusterHiddenAddresses = [];
+        objectManager.removeAll();
+        
+        // Инициализация переменных для числовых фильтров
+        minFloors = Infinity; maxFloors = -Infinity;
+        minApartments = Infinity; maxApartments = -Infinity;
+        minAvgApartments = Infinity; maxAvgApartments = -Infinity;
+        
+        resetDistrictFilter();
+        
+        let processedCount = 0;
+        let skippedCount = 0;
+        
+        data.table.rows.forEach((row, i) => {
+            if (!row.c) {
+                skippedCount++;
+                return;
+            }
+            
+            const address = row.c[0]?.v || '';
+            const lngStr = row.c[1]?.v || '';
+            const latStr = row.c[2]?.v || '';
+            const status = row.c[3]?.v || '';
+            const district = row.c[4]?.v || '';
+            const entrances = row.c[5]?.v ? parseInt(row.c[5].v) || 0 : 0;
+            
+            // Парсинг числовых значений с проверкой на существование
+            const floorsRaw = row.c[6]?.v;
+            const apartmentsRaw = row.c[7]?.v;
+            const avgApartmentsRaw = row.c[8]?.v;
+            
+            let floors = null;
+            let apartments = null;
+            let avgApartmentsPerEntrance = null;
+            
+            if (floorsRaw !== undefined && floorsRaw !== null && floorsRaw !== '') {
+                floors = parseInt(floorsRaw.toString().replace(',', '.'));
+                if (!isNaN(floors)) {
+                    minFloors = Math.min(minFloors, floors);
+                    maxFloors = Math.max(maxFloors, floors);
+                }
+            }
+            
+            if (apartmentsRaw !== undefined && apartmentsRaw !== null && apartmentsRaw !== '') {
+                apartments = parseInt(apartmentsRaw.toString().replace(',', '.'));
+                if (!isNaN(apartments)) {
+                    minApartments = Math.min(minApartments, apartments);
+                    maxApartments = Math.max(maxApartments, apartments);
+                }
+            }
+            
+            if (avgApartmentsRaw !== undefined && avgApartmentsRaw !== null && avgApartmentsRaw !== '') {
+                avgApartmentsPerEntrance = parseFloat(avgApartmentsRaw.toString().replace(',', '.'));
+                if (!isNaN(avgApartmentsPerEntrance)) {
+                    minAvgApartments = Math.min(minAvgApartments, avgApartmentsPerEntrance);
+                    maxAvgApartments = Math.max(maxAvgApartments, avgApartmentsPerEntrance);
+                }
+            }
+            
+            if (!latStr || !lngStr) {
+                skippedCount++;
+                return;
+            }
+            
+            const lat = parseFloat(latStr.toString().replace(',', '.'));
+            const lng = parseFloat(lngStr.toString().replace(',', '.'));
+            
+            if (isNaN(lat) || isNaN(lng)) {
+                skippedCount++;
+                return;
+            }
+            
+            if (district) districts.add(district);
+            
+            const isOccupied = status.includes('Занято');
+            
+            objectManager.add({
+                id: i,
+                type: 'Feature',
+                geometry: { type: 'Point', coordinates: [lng, lat] },
+                properties: {
+                    address: address,
+                    fullStatus: status,
+                    status: isOccupied ? 'occupied' : 'free',
+                    district: district,
+                    entrances: entrances,
+                    floors: floors,
+                    apartments: apartments,
+                    avgApartmentsPerEntrance: avgApartmentsPerEntrance,
+                    hintContent: address
+                },
+                options: {
+                    iconColor: isOccupied ? '#F44336' : '#4CAF50'
+                }
+            });
+            
+            currentAddresses.push({
+                id: i,
+                address: address,
+                status: status,
+                district: district,
+                coordinates: [lng, lat],
+                isOccupied: isOccupied,
+                entrances: entrances,
+                floors: floors,
+                apartments: apartments,
+                avgApartmentsPerEntrance: avgApartmentsPerEntrance
+            });
+            
+            totalEntrances += entrances;
+            processedCount++;
+        });
+        
+        // Корректировка мин/макс значений, если нет данных
+        if (minFloors === Infinity) minFloors = 0;
+        if (maxFloors === -Infinity) maxFloors = 0;
+        if (minApartments === Infinity) minApartments = 0;
+        if (maxApartments === -Infinity) maxApartments = 0;
+        if (minAvgApartments === Infinity) minAvgApartments = 0;
+        if (maxAvgApartments === -Infinity) maxAvgApartments = 0;
+        
+        currentAddresses.sort((a, b) => {
+            const addressA = a.address || '';
+            const addressB = b.address || '';
+            return addressA.localeCompare(addressB);
+        });
+        
+        populateDistrictFilter(districts);
+        setupNumericFilters();
+        applyFilters();
+        
+        if (objectManager.objects.getLength() > 0) {
+            map.setBounds(objectManager.getBounds(), { checkZoomRange: true });
+        }
+    }
+    
+	function updateAddressList(addresses) {
+		const list = document.getElementById('address-list');
+		const emptyText = document.getElementById('address-list-empty');
+		
+		updatePanelHeaderStats();
+		
+		if (addresses.length === 0) {
+			if (emptyText) {
+				emptyText.textContent = 'Нет адресов, соответствующих фильтрам';
+				emptyText.style.display = 'block';
+			}
+			
+			Array.from(list.children).forEach(child => {
+				if (child.id !== 'address-list-empty') {
+					list.removeChild(child);
+				}
+			});
+			
+			return;
+		}
+		
+		if (emptyText) {
+			emptyText.style.display = 'none';
+		}
+		
+		Array.from(list.children).forEach(child => {
+			if (child.id !== 'address-list-empty') {
+				list.removeChild(child);
+			}
+		});
+		
+		addresses.forEach(addr => {
+			const isSelected = selectedAddresses.has(addr.id);
+			const avgApartmentsFormatted = addr.avgApartmentsPerEntrance 
+				? Math.round(addr.avgApartmentsPerEntrance)
+				: '0';
+			
+			// Формируем строку с деталями
+			const details = [];
+			if (addr.district && addr.district !== 'не указан') {
+				details.push(`Район: ${addr.district}`);
+			}
+			if (addr.entrances) {
+				details.push(`Подъездов: ${addr.entrances}`);
+			}
+			if (addr.floors !== null && addr.floors !== 0) {
+				details.push(`Этажей: ${addr.floors}`);
+			}
+			if (addr.apartments !== null && addr.apartments !== 0) {
+				details.push(`Квартир: ${addr.apartments}`);
+			}
+			
+			const item = document.createElement('div');
+			item.className = `address-item ${isSelected ? 'selected' : ''}`;
+			item.setAttribute('data-id', addr.id);
+			item.innerHTML = `
+				<input type="checkbox" class="address-checkbox" ${isSelected ? 'checked' : ''}
+					   onchange="toggleAddressSelection(${addr.id}, this.checked)">
+				<div class="address-header">
+					<strong>${addr.address}</strong>
+					<span class="${addr.isOccupied ? 'status-occupied' : 'status-free'}">
+						${addr.status}
+					</span>
+				</div>
+				<div class="address-details">
+					<div>
+						${details.join(' | ')}
+					</div>
+					${addr.avgApartmentsPerEntrance ? `
+						<div style="font-size: 11px; color: #2196F3; margin-top: 2px;">
+							Квартир в подъезде: ~${avgApartmentsFormatted}
+						</div>
+					` : ''}
+				</div>
+			`;
+			item.addEventListener('click', (e) => {
+				if (e.target.type !== 'checkbox') {
+					map.panTo(addr.coordinates, {
+						flying: true,
+						zoom: 17
+					}).then(function() {
+						const object = objectManager.objects.getById(addr.id);
+						if (object) {
+							if (isMobile) {
+								const content = createObjectBalloonContent(object.properties, addr.id);
+								updateCustomMobileBalloon(content, object.geometry.coordinates);
+							} else {
+								objectManager.objects.balloon.open(addr.id);
+							}
+						}
+					});
+				}
+			});
+			list.appendChild(item);
+		});
+		
+		updateSelectedCount();
+	}
+
+    function resetDistrictFilter() {
+        document.getElementById('districts-container').innerHTML = '';
+        
+        const allDistrictsItem = document.createElement('label');
+        allDistrictsItem.className = 'checkbox-item';
+        allDistrictsItem.innerHTML = `
+            <input type="checkbox" class="district-filter" value="all" checked>
+            <span>Все районы</span>
+        `;
+        document.getElementById('districts-container').appendChild(allDistrictsItem);
+        
+        allDistrictsItem.querySelector('input').addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            handleFilterChange('district', 'all', isChecked);
+        });
+    }
+    
+    function populateDistrictFilter(districts) {
+        const container = document.getElementById('districts-container');
+        
+        const sortedDistricts = Array.from(districts).sort();
+        
+        sortedDistricts.forEach(district => {
+            const item = document.createElement('label');
+            item.className = 'checkbox-item';
+            item.innerHTML = `
+                <input type="checkbox" class="district-filter" value="${district}" checked>
+                <span>${district}</span>
+            `;
+            container.appendChild(item);
+            
+            item.querySelector('input').addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                handleFilterChange('district', district, isChecked);
+            });
+        });
+        
+        const allDistrictsCheckbox = container.querySelector('.district-filter[value="all"]');
+        const districtCheckboxes = container.querySelectorAll('.district-filter:not([value="all"])');
+        
+        allDistrictsCheckbox.addEventListener('change', function() {
+            const isChecked = this.checked;
+            districtCheckboxes.forEach(cb => {
+                cb.checked = isChecked;
+            });
+            handleFilterChange('district', 'all', isChecked);
+        });
+        
+        districtCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                const allChecked = Array.from(districtCheckboxes).every(c => c.checked);
+                allDistrictsCheckbox.checked = allChecked;
+                applyFilters();
+            });
+        });
+    }
+
     ymaps.ready(() => {
         const ClusterBalloonContentLayout = ymaps.templateLayoutFactory.createClass(
             '<div class="cluster-balloon-container" data-cluster-id="$[id]">' +
@@ -3298,6 +4015,9 @@ if (mobileButtons) {
                         if (obj && obj.properties) {
                             const isOccupied = obj.properties.status === 'occupied';
                             const isSelected = selectedAddresses.has(obj.id);
+                            const avgApartmentsFormatted = obj.properties.avgApartmentsPerEntrance 
+                                ? Math.round(obj.properties.avgApartmentsPerEntrance)
+                                : '0';
                             
                             const item = document.createElement('div');
                             item.className = 'cluster-checkbox-item';
@@ -3312,7 +4032,10 @@ if (mobileButtons) {
                                     <div style="font-size: 12px; color: #666; line-height: 1.4;">
                                         Статус: <span style="font-weight: 600; color: ${isOccupied ? '#F44336' : '#4CAF50'}">${obj.properties.fullStatus || "не указан"}</span><br>
                                         Район: ${obj.properties.district || "не указан"}<br>
-                                        Подъездов: ${obj.properties.entrances || "не указано"}
+                                        Подъездов: ${obj.properties.entrances || "не указано"}<br>
+                                        ${obj.properties.floors !== null && obj.properties.floors !== 0 ? `Этажей: ${obj.properties.floors}<br>` : ''}
+                                        ${obj.properties.apartments !== null && obj.properties.apartments !== 0 ? `Квартир: ${obj.properties.apartments}<br>` : ''}
+                                        Квартир в подъезде: ~${avgApartmentsFormatted}
                                     </div>
                                 </div>
                             `;
@@ -3401,6 +4124,9 @@ if (mobileButtons) {
                     const isSelected = selectedAddresses.has(object.id);
                     const district = properties.district || 'не указан';
                     const entrances = properties.entrances || 'не указано';
+                    const avgApartmentsFormatted = properties.avgApartmentsPerEntrance 
+                        ? Math.round(properties.avgApartmentsPerEntrance)
+                        : '0';
                     
                     element.setAttribute('data-object-id', object.id);
                     
@@ -3410,6 +4136,9 @@ if (mobileButtons) {
                             <b>Статус:</b> <span style="font-weight: 600; color: ${isOccupied ? '#F44336' : '#4CAF50'}">${properties.fullStatus}</span><br>
                             <b>Район:</b> ${district}<br>
                             <b>Подъездов:</b> ${entrances}<br>
+                            ${properties.floors !== null && properties.floors !== 0 ? `<b>Этажей:</b> ${properties.floors}<br>` : ''}
+                            ${properties.apartments !== null && properties.apartments !== 0 ? `<b>Квартир всего:</b> ${properties.apartments}<br>` : ''}
+                            ${properties.avgApartmentsPerEntrance ? `<b>Квартир в подъезде:</b> ~${avgApartmentsFormatted}<br>` : ''}
                         </div>
                         <div style="margin: 10px 0;">
                             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
@@ -3443,7 +4172,10 @@ if (mobileButtons) {
                                 properties.address,
                                 properties.fullStatus,
                                 district,
-                                properties.entrances
+                                properties.entrances,
+                                properties.floors,
+                                properties.apartments,
+                                properties.avgApartmentsPerEntrance
                             );
                         };
                     }
@@ -3535,231 +4267,6 @@ if (mobileButtons) {
         loadData();
     });
 
-function processData(data) {
-    const districts = new Set();
-    currentAddresses = [];
-    totalEntrances = 0;
-    selectedAddresses.clear();
-    isHidingUnselected = false;
-    isHidingUnselectedInCurrentCluster = false;
-    currentClusterHiddenAddresses = [];
-    objectManager.removeAll();
-    
-    resetDistrictFilter();
-    
-    let processedCount = 0;
-    let skippedCount = 0;
-    
-    data.table.rows.forEach((row, i) => {
-        if (!row.c) {
-            skippedCount++;
-            return;
-        }
-        
-        const address = row.c[0]?.v || '';
-        const lngStr = row.c[1]?.v || '';
-        const latStr = row.c[2]?.v || '';
-        const status = row.c[3]?.v || '';
-        const district = row.c[4]?.v || '';
-        const entrances = row.c[5]?.v ? parseInt(row.c[5].v) || 0 : 0;
-        
-        if (!latStr || !lngStr) {
-            skippedCount++;
-            return;
-        }
-        
-        const lat = parseFloat(latStr.toString().replace(',', '.'));
-        const lng = parseFloat(lngStr.toString().replace(',', '.'));
-        
-        if (isNaN(lat) || isNaN(lng)) {
-            skippedCount++;
-            return;
-        }
-        
-        if (district) districts.add(district);
-        
-        const isOccupied = status.includes('Занято');
-        
-        objectManager.add({
-            id: i,
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [lng, lat] },
-            properties: {
-                address: address,
-                fullStatus: status,
-                status: isOccupied ? 'occupied' : 'free',
-                district: district,
-                entrances: entrances,
-                hintContent: address
-            },
-            options: {
-                iconColor: isOccupied ? '#F44336' : '#4CAF50'
-            }
-        });
-        
-        currentAddresses.push({
-            id: i,
-            address: address,
-            status: status,
-            district: district,
-            coordinates: [lng, lat],
-            isOccupied: isOccupied,
-            entrances: entrances
-        });
-        
-        totalEntrances += entrances;
-        processedCount++;
-    });
-    
-    currentAddresses.sort((a, b) => {
-        const addressA = a.address || '';
-        const addressB = b.address || '';
-        return addressA.localeCompare(addressB);
-    });
-    
-    populateDistrictFilter(districts);
-    applyFilters(); // Эта функция обновит список адресов
-    
-    if (objectManager.objects.getLength() > 0) {
-        map.setBounds(objectManager.getBounds(), { checkZoomRange: true });
-    }
-}
-    
-	function updateAddressList(addresses) {
-		const list = document.getElementById('address-list');
-		const emptyText = document.getElementById('address-list-empty');
-		
-		updatePanelHeaderStats();
-		
-		if (addresses.length === 0) {
-			if (emptyText) {
-				emptyText.textContent = 'Нет адресов, соответствующих фильтрам';
-				emptyText.style.display = 'block';
-			}
-			
-			// Удаляем все элементы кроме пустого сообщения
-			Array.from(list.children).forEach(child => {
-				if (child.id !== 'address-list-empty') {
-					list.removeChild(child);
-				}
-			});
-			
-			return;
-		}
-		
-		// Скрываем пустое сообщение
-		if (emptyText) {
-			emptyText.style.display = 'none';
-		}
-		
-		// Удаляем старые элементы (кроме пустого сообщения)
-		Array.from(list.children).forEach(child => {
-			if (child.id !== 'address-list-empty') {
-				list.removeChild(child);
-			}
-		});
-		
-		// Добавляем новые адреса
-		addresses.forEach(addr => {
-			const isSelected = selectedAddresses.has(addr.id);
-			const item = document.createElement('div');
-			item.className = `address-item ${isSelected ? 'selected' : ''}`;
-			item.setAttribute('data-id', addr.id);
-			item.innerHTML = `
-				<input type="checkbox" class="address-checkbox" ${isSelected ? 'checked' : ''}
-					   onchange="toggleAddressSelection(${addr.id}, this.checked)">
-				<div class="address-header">
-					<strong>${addr.address}</strong>
-					<span class="${addr.isOccupied ? 'status-occupied' : 'status-free'}">
-						${addr.status}
-					</span>
-				</div>
-				<div class="address-details">
-					Район: ${addr.district || 'не указан'}
-					${addr.entrances ? `<span class="entrances-count">Подъездов: ${addr.entrances}</span>` : ''}
-				</div>
-			`;
-			item.addEventListener('click', (e) => {
-				if (e.target.type !== 'checkbox') {
-					map.panTo(addr.coordinates, {
-						flying: true,
-						zoom: 17
-					}).then(function() {
-						const object = objectManager.objects.getById(addr.id);
-						if (object) {
-							if (isMobile) {
-								const content = createObjectBalloonContent(object.properties, addr.id);
-								updateCustomMobileBalloon(content, object.geometry.coordinates);
-							} else {
-								objectManager.objects.balloon.open(addr.id);
-							}
-						}
-					});
-				}
-			});
-			list.appendChild(item);
-		});
-		
-		updateSelectedCount();
-	}
-    
-    function resetDistrictFilter() {
-        document.getElementById('districts-container').innerHTML = '';
-        
-        const allDistrictsItem = document.createElement('label');
-        allDistrictsItem.className = 'checkbox-item';
-        allDistrictsItem.innerHTML = `
-            <input type="checkbox" class="district-filter" value="all" checked>
-            <span>Все районы</span>
-        `;
-        document.getElementById('districts-container').appendChild(allDistrictsItem);
-        
-        allDistrictsItem.querySelector('input').addEventListener('change', (e) => {
-            const isChecked = e.target.checked;
-            handleFilterChange('district', 'all', isChecked);
-        });
-    }
-    
-    function populateDistrictFilter(districts) {
-        const container = document.getElementById('districts-container');
-        
-        const sortedDistricts = Array.from(districts).sort();
-        
-        sortedDistricts.forEach(district => {
-            const item = document.createElement('label');
-            item.className = 'checkbox-item';
-            item.innerHTML = `
-                <input type="checkbox" class="district-filter" value="${district}" checked>
-                <span>${district}</span>
-            `;
-            container.appendChild(item);
-            
-            item.querySelector('input').addEventListener('change', (e) => {
-                const isChecked = e.target.checked;
-                handleFilterChange('district', district, isChecked);
-            });
-        });
-        
-        const allDistrictsCheckbox = container.querySelector('.district-filter[value="all"]');
-        const districtCheckboxes = container.querySelectorAll('.district-filter:not([value="all"])');
-        
-        allDistrictsCheckbox.addEventListener('change', function() {
-            const isChecked = this.checked;
-            districtCheckboxes.forEach(cb => {
-                cb.checked = isChecked;
-            });
-            handleFilterChange('district', 'all', isChecked);
-        });
-        
-        districtCheckboxes.forEach(cb => {
-            cb.addEventListener('change', function() {
-                const allChecked = Array.from(districtCheckboxes).every(c => c.checked);
-                allDistrictsCheckbox.checked = allChecked;
-                applyFilters();
-            });
-        });
-    }
-
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && isAddingMarker) {
             document.getElementById('cancel-marker').click();
@@ -3768,4 +4275,3 @@ function processData(data) {
 </script>
 </body>
 </html>
-
