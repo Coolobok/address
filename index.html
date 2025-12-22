@@ -2645,7 +2645,16 @@ function createClusterBalloonContent(geoObjects) {
             currentAddresses.forEach(addr => {
                 if (addr.id === addressId) {
                     visibleIds.delete(addr.id);
-                } else if (!currentFilter || currentFilter({ id: addr.id, properties: { status: addr.isOccupied ? 'occupied' : 'free', district: addr.district } })) {
+                } else if (!currentFilter || currentFilter({ 
+					id: addr.id, 
+					properties: { 
+						status: addr.isOccupied ? 'occupied' : 'free', 
+						district: addr.district,
+						floors: addr.floors,
+						apartments: addr.apartments,
+						avgApartmentsPerEntrance: addr.avgApartmentsPerEntrance
+					} 
+				})) {
                     visibleIds.add(addr.id);
                 }
             });
@@ -2716,7 +2725,16 @@ function createClusterBalloonContent(geoObjects) {
             currentAddresses.forEach(addr => {
                 if (addressIds.includes(addr.id)) {
                     visibleIds.delete(addr.id);
-                } else if (!currentFilter || currentFilter({ id: addr.id, properties: { status: addr.isOccupied ? 'occupied' : 'free', district: addr.district } })) {
+                } else if (!currentFilter || currentFilter({ 
+					id: addr.id, 
+					properties: { 
+						status: addr.isOccupied ? 'occupied' : 'free', 
+						district: addr.district,
+						floors: addr.floors,
+						apartments: addr.apartments,
+						avgApartmentsPerEntrance: addr.avgApartmentsPerEntrance
+					} 
+				})) {
                     visibleIds.add(addr.id);
                 }
             });
@@ -2763,7 +2781,16 @@ function createClusterBalloonContent(geoObjects) {
                 if (selectedInBalloon.includes(addr.id)) {
                     visibleIds.add(addr.id);
                 }
-            } else if (!currentFilter || currentFilter({ id: addr.id, properties: { status: addr.isOccupied ? 'occupied' : 'free', district: addr.district } })) {
+            } else if (!currentFilter || currentFilter({ 
+				id: addr.id, 
+				properties: { 
+					status: addr.isOccupied ? 'occupied' : 'free', 
+					district: addr.district,
+					floors: addr.floors,
+					apartments: addr.apartments,
+					avgApartmentsPerEntrance: addr.avgApartmentsPerEntrance
+				} 
+			})) {
                 visibleIds.add(addr.id);
             }
         });
