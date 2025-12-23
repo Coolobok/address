@@ -1824,87 +1824,104 @@
         }
     }
 
-function updatePanelHeaderStats() {
-    let buildingsVisible = 0, buildingsSelected = 0, buildingsHidden = 0;
-    let standsVisible = 0, standsSelected = 0, standsHidden = 0;
-    let apartmentsVisible = 0, apartmentsSelected = 0, apartmentsHidden = 0;
+	function updatePanelHeaderStats() {
+		let buildingsVisible = 0, buildingsSelected = 0, buildingsHidden = 0;
+		let standsVisible = 0, standsSelected = 0, standsHidden = 0;
+		let apartmentsVisible = 0, apartmentsSelected = 0, apartmentsHidden = 0;
 
-    currentAddresses.forEach(addr => {
-        const isVisible = document.querySelector(`.address-item[data-id="${addr.id}"]`) !== null;
-        const isSelected = selectedAddresses.has(addr.id);
-        const apartments = addr.apartments || 0;
-        const entrances = addr.entrances || 0;
+		currentAddresses.forEach(addr => {
+			// Проверяем, проходит ли адрес текущие фильтры (видим ли он)
+			const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
+			const districtMatch = checkDistrictFilter(addr.district);
+			const floorsMatch = checkFloorsFilter(addr.floors);
+			const apartmentsMatch = checkApartmentsFilter(addr.apartments);
+			const avgApartmentsMatch = checkAvgApartmentsFilter(addr.avgApartmentsPerEntrance);
+			
+			const isVisible = statusMatch && districtMatch && floorsMatch && apartmentsMatch && avgApartmentsMatch;
+			const isSelected = selectedAddresses.has(addr.id);
+			const apartments = addr.apartments || 0;
+			const entrances = addr.entrances || 0;
 
-        // Подсчёт для зданий
-        if (isVisible) {
-            buildingsVisible++;
-            if (isSelected) buildingsSelected++;
-        } else {
-            buildingsHidden++;
-        }
+			// Подсчёт для зданий
+			if (isVisible) {
+				buildingsVisible++;
+				if (isSelected) buildingsSelected++;
+			} else {
+				buildingsHidden++;
+			}
 
-        // Подсчёт для стендов (подъездов)
-        if (isVisible) {
-            standsVisible += entrances;
-            if (isSelected) standsSelected += entrances;
-        } else {
-            standsHidden += entrances;
-        }
+			// Подсчёт для стендов (подъездов)
+			if (isVisible) {
+				standsVisible += entrances;
+				if (isSelected) standsSelected += entrances;
+			} else {
+				standsHidden += entrances;
+			}
 
-        // Подсчёт для квартир
-        if (isVisible) {
-            apartmentsVisible += apartments;
-            if (isSelected) apartmentsSelected += apartments;
-        } else {
-            apartmentsHidden += apartments;
-        }
-    });
+			// Подсчёт для квартир
+			if (isVisible) {
+				apartmentsVisible += apartments;
+				if (isSelected) apartmentsSelected += apartments;
+			} else {
+				apartmentsHidden += apartments;
+			}
+		});
 
-    // Обновление отображения для зданий
-    document.getElementById('buildings-visible').textContent = buildingsVisible;
-    document.getElementById('buildings-selected').textContent = buildingsSelected;
-    document.getElementById('buildings-hidden').textContent = buildingsHidden;
+		// Обновление отображения для зданий
+		document.getElementById('buildings-visible').textContent = buildingsVisible;
+		document.getElementById('buildings-selected').textContent = buildingsSelected;
+		document.getElementById('buildings-hidden').textContent = buildingsHidden;
 
-    // Обновление отображения для стендов
-    document.getElementById('stands-visible').textContent = standsVisible;
-    document.getElementById('stands-selected').textContent = standsSelected;
-    document.getElementById('stands-hidden').textContent = standsHidden;
+		// Обновление отображения для стендов
+		document.getElementById('stands-visible').textContent = standsVisible;
+		document.getElementById('stands-selected').textContent = standsSelected;
+		document.getElementById('stands-hidden').textContent = standsHidden;
 
-    // Обновление отображения для квартир
-    document.getElementById('apartments-visible').textContent = apartmentsVisible;
-    document.getElementById('apartments-selected').textContent = apartmentsSelected;
-    document.getElementById('apartments-hidden').textContent = apartmentsHidden;
+		// Обновление отображения для квартир
+		document.getElementById('apartments-visible').textContent = apartmentsVisible;
+		document.getElementById('apartments-selected').textContent = apartmentsSelected;
+		document.getElementById('apartments-hidden').textContent = apartmentsHidden;
 
-    // Расчет стоимости
-    let selectedStands = 0;
-    selectedAddresses.forEach(id => {
-        const addr = currentAddresses.find(a => a.id === id);
-        if (addr && document.querySelector(`.address-item[data-id="${addr.id}"]`)) {
-            selectedStands += (addr.entrances || 0);
-        }
-    });
-    
-    const priceInfo = calculatePrice(selectedStands);
-    const priceContainer = document.getElementById('price-container');
-    const perApartmentContainer = document.getElementById('per-apartment-container');
-    
-    if (priceInfo.message) {
-        priceContainer.innerHTML = `<span id="monthly-price" class="price-warning">${priceInfo.message}</span>`;
-        perApartmentContainer.innerHTML = ``;
-    } else {
-        const formattedPrice = priceInfo.total.toLocaleString('ru-RU') + ' р.';
-        priceContainer.innerHTML = `<span id="monthly-price" class="price-value">${formattedPrice}</span>`;
-        
-        // Расчёт стоимости за квартиру
-        if (apartmentsSelected > 0) {
-            const perApartment = (priceInfo.total / apartmentsSelected).toFixed(2);
-            perApartmentContainer.innerHTML = `Или ${perApartment} р. за квартиру`;
-        } else {
-            perApartmentContainer.innerHTML = ``;
-        }
-    }
-}
-
+		// Расчет стоимости - ТОЛЬКО по ВИДИМЫМ выбранным адресам
+		let selectedStands = 0;
+		let selectedApartments = 0;
+		
+		currentAddresses.forEach(addr => {
+			const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
+			const districtMatch = checkDistrictFilter(addr.district);
+			const floorsMatch = checkFloorsFilter(addr.floors);
+			const apartmentsMatch = checkApartmentsFilter(addr.apartments);
+			const avgApartmentsMatch = checkAvgApartmentsFilter(addr.avgApartmentsPerEntrance);
+			
+			const isVisible = statusMatch && districtMatch && floorsMatch && apartmentsMatch && avgApartmentsMatch;
+			const isSelected = selectedAddresses.has(addr.id);
+			
+			if (isVisible && isSelected) {
+				selectedStands += (addr.entrances || 0);
+				selectedApartments += (addr.apartments || 0);
+			}
+		});
+		
+		const priceInfo = calculatePrice(selectedStands);
+		const priceContainer = document.getElementById('price-container');
+		const perApartmentContainer = document.getElementById('per-apartment-container');
+		
+		if (priceInfo.message) {
+			priceContainer.innerHTML = `<span id="monthly-price" class="price-warning">${priceInfo.message}</span>`;
+			perApartmentContainer.innerHTML = ``;
+		} else {
+			const formattedPrice = priceInfo.total.toLocaleString('ru-RU') + ' р.';
+			priceContainer.innerHTML = `<span id="monthly-price" class="price-value">${formattedPrice}</span>`;
+			
+			// Расчёт стоимости за квартиру
+			if (selectedApartments > 0) {
+				const perApartment = (priceInfo.total / selectedApartments).toFixed(2);
+				perApartmentContainer.innerHTML = `Или ${perApartment} р. за квартиру`;
+			} else {
+				perApartmentContainer.innerHTML = ``;
+			}
+		}
+	}
     function showNotification(message, isError = false) {
         const notification = document.getElementById('notification');
         const notificationText = document.getElementById('notification-text');
@@ -1923,30 +1940,30 @@ function updatePanelHeaderStats() {
         updateSelectAllButton();
     }
     
-    function updateSelectAllButton() {
-        const selectAllBtn = document.getElementById('select-all-btn');
-        if (!selectAllBtn) return;
-        
-        const visibleAddressIds = new Set();
-        currentAddresses.forEach(addr => {
-            if (document.querySelector(`.address-item[data-id="${addr.id}"]`)) {
-                visibleAddressIds.add(addr.id);
-            }
-        });
-        
-        const allVisibleSelected = Array.from(visibleAddressIds).every(id => selectedAddresses.has(id));
-        
-        if (allVisibleSelected && visibleAddressIds.size > 0) {
-            selectAllBtn.textContent = "Снять выделение";
-            selectAllBtn.className = "selection-btn deselect-all";
-            selectAllBtn.onclick = () => deselectAllVisibleAddresses();
-        } else {
-            selectAllBtn.textContent = "Выбрать все";
-            selectAllBtn.className = "selection-btn select-all";
-            selectAllBtn.onclick = () => selectAllAddresses();
-        }
-    }
-    
+	function updateSelectAllButton() {
+		const selectAllBtn = document.getElementById('select-all-btn');
+		if (!selectAllBtn) return;
+		
+		const visibleAddressIds = new Set();
+		currentAddresses.forEach(addr => {
+			if (document.querySelector(`.address-item[data-id="${addr.id}"]`)) {
+				visibleAddressIds.add(addr.id);
+			}
+		});
+		
+		const allVisibleSelected = Array.from(visibleAddressIds).every(id => selectedAddresses.has(id));
+		
+		if (allVisibleSelected && visibleAddressIds.size > 0) {
+			selectAllBtn.textContent = "Снять выделение";
+			selectAllBtn.className = "selection-btn deselect-all";
+			selectAllBtn.onclick = () => deselectAllVisibleAddresses();
+		} else {
+			selectAllBtn.textContent = "Выбрать все";
+			selectAllBtn.className = "selection-btn select-all";
+			selectAllBtn.onclick = () => selectAllAddresses();
+		}
+	}
+	   
     function deselectAllVisibleAddresses() {
         const visibleAddressIds = [];
         currentAddresses.forEach(addr => {
@@ -1979,41 +1996,34 @@ function updatePanelHeaderStats() {
         return currentAddresses.filter(addr => addr.district === district);
     }
     
-    function handleFilterChange(filterType, filterValue, isChecked) {
-        // При снятии чекбокса с района НЕ снимаем выделение, просто скрываем
-        // При изменении числовых фильтров - просто скрываем/показываем
-        
-        // Только для изменения числовых фильтров
-        if (filterType === 'numeric') {
-            // Применяем фильтры без снятия выделения
-            applyFilters();
-            return;
-        }
-        
-        if (!isChecked) {
-            let hiddenCount = 0;
-            let filterName = '';
-            
-            if (filterType === 'status') {
-                // НЕ снимаем выделение, просто скрываем
-                const addresses = getAddressesByStatus(filterValue);
-                hiddenCount = addresses.length;
-                filterName = filterValue === 'free' ? 'Свободно' : 'Занято';
-                showNotification(`Скрыто адресов (${filterName}): ${hiddenCount}`);
-            } else if (filterType === 'district') {
-                if (filterValue !== 'all') {
-                    const addresses = getAddressesByDistrict(filterValue);
-                    hiddenCount = addresses.length;
-                    filterName = filterValue;
-                    // НЕ снимаем выделение, просто скрываем
-                    showNotification(`Скрыто адресов в районе "${filterName}": ${hiddenCount}`);
-                }
-            }
-        }
-        
-        applyFilters();
-    }
-    
+	function handleFilterChange(filterType, filterValue, isChecked) {
+		// При снятии чекбокса с района или статуса
+		if (filterType === 'status' || filterType === 'district') {
+			if (!isChecked) {
+				let hiddenCount = 0;
+				let filterName = '';
+				
+				if (filterType === 'status') {
+					const addresses = getAddressesByStatus(filterValue);
+					hiddenCount = addresses.length;
+					filterName = filterValue === 'free' ? 'Свободно' : 'Занято';
+					
+					showNotification(`Скрыто адресов (${filterName}): ${hiddenCount}`);
+				} else if (filterType === 'district') {
+					if (filterValue !== 'all') {
+						const addresses = getAddressesByDistrict(filterValue);
+						hiddenCount = addresses.length;
+						filterName = filterValue;
+						
+						showNotification(`Скрыто адресов в районе "${filterName}": ${hiddenCount}`);
+					}
+				}
+			}
+		}
+		
+		applyFilters();
+	}
+   
     // Обновленные функции проверки числовых фильтров
     function checkFloorsFilter(floors) {
         // Если значение не задано в фильтре - пропускаем проверку
@@ -2525,30 +2535,31 @@ function createClusterBalloonContent(geoObjects) {
         }
     };
     
-    function updateAddressSelectionOnMap(addressId, isSelected) {
-        const object = objectManager.objects.getById(addressId);
-        if (object) {
-            const originalColor = object.properties.status === 'occupied' ? '#F44336' : '#4CAF50';
-            objectManager.objects.setObjectOptions(addressId, {
-                iconColor: isSelected ? '#FF9800' : originalColor
-            });
-        }
-    }
-    
-    function updateAddressItemSelection(addressId, isSelected) {
-        const addressItem = document.querySelector(`.address-item[data-id="${addressId}"]`);
-        if (addressItem) {
-            const checkbox = addressItem.querySelector('.address-checkbox');
-            if (checkbox) checkbox.checked = isSelected;
-            
-            if (isSelected) {
-                addressItem.classList.add('selected');
-            } else {
-                addressItem.classList.remove('selected');
-            }
-        }
-    }
-    
+	function updateAddressSelectionOnMap(addressId, isSelected) {
+		const object = objectManager.objects.getById(addressId);
+		if (object) {
+			const originalColor = object.properties.status === 'occupied' ? '#F44336' : '#4CAF50';
+			// Оранжевый для выбранных, оригинальный цвет статуса для невыбранных
+			objectManager.objects.setObjectOptions(addressId, {
+				iconColor: isSelected ? '#FF9800' : originalColor
+			});
+		}
+	}
+ 
+	function updateAddressItemSelection(addressId, isSelected) {
+		const addressItem = document.querySelector(`.address-item[data-id="${addressId}"]`);
+		if (addressItem) {
+			const checkbox = addressItem.querySelector('.address-checkbox');
+			if (checkbox) checkbox.checked = isSelected;
+			
+			if (isSelected) {
+				addressItem.classList.add('selected');
+			} else {
+				addressItem.classList.remove('selected');
+			}
+		}
+	}
+   
     window.selectAllInCluster = function(addressIds) {
         addressIds.forEach(id => {
             selectedAddresses.add(id);
@@ -2617,171 +2628,28 @@ function createClusterBalloonContent(geoObjects) {
         }
     };
     
-    window.hideSingleAddress = function(addressId) {
-        if (isBalloonRefreshing) return;
-        
-        const selectedInBalloon = selectedAddresses.has(addressId) ? [addressId] : [];
-        
-        if (selectedInBalloon.length === 0) {
-            // Скрываем полностью
-            isHidingUnselectedInCurrentCluster = true;
-            currentClusterHiddenAddresses = [addressId];
-            
-            const currentFilter = objectManager._filterFunction;
-            
-            objectManager.setFilter(obj => {
-                if (obj.id === addressId) {
-                    return false;
-                }
-                else if (currentFilter) {
-                    return currentFilter(obj);
-                }
-                else {
-                    return true;
-                }
-            });
-            
-            const visibleIds = new Set();
-            currentAddresses.forEach(addr => {
-                if (addr.id === addressId) {
-                    visibleIds.delete(addr.id);
-                } else if (!currentFilter || currentFilter({ 
-					id: addr.id, 
-					properties: { 
-						status: addr.isOccupied ? 'occupied' : 'free', 
-						district: addr.district,
-						floors: addr.floors,
-						apartments: addr.apartments,
-						avgApartmentsPerEntrance: addr.avgApartmentsPerEntrance
-					} 
-				})) {
-                    visibleIds.add(addr.id);
-                }
-            });
-            
-            const filtered = currentAddresses.filter(addr => visibleIds.has(addr.id));
-            updateAddressList(filtered);
-            
-            showNotification(`Адрес скрыт`);
-            
-            // Закрываем балун после скрытия
-            if (isMobile) {
-                closeCustomMobileBalloon();
-            } else {
-                if (lastOpenedObjectId) {
-                    objectManager.objects.balloon.close(lastOpenedObjectId);
-                }
-                lastOpenedObjectId = null;
-            }
-            
-            return;
-        }
-        
-        // Этот адрес выбран, поэтому просто закрываем балун
-        if (isMobile) {
-            closeCustomMobileBalloon();
-        } else {
-            if (lastOpenedObjectId) {
-                objectManager.objects.balloon.close(lastOpenedObjectId);
-            }
-            lastOpenedObjectId = null;
-        }
-    };
-    
-    window.hideUnselectedAddressesInBalloon = function(addressIds) {
-        if (isBalloonRefreshing) return;
-        
-        if (!addressIds || addressIds.length === 0) {
-            if (currentClusterObjects && currentClusterObjects.length > 0) {
-                addressIds = currentClusterObjects.map(obj => obj.id);
-            } else {
-                showNotification('Нет адресов для обработки', true);
-                return;
-            }
-        }
-        
-        const selectedInBalloon = addressIds.filter(id => selectedAddresses.has(id));
-        
-        if (selectedInBalloon.length === 0) {
-            // Скрываем все адреса в кластере
-            isHidingUnselectedInCurrentCluster = true;
-            currentClusterHiddenAddresses = addressIds;
-            
-            const currentFilter = objectManager._filterFunction;
-            
-            objectManager.setFilter(obj => {
-                if (addressIds.includes(obj.id)) {
-                    return false;
-                }
-                else if (currentFilter) {
-                    return currentFilter(obj);
-                }
-                else {
-                    return true;
-                }
-            });
-            
-            const visibleIds = new Set();
-            currentAddresses.forEach(addr => {
-                if (addressIds.includes(addr.id)) {
-                    visibleIds.delete(addr.id);
-                } else if (!currentFilter || currentFilter({ 
-					id: addr.id, 
-					properties: { 
-						status: addr.isOccupied ? 'occupied' : 'free', 
-						district: addr.district,
-						floors: addr.floors,
-						apartments: addr.apartments,
-						avgApartmentsPerEntrance: addr.avgApartmentsPerEntrance
-					} 
-				})) {
-                    visibleIds.add(addr.id);
-                }
-            });
-            
-            const filtered = currentAddresses.filter(addr => visibleIds.has(addr.id));
-            updateAddressList(filtered);
-            
-            showNotification(`Скрыты все адреса из кластера: ${addressIds.length} адресов`);
-            
-            // Закрываем балун после скрытия
-            if (isMobile) {
-                closeCustomMobileBalloon();
-            } else {
-                if (lastOpenedClusterId) {
-                    objectManager.clusters.balloon.close(lastOpenedClusterId);
-                }
-                lastOpenedClusterId = null;
-            }
-            
-            return;
-        }
-        
-        // Скрываем только невыбранные
-        isHidingUnselectedInCurrentCluster = true;
-        currentClusterHiddenAddresses = addressIds;
-        
-        const currentFilter = objectManager._filterFunction;
-        
-        objectManager.setFilter(obj => {
-            if (addressIds.includes(obj.id)) {
-                return selectedInBalloon.includes(obj.id);
-            }
-            else if (currentFilter) {
-                return currentFilter(obj);
-            }
-            else {
-                return true;
-            }
-        });
-        
-        const visibleIds = new Set();
-        currentAddresses.forEach(addr => {
-            if (addressIds.includes(addr.id)) {
-                if (selectedInBalloon.includes(addr.id)) {
-                    visibleIds.add(addr.id);
-                }
-            } else if (!currentFilter || currentFilter({ 
+	window.hideSingleAddress = function(addressId) {
+		if (isBalloonRefreshing) return;
+		
+		const currentFilter = objectManager._filterFunction;
+		
+		objectManager.setFilter(obj => {
+			if (obj.id === addressId) {
+				return false;
+			}
+			else if (currentFilter) {
+				return currentFilter(obj);
+			}
+			else {
+				return true;
+			}
+		});
+		
+		const visibleIds = new Set();
+		currentAddresses.forEach(addr => {
+			if (addr.id === addressId) {
+				visibleIds.delete(addr.id);
+			} else if (!currentFilter || currentFilter({ 
 				id: addr.id, 
 				properties: { 
 					status: addr.isOccupied ? 'occupied' : 'free', 
@@ -2791,26 +2659,92 @@ function createClusterBalloonContent(geoObjects) {
 					avgApartmentsPerEntrance: addr.avgApartmentsPerEntrance
 				} 
 			})) {
-                visibleIds.add(addr.id);
-            }
-        });
-        
-        const filtered = currentAddresses.filter(addr => visibleIds.has(addr.id));
-        updateAddressList(filtered);
-        
-        showNotification(`Скрыты невыбранные адреса в кластере: ${addressIds.length - selectedInBalloon.length} из ${addressIds.length}`);
-        
-        // Закрываем балун после скрытия
-        if (isMobile) {
-            closeCustomMobileBalloon();
-        } else {
-            if (lastOpenedClusterId) {
-                objectManager.clusters.balloon.close(lastOpenedClusterId);
-            }
-            lastOpenedClusterId = null;
-        }
-    };
-    
+				visibleIds.add(addr.id);
+			}
+		});
+		
+		const filtered = currentAddresses.filter(addr => visibleIds.has(addr.id));
+		updateAddressList(filtered);
+		
+		showNotification(`Адрес скрыт`);
+		
+		// Закрываем балун после скрытия
+		if (isMobile) {
+			closeCustomMobileBalloon();
+		} else {
+			if (lastOpenedObjectId) {
+				objectManager.objects.balloon.close(lastOpenedObjectId);
+			}
+			lastOpenedObjectId = null;
+		}
+	};
+   
+	window.hideUnselectedAddressesInBalloon = function(addressIds) {
+		if (isBalloonRefreshing) return;
+		
+		if (!addressIds || addressIds.length === 0) {
+			if (currentClusterObjects && currentClusterObjects.length > 0) {
+				addressIds = currentClusterObjects.map(obj => obj.id);
+			} else {
+				showNotification('Нет адресов для обработки', true);
+				return;
+			}
+		}
+		
+		const selectedInBalloon = addressIds.filter(id => selectedAddresses.has(id));
+		
+		isHidingUnselectedInCurrentCluster = true;
+		currentClusterHiddenAddresses = addressIds;
+		
+		const currentFilter = objectManager._filterFunction;
+		
+		objectManager.setFilter(obj => {
+			if (addressIds.includes(obj.id)) {
+				return selectedInBalloon.includes(obj.id);
+			}
+			else if (currentFilter) {
+				return currentFilter(obj);
+			}
+			else {
+				return true;
+			}
+		});
+		
+		const visibleIds = new Set();
+		currentAddresses.forEach(addr => {
+			if (addressIds.includes(addr.id)) {
+				if (selectedInBalloon.includes(addr.id)) {
+					visibleIds.add(addr.id);
+				}
+			} else if (!currentFilter || currentFilter({ 
+				id: addr.id, 
+				properties: { 
+					status: addr.isOccupied ? 'occupied' : 'free', 
+					district: addr.district,
+					floors: addr.floors,
+					apartments: addr.apartments,
+					avgApartmentsPerEntrance: addr.avgApartmentsPerEntrance
+				} 
+			})) {
+				visibleIds.add(addr.id);
+			}
+		});
+		
+		const filtered = currentAddresses.filter(addr => visibleIds.has(addr.id));
+		updateAddressList(filtered);
+		
+		showNotification(`Скрыты невыбранные адреса в кластере: ${addressIds.length - selectedInBalloon.length} из ${addressIds.length}`);
+		
+		// Закрываем балун после скрытия
+		if (isMobile) {
+			closeCustomMobileBalloon();
+		} else {
+			if (lastOpenedClusterId) {
+				objectManager.clusters.balloon.close(lastOpenedClusterId);
+			}
+			lastOpenedClusterId = null;
+		}
+	};   
 	window.copySingleAddress = function(address, status, district, entrances, floors, apartments, avgApartmentsPerEntrance) {
 		let text = address;
 		
@@ -2897,72 +2831,81 @@ function createClusterBalloonContent(geoObjects) {
         showNotification(`Скрыто невыбранных адресов: ${currentAddresses.length - selectedAddresses.size}`);
     };
     
-    window.restoreAllAddresses = function() {
-        if (isHidingUnselectedInCurrentCluster && currentClusterHiddenAddresses.length > 0) {
-            isHidingUnselectedInCurrentCluster = false;
-            currentClusterHiddenAddresses = [];
-            
-            applyFilters();
-            
-            showNotification('Адреса в кластере восстановлены');
-        } else if (isHidingUnselected) {
-            isHidingUnselected = false;
-            isHidingUnselectedInCurrentCluster = false;
-            currentClusterHiddenAddresses = [];
-            
-            applyFilters();
-            
-            showNotification('Все адреса восстановлены');
-        } else {
-            applyFilters();
-            showNotification('Фильтры применены');
-        }
-    };
-    
-async function copySelectedAddresses() {
-    if (selectedAddresses.size === 0) {
-        showNotification('Нет выбранных адресов для копирования', true);
-        return;
-    }
-    
-    // === БЛОК 1: Информация из шапки ===
-    const buildingsVisible = document.getElementById('buildings-visible').textContent;
-    const buildingsSelected = document.getElementById('buildings-selected').textContent;
-    const buildingsHidden = document.getElementById('buildings-hidden').textContent;
-    const standsVisible = document.getElementById('stands-visible').textContent;
-    const standsSelected = document.getElementById('stands-selected').textContent;
-    const standsHidden = document.getElementById('stands-hidden').textContent;
-    const apartmentsVisible = document.getElementById('apartments-visible').textContent;
-    const apartmentsSelected = document.getElementById('apartments-selected').textContent;
-    const apartmentsHidden = document.getElementById('apartments-hidden').textContent;
-    const monthlyPrice = document.getElementById('monthly-price').textContent;
-    const perApartmentText = document.getElementById('per-apartment-container').textContent;
-    
-    let headerBlock = `PR МАРКЕТ Рязань - Карта стендов у домофонов\n`;
-    headerBlock += `==================================================\n`;
-    headerBlock += `Дата отчёта: ${new Date().toLocaleDateString('ru-RU')}\n\n`;
-    headerBlock += `         НА КАРТЕ   ВЫБРАНО   СКРЫТО\n`;
-    headerBlock += `ЗДАНИЙ   ${buildingsVisible.padStart(7)}     ${buildingsSelected.padStart(7)}     ${buildingsHidden.padStart(7)}\n`;
-    headerBlock += `СТЕНДОВ  ${standsVisible.padStart(7)}     ${standsSelected.padStart(7)}     ${standsHidden.padStart(7)}\n`;
-    headerBlock += `КВАРТИР  ${apartmentsVisible.padStart(7)}     ${apartmentsSelected.padStart(7)}     ${apartmentsHidden.padStart(7)}\n\n`;
-    headerBlock += `Стоимость в месяц: ${monthlyPrice}\n`;
-    if (perApartmentText) {
-        headerBlock += `${perApartmentText}\n`;
-    }
-    headerBlock += `==================================================\n\n`;
+	window.restoreAllAddresses = function() {
+		if (isHidingUnselectedInCurrentCluster && currentClusterHiddenAddresses.length > 0) {
+			isHidingUnselectedInCurrentCluster = false;
+			currentClusterHiddenAddresses = [];
+		} else if (isHidingUnselected) {
+			isHidingUnselected = false;
+			isHidingUnselectedInCurrentCluster = false;
+			currentClusterHiddenAddresses = [];
+		}
 		
-		// === БЛОК 2: Выбранные адреса ===
-		let addressesBlock = `ВЫБРАННЫЕ АДРЕСА (${selectedAddresses.size}):\n`;
+		applyFilters();
+		showNotification('Все адреса восстановлены');
+	};
+    
+	async function copySelectedAddresses() {
+		// Фильтруем выбранные адреса: берем только те, которые видимы (прошли фильтры)
+		const visibleSelectedAddresses = Array.from(selectedAddresses).filter(id => {
+			const addr = currentAddresses.find(a => a.id === id);
+			if (!addr) return false;
+			
+			// Проверяем, проходит ли адрес текущие фильтры
+			const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
+			const districtMatch = checkDistrictFilter(addr.district);
+			const floorsMatch = checkFloorsFilter(addr.floors);
+			const apartmentsMatch = checkApartmentsFilter(addr.apartments);
+			const avgApartmentsMatch = checkAvgApartmentsFilter(addr.avgApartmentsPerEntrance);
+			
+			// Адрес должен пройти ВСЕ фильтры и не быть скрытым
+			return statusMatch && districtMatch && floorsMatch && apartmentsMatch && avgApartmentsMatch;
+		});
+		
+		if (visibleSelectedAddresses.length === 0) {
+			showNotification('Нет выбранных адресов для копирования', true);
+			return;
+		}
+		
+		// === БЛОК 1: Информация из шапки ===
+		const buildingsVisible = document.getElementById('buildings-visible').textContent;
+		const buildingsSelected = document.getElementById('buildings-selected').textContent;
+		const buildingsHidden = document.getElementById('buildings-hidden').textContent;
+		const standsVisible = document.getElementById('stands-visible').textContent;
+		const standsSelected = document.getElementById('stands-selected').textContent;
+		const standsHidden = document.getElementById('stands-hidden').textContent;
+		const apartmentsVisible = document.getElementById('apartments-visible').textContent;
+		const apartmentsSelected = document.getElementById('apartments-selected').textContent;
+		const apartmentsHidden = document.getElementById('apartments-hidden').textContent;
+		const monthlyPrice = document.getElementById('monthly-price').textContent;
+		const perApartmentText = document.getElementById('per-apartment-container').textContent;
+		
+		let headerBlock = `PR МАРКЕТ Рязань - Карта стендов у домофонов\n`;
+		headerBlock += `==================================================\n`;
+		headerBlock += `Дата отчёта: ${new Date().toLocaleDateString('ru-RU')}\n\n`;
+		headerBlock += `         НА КАРТЕ   ВЫБРАНО   СКРЫТО\n`;
+		headerBlock += `ЗДАНИЙ   ${buildingsVisible.padStart(7)}     ${buildingsSelected.padStart(7)}     ${buildingsHidden.padStart(7)}\n`;
+		headerBlock += `СТЕНДОВ  ${standsVisible.padStart(7)}     ${standsSelected.padStart(7)}     ${standsHidden.padStart(7)}\n`;
+		headerBlock += `КВАРТИР  ${apartmentsVisible.padStart(7)}     ${apartmentsSelected.padStart(7)}     ${apartmentsHidden.padStart(7)}\n\n`;
+		headerBlock += `Стоимость в месяц: ${monthlyPrice}\n`;
+		if (perApartmentText) {
+			headerBlock += `${perApartmentText}\n`;
+		}
+		headerBlock += `==================================================\n\n`;
+		
+		// === БЛОК 2: Выбранные адреса, участвующие в расчётах ===
+		let addressesBlock = `ВЫБРАННЫЕ АДРЕСА ДЛЯ РАСЧЁТА (${visibleSelectedAddresses.length}):\n`;
 		addressesBlock += `==================================================\n`;
 		
-		const sortedAddresses = [];
-		selectedAddresses.forEach(id => {
+		// Получаем адреса для расчёта
+		const calculationAddresses = [];
+		visibleSelectedAddresses.forEach(id => {
 			const addr = currentAddresses.find(a => a.id === id);
-			if (addr) sortedAddresses.push(addr);
+			if (addr) calculationAddresses.push(addr);
 		});
 		
 		// Сортируем по району, затем по адресу
-		sortedAddresses.sort((a, b) => {
+		calculationAddresses.sort((a, b) => {
 			if (a.district && b.district) {
 				const districtCompare = a.district.localeCompare(b.district);
 				if (districtCompare !== 0) return districtCompare;
@@ -2971,7 +2914,7 @@ async function copySelectedAddresses() {
 		});
 		
 		// Формируем список адресов в нужном формате
-		sortedAddresses.forEach(addr => {
+		calculationAddresses.forEach(addr => {
 			const parts = [];
 			parts.push(addr.address);
 			if (addr.district && addr.district !== 'не указан') {
@@ -3016,31 +2959,36 @@ async function copySelectedAddresses() {
 		
 		try {
 			await navigator.clipboard.writeText(text);
-			showNotification(`Отчёт скопирован в буфер обмена!\nВыбрано адресов: ${selectedAddresses.size}, Меток: ${userMarkers.length}`);
+			showNotification(`Отчёт скопирован в буфер обмена!\nВыбрано адресов для расчёта: ${visibleSelectedAddresses.length}, Меток: ${userMarkers.length}`);
 		} catch (err) {
 			console.error('Ошибка копирования отчёта:', err);
 			showNotification('Не удалось скопировать отчёт', true);
 		}
 	}
-    
-    function checkStatusFilter(status) {
-        const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
-        const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
-        return selectedStatuses.includes(status);
-    }
+   
+	function checkStatusFilter(status) {
+		const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
+		const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
+		
+		return selectedStatuses.includes(status);
+	}
 
-    function checkDistrictFilter(district) {
-        const districtCheckboxes = document.querySelectorAll('.district-filter:checked');
-        const selectedDistricts = Array.from(districtCheckboxes)
-            .map(cb => cb.value)
-            .filter(value => value !== 'all');
-        
-        if (document.querySelector('.district-filter[value="all"]').checked) {
-            return true;
-        }
-        
-        return selectedDistricts.length === 0 || selectedDistricts.includes(district);
-    }
+	function checkDistrictFilter(district) {
+		const districtCheckboxes = document.querySelectorAll('.district-filter:checked');
+		const selectedDistricts = Array.from(districtCheckboxes)
+			.map(cb => cb.value)
+			.filter(value => value !== 'all');
+		
+		if (document.querySelector('.district-filter[value="all"]').checked) {
+			return true;
+		}
+		
+		if (selectedDistricts.length === 0) {
+			return false;
+		}
+		
+		return selectedDistricts.includes(district);
+	}
 
 	function applyFilters() {
 		if (isLoading) return;
@@ -3687,149 +3635,165 @@ async function copySelectedAddresses() {
         });
     }
     
-    function processData(data) {
-        const districts = new Set();
-        currentAddresses = [];
-        totalEntrances = 0;
-        selectedAddresses.clear();
-        isHidingUnselected = false;
-        isHidingUnselectedInCurrentCluster = false;
-        currentClusterHiddenAddresses = [];
-        objectManager.removeAll();
-        
-        // Инициализация переменных для числовых фильтров
-        minFloors = Infinity; maxFloors = -Infinity;
-        minApartments = Infinity; maxApartments = -Infinity;
-        minAvgApartments = Infinity; maxAvgApartments = -Infinity;
-        
-        resetDistrictFilter();
-        
-        let processedCount = 0;
-        let skippedCount = 0;
-        
-        data.table.rows.forEach((row, i) => {
-            if (!row.c) {
-                skippedCount++;
-                return;
-            }
-            
-            const address = row.c[0]?.v || '';
-            const lngStr = row.c[1]?.v || '';
-            const latStr = row.c[2]?.v || '';
-            const status = row.c[3]?.v || '';
-            const district = row.c[4]?.v || '';
-            const entrances = row.c[5]?.v ? parseInt(row.c[5].v) || 0 : 0;
-            
-            // Парсинг числовых значений с проверкой на существование
-            const floorsRaw = row.c[6]?.v;
-            const apartmentsRaw = row.c[7]?.v;
-            const avgApartmentsRaw = row.c[8]?.v;
-            
-            let floors = null;
-            let apartments = null;
-            let avgApartmentsPerEntrance = null;
-            
-            if (floorsRaw !== undefined && floorsRaw !== null && floorsRaw !== '') {
-                floors = parseInt(floorsRaw.toString().replace(',', '.'));
-                if (!isNaN(floors)) {
-                    minFloors = Math.min(minFloors, floors);
-                    maxFloors = Math.max(maxFloors, floors);
-                }
-            }
-            
-            if (apartmentsRaw !== undefined && apartmentsRaw !== null && apartmentsRaw !== '') {
-                apartments = parseInt(apartmentsRaw.toString().replace(',', '.'));
-                if (!isNaN(apartments)) {
-                    minApartments = Math.min(minApartments, apartments);
-                    maxApartments = Math.max(maxApartments, apartments);
-                }
-            }
-            
-            if (avgApartmentsRaw !== undefined && avgApartmentsRaw !== null && avgApartmentsRaw !== '') {
-                avgApartmentsPerEntrance = parseFloat(avgApartmentsRaw.toString().replace(',', '.'));
-                if (!isNaN(avgApartmentsPerEntrance)) {
-                    minAvgApartments = Math.min(minAvgApartments, avgApartmentsPerEntrance);
-                    maxAvgApartments = Math.max(maxAvgApartments, avgApartmentsPerEntrance);
-                }
-            }
-            
-            if (!latStr || !lngStr) {
-                skippedCount++;
-                return;
-            }
-            
-            const lat = parseFloat(latStr.toString().replace(',', '.'));
-            const lng = parseFloat(lngStr.toString().replace(',', '.'));
-            
-            if (isNaN(lat) || isNaN(lng)) {
-                skippedCount++;
-                return;
-            }
-            
-            if (district) districts.add(district);
-            
-            const isOccupied = status.includes('Занято');
-            
-            objectManager.add({
-                id: i,
-                type: 'Feature',
-                geometry: { type: 'Point', coordinates: [lng, lat] },
-                properties: {
-                    address: address,
-                    fullStatus: status,
-                    status: isOccupied ? 'occupied' : 'free',
-                    district: district,
-                    entrances: entrances,
-                    floors: floors,
-                    apartments: apartments,
-                    avgApartmentsPerEntrance: avgApartmentsPerEntrance,
-                    hintContent: address
-                },
-                options: {
-                    iconColor: isOccupied ? '#F44336' : '#4CAF50'
-                }
-            });
-            
-            currentAddresses.push({
-                id: i,
-                address: address,
-                status: status,
-                district: district,
-                coordinates: [lng, lat],
-                isOccupied: isOccupied,
-                entrances: entrances,
-                floors: floors,
-                apartments: apartments,
-                avgApartmentsPerEntrance: avgApartmentsPerEntrance
-            });
-            
-            totalEntrances += entrances;
-            processedCount++;
-        });
-        
-        // Корректировка мин/макс значений, если нет данных
-        if (minFloors === Infinity) minFloors = 0;
-        if (maxFloors === -Infinity) maxFloors = 0;
-        if (minApartments === Infinity) minApartments = 0;
-        if (maxApartments === -Infinity) maxApartments = 0;
-        if (minAvgApartments === Infinity) minAvgApartments = 0;
-        if (maxAvgApartments === -Infinity) maxAvgApartments = 0;
-        
-        currentAddresses.sort((a, b) => {
-            const addressA = a.address || '';
-            const addressB = b.address || '';
-            return addressA.localeCompare(addressB);
-        });
-        
-        populateDistrictFilter(districts);
-        setupNumericFilters();
-        applyFilters();
-        
-        if (objectManager.objects.getLength() > 0) {
-            map.setBounds(objectManager.getBounds(), { checkZoomRange: true });
-        }
-    }
-    
+	function processData(data) {
+		const districts = new Set();
+		currentAddresses = [];
+		totalEntrances = 0;
+		
+		// Очищаем перед заполнением и сразу добавляем все адреса в выбранные
+		selectedAddresses.clear();
+		
+		isHidingUnselected = false;
+		isHidingUnselectedInCurrentCluster = false;
+		currentClusterHiddenAddresses = [];
+		objectManager.removeAll();
+		
+		// Инициализация переменных для числовых фильтров
+		minFloors = Infinity; maxFloors = -Infinity;
+		minApartments = Infinity; maxApartments = -Infinity;
+		minAvgApartments = Infinity; maxAvgApartments = -Infinity;
+		
+		resetDistrictFilter();
+		
+		let processedCount = 0;
+		let skippedCount = 0;
+		
+		data.table.rows.forEach((row, i) => {
+			if (!row.c) {
+				skippedCount++;
+				return;
+			}
+			
+			const address = row.c[0]?.v || '';
+			const lngStr = row.c[1]?.v || '';
+			const latStr = row.c[2]?.v || '';
+			const status = row.c[3]?.v || '';
+			const district = row.c[4]?.v || '';
+			const entrances = row.c[5]?.v ? parseInt(row.c[5].v) || 0 : 0;
+			
+			// Парсинг числовых значений с проверкой на существование
+			const floorsRaw = row.c[6]?.v;
+			const apartmentsRaw = row.c[7]?.v;
+			const avgApartmentsRaw = row.c[8]?.v;
+			
+			let floors = null;
+			let apartments = null;
+			let avgApartmentsPerEntrance = null;
+			
+			if (floorsRaw !== undefined && floorsRaw !== null && floorsRaw !== '') {
+				floors = parseInt(floorsRaw.toString().replace(',', '.'));
+				if (!isNaN(floors)) {
+					minFloors = Math.min(minFloors, floors);
+					maxFloors = Math.max(maxFloors, floors);
+				}
+			}
+			
+			if (apartmentsRaw !== undefined && apartmentsRaw !== null && apartmentsRaw !== '') {
+				apartments = parseInt(apartmentsRaw.toString().replace(',', '.'));
+				if (!isNaN(apartments)) {
+					minApartments = Math.min(minApartments, apartments);
+					maxApartments = Math.max(maxApartments, apartments);
+				}
+			}
+			
+			if (avgApartmentsRaw !== undefined && avgApartmentsRaw !== null && avgApartmentsRaw !== '') {
+				avgApartmentsPerEntrance = parseFloat(avgApartmentsRaw.toString().replace(',', '.'));
+				if (!isNaN(avgApartmentsPerEntrance)) {
+					minAvgApartments = Math.min(minAvgApartments, avgApartmentsPerEntrance);
+					maxAvgApartments = Math.max(maxAvgApartments, avgApartmentsPerEntrance);
+				}
+			}
+			
+			if (!latStr || !lngStr) {
+				skippedCount++;
+				return;
+			}
+			
+			const lat = parseFloat(latStr.toString().replace(',', '.'));
+			const lng = parseFloat(lngStr.toString().replace(',', '.'));
+			
+			if (isNaN(lat) || isNaN(lng)) {
+				skippedCount++;
+				return;
+			}
+			
+			if (district) districts.add(district);
+			
+			const isOccupied = status.includes('Занято');
+			
+			// ВСЕ АДРЕСА ДОБАВЛЯЕМ В ВЫБРАННЫЕ ПО УМОЛЧАНИЮ
+			selectedAddresses.add(i);
+			
+			objectManager.add({
+				id: i,
+				type: 'Feature',
+				geometry: { type: 'Point', coordinates: [lng, lat] },
+				properties: {
+					address: address,
+					fullStatus: status,
+					status: isOccupied ? 'occupied' : 'free',
+					district: district,
+					entrances: entrances,
+					floors: floors,
+					apartments: apartments,
+					avgApartmentsPerEntrance: avgApartmentsPerEntrance,
+					hintContent: address
+				},
+				options: {
+					// ОРАНЖЕВЫЙ ЦВЕТ ДЛЯ ВСЕХ АДРЕСОВ, ТАК КАК ОНИ ВЫБРАНЫ ПО УМОЛЧАНИЮ
+					iconColor: '#FF9800'
+				}
+			});
+			
+			currentAddresses.push({
+				id: i,
+				address: address,
+				status: status,
+				district: district,
+				coordinates: [lng, lat],
+				isOccupied: isOccupied,
+				entrances: entrances,
+				floors: floors,
+				apartments: apartments,
+				avgApartmentsPerEntrance: avgApartmentsPerEntrance
+			});
+			
+			totalEntrances += entrances;
+			processedCount++;
+		});
+		
+		// Корректировка мин/макс значений, если нет данных
+		if (minFloors === Infinity) minFloors = 0;
+		if (maxFloors === -Infinity) maxFloors = 0;
+		if (minApartments === Infinity) minApartments = 0;
+		if (maxApartments === -Infinity) maxApartments = 0;
+		if (minAvgApartments === Infinity) minAvgApartments = 0;
+		if (maxAvgApartments === -Infinity) maxAvgApartments = 0;
+		
+		currentAddresses.sort((a, b) => {
+			const addressA = a.address || '';
+			const addressB = b.address || '';
+			return addressA.localeCompare(addressB);
+		});
+		
+		populateDistrictFilter(districts);
+		setupNumericFilters();
+		
+		// Применяем фильтры и обновляем статистику
+		applyFilters();
+		
+		// Обновляем заголовок с актуальной статистикой
+		updatePanelHeaderStats();
+		
+		// Обновляем кнопку "Выбрать все" на "Снять выделение"
+		updateSelectAllButton();
+		
+		if (objectManager.objects.getLength() > 0) {
+			map.setBounds(objectManager.getBounds(), { checkZoomRange: true });
+		}
+	}
+
+   
 	function updateAddressList(addresses) {
 		const list = document.getElementById('address-list');
 		const emptyText = document.getElementById('address-list-empty');
@@ -3927,6 +3891,7 @@ async function copySelectedAddresses() {
 		});
 		
 		updateSelectedCount();
+		updateSelectAllButton();
 	}
 
     function resetDistrictFilter() {
