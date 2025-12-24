@@ -155,17 +155,9 @@
 		}
 
 		.price-warning {
-			font-size: 14px; /* Немного больше */
-			color: white !important;
-			border: 1px solid rgba(255, 255, 255, 0.4); /* Тонкая полупрозрачная рамка */
-			border-radius: 6px;
-			padding: 6px 12px;
-			font-weight: 600; /* Полужирный, не слишком жирный */
-			background: rgba(255, 255, 255, 0.1); /* Минимальный фон */
-			display: inline-block;
-			margin: 2px 0;
-			text-align: center;
-			letter-spacing: 0.3px; /* Немного разрядки букв */
+			font-size: 12px;
+			color: white;
+			font-weight: 600;
 		}
 
 		.price-per-apartment {
@@ -1207,9 +1199,7 @@
 			}
 			
 			.price-warning {
-				font-size: 12px;
-				padding: 6px 12px;
-				border-width: 1.5px;
+				font-size: 11px;
 			}
 			
 			.fixed-filter-section {
@@ -1581,7 +1571,7 @@
 				</div>
                 <div class="price-section">
                     <div style="display: flex; justify-content: space-between; width: 100%;">
-                        <span>Стоимость в месяц</span>
+                        <span>Стоимость в месяц:</span>
                         <div id="price-container">
                             <span id="monthly-price" class="price-value">0 р.</span>
                         </div>
@@ -1758,7 +1748,8 @@
     let lastOpenedClusterId = null;
     let lastOpenedObjectId = null;
     let isBalloonRefreshing = false;
-    
+    let lastClickedAddressId = null;
+	
     // Переменные для пользовательских меток
     let userMarkers = JSON.parse(localStorage.getItem('userMarkers')) || [];
     let isAddingMarker = false;
@@ -1780,7 +1771,7 @@
             return { 
                 total: 0, 
                 pricePer: 0,
-                message: 'ВЫБЕРИТЕ БОЛЬШЕ ЗДАНИЙ!',
+                message: 'ВЫБЕРИТЕ БОЛЬШЕ ЗДАНИЙ',
                 isValid: false
             };
         } else if (standsCount >= 100 && standsCount <= 299) {
@@ -1957,7 +1948,7 @@
 			// Расчёт стоимости за квартиру
 			if (selectedApartments > 0) {
 				const perApartment = (priceInfo.total / selectedApartments).toFixed(2);
-				perApartmentContainer.innerHTML = `Или ${perApartment} р. за квартиру!`;
+				perApartmentContainer.innerHTML = `Или ${perApartment} р. за квартиру`;
 			} else {
 				perApartmentContainer.innerHTML = ``;
 			}
@@ -2127,41 +2118,49 @@
         return true;
     }
 
-	function setupTabs() {
-		const tabs = document.querySelectorAll('.tab');
-		const tabContents = document.querySelectorAll('.tab-content');
-		
-		tabs.forEach(tab => {
-			tab.addEventListener('click', () => {
-				const tabName = tab.getAttribute('data-tab');
-				
-				tabs.forEach(t => t.classList.remove('active'));
-				tabContents.forEach(tc => tc.classList.remove('active'));
-				
-				tab.classList.add('active');
-				document.getElementById(`${tabName}-tab`).classList.add('active');
-				
-				if (tabName === 'my-markers') {
-					updateUserMarkersList();
-				} else if (tabName === 'calculation') {
-					// Обновляем список при переключении на вкладку расчёта
-					const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
-					const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
-					
-					if (selectedStatuses.length > 0) {
-						// Если есть активные фильтры, применяем их
-						applyFilters();
-					} else {
-						// Иначе показываем все адреса
-						const filtered = currentAddresses.filter(addr => {
-							return true; // Показываем все адреса
-						});
-						updateAddressList(filtered);
-					}
-				}
-			});
-		});
-	}
+// Обновите функцию setupTabs()
+
+function setupTabs() {
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.getAttribute('data-tab');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(tc => tc.classList.remove('active'));
+            
+            tab.classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Сбрасываем выделение при переключении вкладок
+            if (lastClickedAddressId !== null) {
+                restoreOriginalColor(lastClickedAddressId);
+                lastClickedAddressId = null;
+            }
+            
+            if (tabName === 'my-markers') {
+                updateUserMarkersList();
+            } else if (tabName === 'calculation') {
+                // Обновляем список при переключении на вкладку расчёта
+                const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
+                const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
+                
+                if (selectedStatuses.length > 0) {
+                    // Если есть активные фильтры, применяем их
+                    applyFilters();
+                } else {
+                    // Иначе показываем все адреса
+                    const filtered = currentAddresses.filter(addr => {
+                        return true; // Показываем все адреса
+                    });
+                    updateAddressList(filtered);
+                }
+            }
+        });
+    });
+}
     
     function setupPanel() {
         const panel = document.getElementById('main-panel');
@@ -2199,7 +2198,7 @@
     };
     
     function loadData() {
-        showLoading('Загрузка списка зданий...');
+        showLoading('Загрузка адресов...');
         
         const script = document.createElement('script');
         script.src = JSONP_URL;
@@ -2577,16 +2576,25 @@ function createClusterBalloonContent(geoObjects) {
         }
     };
     
-	function updateAddressSelectionOnMap(addressId, isSelected) {
-		const object = objectManager.objects.getById(addressId);
-		if (object) {
-			const originalColor = object.properties.status === 'occupied' ? '#F44336' : '#4CAF50';
-			// Оранжевый для выбранных, оригинальный цвет статуса для невыбранных
-			objectManager.objects.setObjectOptions(addressId, {
-				iconColor: isSelected ? '#FF9800' : originalColor
-			});
-		}
-	}
+function updateAddressSelectionOnMap(addressId, isSelected) {
+    const object = objectManager.objects.getById(addressId);
+    if (object) {
+        // Не меняем цвет, если это последний кликнутый адрес
+        if (lastClickedAddressId === addressId && object.__originalColor) {
+            // Сохраняем новый оригинальный цвет
+            const statusColor = object.properties.status === 'occupied' ? '#F44336' : '#4CAF50';
+            object.__originalColor = isSelected ? '#FF9800' : statusColor;
+            return; // Не перекрашиваем, оставляем красным
+        }
+        
+        const statusColor = object.properties.status === 'occupied' ? '#F44336' : '#4CAF50';
+        const color = isSelected ? '#FF9800' : statusColor;
+        
+        objectManager.objects.setObjectOptions(addressId, {
+            iconColor: color
+        });
+    }
+}
  
 	function updateAddressItemSelection(addressId, isSelected) {
 		const addressItem = document.querySelector(`.address-item[data-id="${addressId}"]`);
@@ -2935,7 +2943,7 @@ function createClusterBalloonContent(geoObjects) {
 		headerBlock += `ЗДАНИЙ   ${buildingsVisible.padStart(7)}     ${buildingsSelected.padStart(7)}     ${buildingsHidden.padStart(7)}\n`;
 		headerBlock += `СТЕНДОВ  ${standsVisible.padStart(7)}     ${standsSelected.padStart(7)}     ${standsHidden.padStart(7)}\n`;
 		headerBlock += `КВАРТИР  ${apartmentsVisible.padStart(7)}     ${apartmentsSelected.padStart(7)}     ${apartmentsHidden.padStart(7)}\n\n`;
-		headerBlock += `Стоимость в месяц ${monthlyPrice}\n`;
+		headerBlock += `Стоимость в месяц: ${monthlyPrice}\n`;
 		if (perApartmentText) {
 			headerBlock += `${perApartmentText}\n`;
 		}
@@ -3039,6 +3047,13 @@ function createClusterBalloonContent(geoObjects) {
 	}
 
 	function applyFilters() {
+		
+		// Сбрасываем выделение красного цвета при изменении фильтров
+		if (lastClickedAddressId !== null) {
+			restoreOriginalColor(lastClickedAddressId);
+			lastClickedAddressId = null;
+		}
+	
 		if (isLoading) return;
 		
 		// Отменяем предыдущий таймер и запускаем новый
@@ -3603,73 +3618,59 @@ function createClusterBalloonContent(geoObjects) {
             });
         });
         
-		// ОБНОВЛЕННЫЕ обработчики для числовых полей
-		const numericInputs = document.querySelectorAll('.numeric-inputs input');
-		numericInputs.forEach(input => {
-			let filterTimeout;
-			
-			input.addEventListener('input', (e) => {
-				// Разрешаем только цифры
-				let value = e.target.value;
-				
-				// Если пытаемся ввести не цифру - очищаем
-				if (!/^\d*$/.test(value)) {
-					input.value = value.replace(/\D/g, '');
-					return;
-				}
-				
-				// Отменяем предыдущий таймаут
-				clearTimeout(filterTimeout);
-				
-				// Устанавливаем новый таймаут с увеличенной задержкой
-				filterTimeout = setTimeout(() => {
-					applyFilters();
-				}, 500); // Увеличена задержка с 300 до 500 мс
-			});
-			
-			input.addEventListener('blur', () => {
-				// Если значение не является числом или пустое - очищаем
-				if (input.value !== '' && isNaN(input.value)) {
-					input.value = '';
-					showNotification('Введите числовое значение', true);
-					return;
-				}
-				
-				// Если значение выходит за допустимые пределы
-				if (input.value !== '' && !isNaN(input.value)) {
-					const value = parseFloat(input.value);
-					const minValue = input.id.includes('floors') ? minFloors :
-									input.id.includes('apartments') ? minApartments :
-									minAvgApartments;
-					const maxValue = input.id.includes('floors') ? maxFloors :
-									input.id.includes('apartments') ? maxApartments :
-									maxAvgApartments;
-					
-					if (value < minValue || value > maxValue) {
-						input.value = '';
-						showNotification(`Значение должно быть от ${minValue} до ${maxValue}`, true);
-						return;
-					}
-				}
-				
-				// Применяем фильтры при уходе с поля
-				applyFilters();
-			});
-			
-			// Обработка Enter для мгновенного применения
-			input.addEventListener('keypress', (e) => {
-				if (e.key === 'Enter') {
-					clearTimeout(filterTimeout);
-					applyFilters();
-				}
-			});
-			
-			// Сохраняем предыдущее значение (оставляем из старого кода)
-			let lastValidValue = '';
-			input.addEventListener('focus', () => {
-				lastValidValue = input.value;
-			});
-		});
+        // Обновленные обработчики для числовых полей
+        const numericInputs = document.querySelectorAll('.numeric-inputs input');
+        numericInputs.forEach(input => {
+            // Сохраняем предыдущее значение для восстановления при некорректном вводе
+            let lastValidValue = '';
+            
+            input.addEventListener('focus', () => {
+                lastValidValue = input.value;
+            });
+            
+            input.addEventListener('blur', () => {
+                // Если значение не является числом или пустое - очищаем
+                if (input.value !== '' && isNaN(input.value)) {
+                    input.value = '';
+                    showNotification('Введите числовое значение', true);
+                }
+                
+                // Если значение выходит за допустимые пределы
+                if (input.value !== '' && !isNaN(input.value)) {
+                    const value = parseFloat(input.value);
+                    const minValue = input.id.includes('floors') ? minFloors :
+                                    input.id.includes('apartments') ? minApartments :
+                                    minAvgApartments;
+                    const maxValue = input.id.includes('floors') ? maxFloors :
+                                    input.id.includes('apartments') ? maxApartments :
+                                    maxAvgApartments;
+                    
+                    if (value < minValue || value > maxValue) {
+                        input.value = '';
+                        showNotification(`Значение должно быть от ${minValue} до ${maxValue}`, true);
+                    }
+                }
+                
+                applyFilters();
+            });
+            
+            input.addEventListener('input', () => {
+                // Разрешаем только цифры
+                let value = input.value;
+                
+                // Если пытаемся ввести не цифру - очищаем
+                if (!/^\d*$/.test(value)) {
+                    input.value = value.replace(/\D/g, '');
+                    return;
+                }
+                
+                // Отложенное применение фильтров
+                clearTimeout(input._filterTimeout);
+                input._filterTimeout = setTimeout(() => {
+                    applyFilters();
+                }, 300);
+            });
+        });
     }
     
 	function processData(data) {
@@ -3868,41 +3869,148 @@ function createClusterBalloonContent(geoObjects) {
 		updateSelectAllButton();
 	}
 
-	function createAddressItem(addr, isSelected) {
-		const item = document.createElement('div');
-		item.className = `address-item ${isSelected ? 'selected' : ''}`;
-		item.setAttribute('data-id', addr.id);
-		
-		const avgApartmentsFormatted = addr.avgApartmentsPerEntrance 
-			? Math.round(addr.avgApartmentsPerEntrance)
-			: '0';
-		
-		const details = [];
-		if (addr.district && addr.district !== 'не указан') details.push(`Район: ${addr.district}`);
-		if (addr.entrances) details.push(`Подъездов: ${addr.entrances}`);
-		if (addr.floors !== null && addr.floors !== 0) details.push(`Этажей: ${addr.floors}`);
-		if (addr.apartments !== null && addr.apartments !== 0) details.push(`Квартир: ${addr.apartments}`);
-		
-		item.innerHTML = `
-			<input type="checkbox" class="address-checkbox" ${isSelected ? 'checked' : ''}
-				   onchange="toggleAddressSelection(${addr.id}, this.checked)">
-			<div class="address-header">
-				<strong>${addr.address}</strong>
-				<span class="${addr.isOccupied ? 'status-occupied' : 'status-free'}">
-					${addr.status}
-				</span>
-			</div>
-			<div class="address-details">
-				<div>${details.join(' | ')}</div>
-				${addr.avgApartmentsPerEntrance ? 
-					`<div style="font-size: 11px; color: #2196F3; margin-top: 2px;">
-						Квартир в подъезде: ~${avgApartmentsFormatted}
-					</div>` : ''}
-			</div>
-		`;
-		
-		return item;
-	}
+function createAddressItem(addr, isSelected) {
+    const item = document.createElement('div');
+    item.className = `address-item ${isSelected ? 'selected' : ''}`;
+    item.setAttribute('data-id', addr.id);
+    
+    const avgApartmentsFormatted = addr.avgApartmentsPerEntrance 
+        ? Math.round(addr.avgApartmentsPerEntrance)
+        : '0';
+    
+    const details = [];
+    if (addr.district && addr.district !== 'не указан') details.push(`Район: ${addr.district}`);
+    if (addr.entrances) details.push(`Подъездов: ${addr.entrances}`);
+    if (addr.floors !== null && addr.floors !== 0) details.push(`Этажей: ${addr.floors}`);
+    if (addr.apartments !== null && addr.apartments !== 0) details.push(`Квартир: ${addr.apartments}`);
+    
+    item.innerHTML = `
+        <input type="checkbox" class="address-checkbox" ${isSelected ? 'checked' : ''}
+               onchange="toggleAddressSelection(${addr.id}, this.checked)">
+        <div class="address-header">
+            <strong>${addr.address}</strong>
+            <span class="${addr.isOccupied ? 'status-occupied' : 'status-free'}">
+                ${addr.status}
+            </span>
+        </div>
+        <div class="address-details">
+            <div>${details.join(' | ')}</div>
+            ${addr.avgApartmentsPerEntrance ? 
+                `<div style="font-size: 11px; color: #2196F3; margin-top: 2px;">
+                    Квартир в подъезде: ~${avgApartmentsFormatted}
+                </div>` : ''}
+        </div>
+    `;
+    
+item.addEventListener('click', function(event) {
+    // Игнорируем клики по чекбоксу
+    if (event.target.type === 'checkbox' || event.target.classList.contains('address-checkbox')) {
+        return;
+    }
+    
+    // Получаем координаты адреса
+    const coords = addr.coordinates;
+    
+    // Восстанавливаем цвет предыдущей кликнутой метки
+    if (lastClickedAddressId !== null && lastClickedAddressId !== addr.id) {
+        restoreOriginalColor(lastClickedAddressId);
+    }
+    
+    // Сохраняем оригинальный цвет текущей метки и красим в красный
+    highlightAddressOnMap(addr.id);
+    
+    // Сохраняем ID последнего кликнутого адреса
+    lastClickedAddressId = addr.id;
+    
+    // Центрируем карту на адресе с увеличением
+    map.setCenter(coords, 17, {
+        duration: 300,
+        timingFunction: 'ease-in-out'
+    });
+    
+    // В мобильной версии просто центрируем карту
+    if (isMobile) {
+        return;
+    }
+    
+    // В десктопной версии открываем балун точки
+    setTimeout(() => {
+        try {
+            // Проверяем состояние объекта (в кластере или нет)
+            const state = objectManager.getObjectState(addr.id);
+            
+            if (state && state.isClustered) {
+                // Если объект в кластере, открываем балун кластера
+                objectManager.clusters.balloon.open(state.cluster.id, {
+                    checkZoomRange: false,
+                    autoPan: false
+                });
+                
+                // Запоминаем ID последнего открытого кластера
+                lastOpenedClusterId = state.cluster.id;
+                lastOpenedObjectId = null;
+            } else {
+                // Если объект не в кластере, открываем балун объекта
+                objectManager.objects.balloon.open(addr.id, {
+                    checkZoomRange: false,
+                    autoPan: false
+                });
+                
+                // Запоминаем ID последнего открытого объекта
+                lastOpenedObjectId = addr.id;
+                lastOpenedClusterId = null;
+            }
+        } catch (error) {
+            console.error('Ошибка открытия балуна:', error);
+        }
+    }, 350);
+});
+   
+    return item;
+}
+
+// Добавьте эти функции в раздел со вспомогательными функциями
+
+function highlightAddressOnMap(addressId) {
+    const object = objectManager.objects.getById(addressId);
+    if (object) {
+        // Определяем исходный цвет: 
+        // 1. Если адрес выбран -> оранжевый (#FF9800)
+        // 2. Иначе -> по статусу
+        const isSelected = selectedAddresses.has(addressId);
+        const statusColor = object.properties.status === 'occupied' ? '#F44336' : '#4CAF50';
+        const originalColor = isSelected ? '#FF9800' : statusColor;
+        
+        // Сохраняем оригинальный цвет перед покраской в красный
+        object.__originalColor = originalColor;
+        
+        // Красим в красный
+        objectManager.objects.setObjectOptions(addressId, {
+            iconColor: '#FF0000' // Ярко-красный
+        });
+    }
+}
+
+function restoreOriginalColor(addressId) {
+    const object = objectManager.objects.getById(addressId);
+    if (object && object.__originalColor) {
+        // Восстанавливаем сохраненный цвет
+        objectManager.objects.setObjectOptions(addressId, {
+            iconColor: object.__originalColor
+        });
+        // Очищаем сохраненный цвет
+        delete object.__originalColor;
+    } else if (object) {
+        // Если сохраненного цвета нет, используем логику выбора
+        const isSelected = selectedAddresses.has(addressId);
+        const statusColor = object.properties.status === 'occupied' ? '#F44336' : '#4CAF50';
+        const color = isSelected ? '#FF9800' : statusColor;
+        
+        objectManager.objects.setObjectOptions(addressId, {
+            iconColor: color
+        });
+    }
+}
 
     function resetDistrictFilter() {
         document.getElementById('districts-container').innerHTML = '';
@@ -4217,6 +4325,8 @@ function createClusterBalloonContent(geoObjects) {
         objectManager.clusters.options.set('preset', 'islands#invertedBlueClusterIcons');
         objectManager.objects.options.set('preset', 'islands#circleDotIcon');
         objectManager.objects.options.set('balloonContentLayout', ObjectBalloonContentLayout);
+		objectManager.objects.options.set('hideIconOnBalloonOpen', false);
+		objectManager.objects.options.set('balloonOffset', [0, 0]);
         
         objectManager.clusters.events.add('click', function(e) {
             const clusterId = e.get('objectId');
@@ -4250,8 +4360,60 @@ function createClusterBalloonContent(geoObjects) {
             }
         });
         
+		// Новые обработчики для сброса выделения
+		map.events.add('click', function() {
+			// Сбрасываем выделение при клике на пустое место на карте
+			if (lastClickedAddressId !== null) {
+				restoreOriginalColor(lastClickedAddressId);
+				lastClickedAddressId = null;
+			}
+		});
+
+		// Также добавляем сброс при открытии других балунов
+		objectManager.objects.events.add('click', function(e) {
+			const clickedObjectId = e.get('objectId');
+			if (lastClickedAddressId !== null && lastClickedAddressId !== clickedObjectId) {
+				restoreOriginalColor(lastClickedAddressId);
+				lastClickedAddressId = null;
+			}
+		});
+
+		objectManager.clusters.events.add('click', function(e) {
+			if (lastClickedAddressId !== null) {
+				restoreOriginalColor(lastClickedAddressId);
+				lastClickedAddressId = null;
+			}
+		});
+
         map.geoObjects.add(objectManager);
         
+		// Сброс выделения при клике на пустое место на карте
+map.events.add('click', function(e) {
+    // Проверяем, что клик не по объекту
+    if (e.get('target').type !== 'object' && lastClickedAddressId !== null) {
+        restoreOriginalColor(lastClickedAddressId);
+        lastClickedAddressId = null;
+    }
+});
+
+// Сброс выделения при клике на другой объект на карте
+objectManager.objects.events.add('click', function(e) {
+    const clickedObjectId = e.get('objectId');
+    if (lastClickedAddressId !== null && lastClickedAddressId !== clickedObjectId) {
+        restoreOriginalColor(lastClickedAddressId);
+        lastClickedAddressId = clickedObjectId;
+        highlightAddressOnMap(clickedObjectId);
+    }
+});
+
+// Сброс выделения при клике на кластер
+objectManager.clusters.events.add('click', function(e) {
+    if (lastClickedAddressId !== null) {
+        restoreOriginalColor(lastClickedAddressId);
+        lastClickedAddressId = null;
+    }
+});
+
         setupTabs();
         setupPanel();
         
