@@ -155,9 +155,17 @@
 		}
 
 		.price-warning {
-			font-size: 11px;
-			color: #FF9800;
-			font-weight: 600;
+			font-size: 14px; /* Немного больше */
+			color: white !important;
+			border: 1px solid rgba(255, 255, 255, 0.4); /* Тонкая полупрозрачная рамка */
+			border-radius: 6px;
+			padding: 6px 12px;
+			font-weight: 600; /* Полужирный, не слишком жирный */
+			background: rgba(255, 255, 255, 0.1); /* Минимальный фон */
+			display: inline-block;
+			margin: 2px 0;
+			text-align: center;
+			letter-spacing: 0.3px; /* Немного разрядки букв */
 		}
 
 		.price-per-apartment {
@@ -1199,7 +1207,9 @@
 			}
 			
 			.price-warning {
-				font-size: 10px;
+				font-size: 12px;
+				padding: 6px 12px;
+				border-width: 1.5px;
 			}
 			
 			.fixed-filter-section {
@@ -1571,7 +1581,7 @@
 				</div>
                 <div class="price-section">
                     <div style="display: flex; justify-content: space-between; width: 100%;">
-                        <span>Стоимость в месяц:</span>
+                        <span>Стоимость в месяц</span>
                         <div id="price-container">
                             <span id="monthly-price" class="price-value">0 р.</span>
                         </div>
@@ -1770,7 +1780,7 @@
             return { 
                 total: 0, 
                 pricePer: 0,
-                message: 'выберите минимум 100 стендов',
+                message: 'ВЫБЕРИТЕ БОЛЬШЕ ЗДАНИЙ!',
                 isValid: false
             };
         } else if (standsCount >= 100 && standsCount <= 299) {
@@ -1829,15 +1839,33 @@
 		let standsVisible = 0, standsSelected = 0, standsHidden = 0;
 		let apartmentsVisible = 0, apartmentsSelected = 0, apartmentsHidden = 0;
 
+		// Получаем текущий фильтр objectManager
+		const currentFilter = objectManager._filterFunction;
+		
 		currentAddresses.forEach(addr => {
-			// Проверяем, проходит ли адрес текущие фильтры (видим ли он)
+			// Проверяем, проходит ли адрес через ТЕКУЩИЙ ФИЛЬТР objectManager
+			const passesCurrentFilter = !currentFilter || currentFilter({
+				id: addr.id,
+				properties: {
+					status: addr.isOccupied ? 'occupied' : 'free',
+					district: addr.district,
+					floors: addr.floors,
+					apartments: addr.apartments,
+					avgApartmentsPerEntrance: addr.avgApartmentsPerEntrance
+				}
+			});
+			
+			// И проверяем основные фильтры из интерфейса
 			const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
 			const districtMatch = checkDistrictFilter(addr.district);
 			const floorsMatch = checkFloorsFilter(addr.floors);
 			const apartmentsMatch = checkApartmentsFilter(addr.apartments);
 			const avgApartmentsMatch = checkAvgApartmentsFilter(addr.avgApartmentsPerEntrance);
 			
-			const isVisible = statusMatch && districtMatch && floorsMatch && apartmentsMatch && avgApartmentsMatch;
+			// Адрес виден, если проходит ВСЕ фильтры
+			const isVisible = passesCurrentFilter && statusMatch && districtMatch && 
+							 floorsMatch && apartmentsMatch && avgApartmentsMatch;
+			
 			const isSelected = selectedAddresses.has(addr.id);
 			const apartments = addr.apartments || 0;
 			const entrances = addr.entrances || 0;
@@ -1887,13 +1915,26 @@
 		let selectedApartments = 0;
 		
 		currentAddresses.forEach(addr => {
+			const currentFilter = objectManager._filterFunction;
+			const passesCurrentFilter = !currentFilter || currentFilter({
+				id: addr.id,
+				properties: {
+					status: addr.isOccupied ? 'occupied' : 'free',
+					district: addr.district,
+					floors: addr.floors,
+					apartments: addr.apartments,
+					avgApartmentsPerEntrance: addr.avgApartmentsPerEntrance
+				}
+			});
+			
 			const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
 			const districtMatch = checkDistrictFilter(addr.district);
 			const floorsMatch = checkFloorsFilter(addr.floors);
 			const apartmentsMatch = checkApartmentsFilter(addr.apartments);
 			const avgApartmentsMatch = checkAvgApartmentsFilter(addr.avgApartmentsPerEntrance);
 			
-			const isVisible = statusMatch && districtMatch && floorsMatch && apartmentsMatch && avgApartmentsMatch;
+			const isVisible = passesCurrentFilter && statusMatch && districtMatch && 
+							 floorsMatch && apartmentsMatch && avgApartmentsMatch;
 			const isSelected = selectedAddresses.has(addr.id);
 			
 			if (isVisible && isSelected) {
@@ -1916,12 +1957,13 @@
 			// Расчёт стоимости за квартиру
 			if (selectedApartments > 0) {
 				const perApartment = (priceInfo.total / selectedApartments).toFixed(2);
-				perApartmentContainer.innerHTML = `Или ${perApartment} р. за квартиру`;
+				perApartmentContainer.innerHTML = `Или ${perApartment} р. за квартиру!`;
 			} else {
 				perApartmentContainer.innerHTML = ``;
 			}
 		}
 	}
+	
     function showNotification(message, isError = false) {
         const notification = document.getElementById('notification');
         const notificationText = document.getElementById('notification-text');
@@ -2677,6 +2719,8 @@ function createClusterBalloonContent(geoObjects) {
 			}
 			lastOpenedObjectId = null;
 		}
+		
+		updatePanelHeaderStats();
 	};
    
 	window.hideUnselectedAddressesInBalloon = function(addressIds) {
@@ -2744,6 +2788,8 @@ function createClusterBalloonContent(geoObjects) {
 			}
 			lastOpenedClusterId = null;
 		}
+		
+		updatePanelHeaderStats();
 	};   
 	window.copySingleAddress = function(address, status, district, entrances, floors, apartments, avgApartmentsPerEntrance) {
 		let text = address;
@@ -2829,6 +2875,8 @@ function createClusterBalloonContent(geoObjects) {
         updateAddressList(filtered);
         
         showNotification(`Скрыто невыбранных адресов: ${currentAddresses.length - selectedAddresses.size}`);
+		
+		updatePanelHeaderStats();
     };
     
 	window.restoreAllAddresses = function() {
@@ -2887,7 +2935,7 @@ function createClusterBalloonContent(geoObjects) {
 		headerBlock += `ЗДАНИЙ   ${buildingsVisible.padStart(7)}     ${buildingsSelected.padStart(7)}     ${buildingsHidden.padStart(7)}\n`;
 		headerBlock += `СТЕНДОВ  ${standsVisible.padStart(7)}     ${standsSelected.padStart(7)}     ${standsHidden.padStart(7)}\n`;
 		headerBlock += `КВАРТИР  ${apartmentsVisible.padStart(7)}     ${apartmentsSelected.padStart(7)}     ${apartmentsHidden.padStart(7)}\n\n`;
-		headerBlock += `Стоимость в месяц: ${monthlyPrice}\n`;
+		headerBlock += `Стоимость в месяц ${monthlyPrice}\n`;
 		if (perApartmentText) {
 			headerBlock += `${perApartmentText}\n`;
 		}
@@ -2993,12 +3041,15 @@ function createClusterBalloonContent(geoObjects) {
 	function applyFilters() {
 		if (isLoading) return;
 		
-		// Показываем индикатор за короткое время
-		if (!filterTimer) {
-			filterTimer = setTimeout(() => {
-				showLoading('Применение фильтров...');
-			}, 100);
-		}
+		// Отменяем предыдущий таймер и запускаем новый
+		clearTimeout(window.filterDebounceTimer);
+		window.filterDebounceTimer = setTimeout(() => {
+			_applyFiltersNow();
+		}, 300); // Задержка 300 мс
+	}
+
+	function _applyFiltersNow() {
+		showLoading('Применение фильтров...');
 		
 		const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
 		const selectedStatuses = Array.from(statusCheckboxes).map(cb => cb.value);
@@ -3007,47 +3058,10 @@ function createClusterBalloonContent(geoObjects) {
 			objectManager.setFilter(() => false);
 			updateAddressList([]);
 			hideLoading();
-			clearTimeout(filterTimer);
-			filterTimer = null;
-			updatePanelHeaderStats();
 			return;
 		}
 		
-		const hasDistrictFilter = document.querySelectorAll('.district-filter:checked').length > 0;
-		const allDistrictsChecked = document.querySelector('.district-filter[value="all"]').checked;
-		
-		if (!hasDistrictFilter || !allDistrictsChecked) {
-			const districtCheckboxes = document.querySelectorAll('.district-filter:checked');
-			const selectedDistricts = Array.from(districtCheckboxes)
-				.map(cb => cb.value)
-				.filter(value => value !== 'all');
-			
-			if (selectedDistricts.length === 0) {
-				objectManager.setFilter(() => false);
-				updateAddressList([]);
-				
-				hideLoading();
-				clearTimeout(filterTimer);
-				filterTimer = null;
-				updatePanelHeaderStats();
-				return;
-			}
-		}
-		
-		// Единая логика: просто скрываем адреса, не соответствующие фильтрам
-		// НЕ снимаем выделение с них
-		objectManager.setFilter(obj => {
-			const statusMatch = checkStatusFilter(obj.properties.status);
-			const districtMatch = checkDistrictFilter(obj.properties.district);
-			const floorsMatch = checkFloorsFilter(obj.properties.floors);
-			const apartmentsMatch = checkApartmentsFilter(obj.properties.apartments);
-			const avgApartmentsMatch = checkAvgApartmentsFilter(obj.properties.avgApartmentsPerEntrance);
-			
-			// Если адрес не проходит фильтр - просто скрываем его
-			// Выделение сохраняется для будущего показа
-			return statusMatch && districtMatch && floorsMatch && apartmentsMatch && avgApartmentsMatch;
-		});
-		
+		// Сначала фильтруем данные в памяти, затем применяем к ObjectManager
 		const filtered = currentAddresses.filter(addr => {
 			const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
 			const districtMatch = checkDistrictFilter(addr.district);
@@ -3057,15 +3071,24 @@ function createClusterBalloonContent(geoObjects) {
 			return statusMatch && districtMatch && floorsMatch && apartmentsMatch && avgApartmentsMatch;
 		});
 		
+		// Обновляем список адресов ДО применения фильтра к карте
 		updateAddressList(filtered);
 		
-		// В конце скрываем индикатор
-		setTimeout(() => {
-			hideLoading();
-			clearTimeout(filterTimer);
-			filterTimer = null;
-		}, 300);
+		// Только теперь применяем фильтр к ObjectManager
+		objectManager.setFilter(obj => {
+			const addr = currentAddresses.find(a => a.id === obj.id);
+			if (!addr) return false;
+			
+			const statusMatch = checkStatusFilter(addr.isOccupied ? 'occupied' : 'free');
+			const districtMatch = checkDistrictFilter(addr.district);
+			const floorsMatch = checkFloorsFilter(addr.floors);
+			const apartmentsMatch = checkApartmentsFilter(addr.apartments);
+			const avgApartmentsMatch = checkAvgApartmentsFilter(addr.avgApartmentsPerEntrance);
+			
+			return statusMatch && districtMatch && floorsMatch && apartmentsMatch && avgApartmentsMatch;
+		});
 		
+		hideLoading();
 		updatePanelHeaderStats();
 	}
     
@@ -3580,59 +3603,73 @@ function createClusterBalloonContent(geoObjects) {
             });
         });
         
-        // Обновленные обработчики для числовых полей
-        const numericInputs = document.querySelectorAll('.numeric-inputs input');
-        numericInputs.forEach(input => {
-            // Сохраняем предыдущее значение для восстановления при некорректном вводе
-            let lastValidValue = '';
-            
-            input.addEventListener('focus', () => {
-                lastValidValue = input.value;
-            });
-            
-            input.addEventListener('blur', () => {
-                // Если значение не является числом или пустое - очищаем
-                if (input.value !== '' && isNaN(input.value)) {
-                    input.value = '';
-                    showNotification('Введите числовое значение', true);
-                }
-                
-                // Если значение выходит за допустимые пределы
-                if (input.value !== '' && !isNaN(input.value)) {
-                    const value = parseFloat(input.value);
-                    const minValue = input.id.includes('floors') ? minFloors :
-                                    input.id.includes('apartments') ? minApartments :
-                                    minAvgApartments;
-                    const maxValue = input.id.includes('floors') ? maxFloors :
-                                    input.id.includes('apartments') ? maxApartments :
-                                    maxAvgApartments;
-                    
-                    if (value < minValue || value > maxValue) {
-                        input.value = '';
-                        showNotification(`Значение должно быть от ${minValue} до ${maxValue}`, true);
-                    }
-                }
-                
-                applyFilters();
-            });
-            
-            input.addEventListener('input', () => {
-                // Разрешаем только цифры
-                let value = input.value;
-                
-                // Если пытаемся ввести не цифру - очищаем
-                if (!/^\d*$/.test(value)) {
-                    input.value = value.replace(/\D/g, '');
-                    return;
-                }
-                
-                // Отложенное применение фильтров
-                clearTimeout(input._filterTimeout);
-                input._filterTimeout = setTimeout(() => {
-                    applyFilters();
-                }, 300);
-            });
-        });
+		// ОБНОВЛЕННЫЕ обработчики для числовых полей
+		const numericInputs = document.querySelectorAll('.numeric-inputs input');
+		numericInputs.forEach(input => {
+			let filterTimeout;
+			
+			input.addEventListener('input', (e) => {
+				// Разрешаем только цифры
+				let value = e.target.value;
+				
+				// Если пытаемся ввести не цифру - очищаем
+				if (!/^\d*$/.test(value)) {
+					input.value = value.replace(/\D/g, '');
+					return;
+				}
+				
+				// Отменяем предыдущий таймаут
+				clearTimeout(filterTimeout);
+				
+				// Устанавливаем новый таймаут с увеличенной задержкой
+				filterTimeout = setTimeout(() => {
+					applyFilters();
+				}, 500); // Увеличена задержка с 300 до 500 мс
+			});
+			
+			input.addEventListener('blur', () => {
+				// Если значение не является числом или пустое - очищаем
+				if (input.value !== '' && isNaN(input.value)) {
+					input.value = '';
+					showNotification('Введите числовое значение', true);
+					return;
+				}
+				
+				// Если значение выходит за допустимые пределы
+				if (input.value !== '' && !isNaN(input.value)) {
+					const value = parseFloat(input.value);
+					const minValue = input.id.includes('floors') ? minFloors :
+									input.id.includes('apartments') ? minApartments :
+									minAvgApartments;
+					const maxValue = input.id.includes('floors') ? maxFloors :
+									input.id.includes('apartments') ? maxApartments :
+									maxAvgApartments;
+					
+					if (value < minValue || value > maxValue) {
+						input.value = '';
+						showNotification(`Значение должно быть от ${minValue} до ${maxValue}`, true);
+						return;
+					}
+				}
+				
+				// Применяем фильтры при уходе с поля
+				applyFilters();
+			});
+			
+			// Обработка Enter для мгновенного применения
+			input.addEventListener('keypress', (e) => {
+				if (e.key === 'Enter') {
+					clearTimeout(filterTimeout);
+					applyFilters();
+				}
+			});
+			
+			// Сохраняем предыдущее значение (оставляем из старого кода)
+			let lastValidValue = '';
+			input.addEventListener('focus', () => {
+				lastValidValue = input.value;
+			});
+		});
     }
     
 	function processData(data) {
@@ -3792,106 +3829,79 @@ function createClusterBalloonContent(geoObjects) {
 			map.setBounds(objectManager.getBounds(), { checkZoomRange: true });
 		}
 	}
-
    
 	function updateAddressList(addresses) {
 		const list = document.getElementById('address-list');
 		const emptyText = document.getElementById('address-list-empty');
 		
-		updatePanelHeaderStats();
-		
 		if (addresses.length === 0) {
-			if (emptyText) {
-				emptyText.textContent = 'Нет адресов, соответствующих фильтрам';
-				emptyText.style.display = 'block';
-			}
-			
-			Array.from(list.children).forEach(child => {
-				if (child.id !== 'address-list-empty') {
-					list.removeChild(child);
-				}
-			});
-			
+			list.innerHTML = '<div id="address-list-empty" class="empty-list">Нет адресов, соответствующих фильтрам</div>';
 			return;
 		}
 		
-		if (emptyText) {
-			emptyText.style.display = 'none';
-		}
-		
-		Array.from(list.children).forEach(child => {
-			if (child.id !== 'address-list-empty') {
-				list.removeChild(child);
-			}
-		});
+		// Используем DocumentFragment для минимального числа изменений DOM
+		const fragment = document.createDocumentFragment();
 		
 		addresses.forEach(addr => {
 			const isSelected = selectedAddresses.has(addr.id);
-			const avgApartmentsFormatted = addr.avgApartmentsPerEntrance 
-				? Math.round(addr.avgApartmentsPerEntrance)
-				: '0';
+			const existingItem = list.querySelector(`.address-item[data-id="${addr.id}"]`);
 			
-			// Формируем строку с деталями
-			const details = [];
-			if (addr.district && addr.district !== 'не указан') {
-				details.push(`Район: ${addr.district}`);
+			if (existingItem) {
+				// Если элемент уже есть, просто обновляем его состояние
+				existingItem.classList.toggle('selected', isSelected);
+				const checkbox = existingItem.querySelector('.address-checkbox');
+				if (checkbox) checkbox.checked = isSelected;
+				fragment.appendChild(existingItem);
+			} else {
+				// Создаем новый элемент только если его нет
+				const item = createAddressItem(addr, isSelected);
+				fragment.appendChild(item);
 			}
-			if (addr.entrances) {
-				details.push(`Подъездов: ${addr.entrances}`);
-			}
-			if (addr.floors !== null && addr.floors !== 0) {
-				details.push(`Этажей: ${addr.floors}`);
-			}
-			if (addr.apartments !== null && addr.apartments !== 0) {
-				details.push(`Квартир: ${addr.apartments}`);
-			}
-			
-			const item = document.createElement('div');
-			item.className = `address-item ${isSelected ? 'selected' : ''}`;
-			item.setAttribute('data-id', addr.id);
-			item.innerHTML = `
-				<input type="checkbox" class="address-checkbox" ${isSelected ? 'checked' : ''}
-					   onchange="toggleAddressSelection(${addr.id}, this.checked)">
-				<div class="address-header">
-					<strong>${addr.address}</strong>
-					<span class="${addr.isOccupied ? 'status-occupied' : 'status-free'}">
-						${addr.status}
-					</span>
-				</div>
-				<div class="address-details">
-					<div>
-						${details.join(' | ')}
-					</div>
-					${addr.avgApartmentsPerEntrance ? `
-						<div style="font-size: 11px; color: #2196F3; margin-top: 2px;">
-							Квартир в подъезде: ~${avgApartmentsFormatted}
-						</div>
-					` : ''}
-				</div>
-			`;
-			item.addEventListener('click', (e) => {
-				if (e.target.type !== 'checkbox') {
-					map.panTo(addr.coordinates, {
-						flying: true,
-						zoom: 17
-					}).then(function() {
-						const object = objectManager.objects.getById(addr.id);
-						if (object) {
-							if (isMobile) {
-								const content = createObjectBalloonContent(object.properties, addr.id);
-								updateCustomMobileBalloon(content, object.geometry.coordinates);
-							} else {
-								objectManager.objects.balloon.open(addr.id);
-							}
-						}
-					});
-				}
-			});
-			list.appendChild(item);
 		});
+		
+		// Очищаем и обновляем список одним действием
+		list.innerHTML = '';
+		list.appendChild(fragment);
+		if (emptyText) emptyText.style.display = 'none';
 		
 		updateSelectedCount();
 		updateSelectAllButton();
+	}
+
+	function createAddressItem(addr, isSelected) {
+		const item = document.createElement('div');
+		item.className = `address-item ${isSelected ? 'selected' : ''}`;
+		item.setAttribute('data-id', addr.id);
+		
+		const avgApartmentsFormatted = addr.avgApartmentsPerEntrance 
+			? Math.round(addr.avgApartmentsPerEntrance)
+			: '0';
+		
+		const details = [];
+		if (addr.district && addr.district !== 'не указан') details.push(`Район: ${addr.district}`);
+		if (addr.entrances) details.push(`Подъездов: ${addr.entrances}`);
+		if (addr.floors !== null && addr.floors !== 0) details.push(`Этажей: ${addr.floors}`);
+		if (addr.apartments !== null && addr.apartments !== 0) details.push(`Квартир: ${addr.apartments}`);
+		
+		item.innerHTML = `
+			<input type="checkbox" class="address-checkbox" ${isSelected ? 'checked' : ''}
+				   onchange="toggleAddressSelection(${addr.id}, this.checked)">
+			<div class="address-header">
+				<strong>${addr.address}</strong>
+				<span class="${addr.isOccupied ? 'status-occupied' : 'status-free'}">
+					${addr.status}
+				</span>
+			</div>
+			<div class="address-details">
+				<div>${details.join(' | ')}</div>
+				${addr.avgApartmentsPerEntrance ? 
+					`<div style="font-size: 11px; color: #2196F3; margin-top: 2px;">
+						Квартир в подъезде: ~${avgApartmentsFormatted}
+					</div>` : ''}
+			</div>
+		`;
+		
+		return item;
 	}
 
     function resetDistrictFilter() {
