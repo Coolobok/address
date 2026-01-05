@@ -2407,14 +2407,14 @@
                     const mapOptions = {
                         center: CONFIG.MAP_CENTER,
                         zoom: CONFIG.MAP_ZOOM,
-                        controls: isMobile ? ['zoomControl'] : ['zoomControl', 'fullscreenControl'],
+                        // controls: isMobile ? ['zoomControl'] : ['zoomControl', 'fullscreenControl'],
                         avoidFractionalZoom: true,
                         suppressMapOpenBlock: true,
-                        yandexMapDisablePoiInteractivity: true,
+                        // yandexMapDisablePoiInteractivity: true,
                         suppressObsoleteBrowserNotifier: true,
-                        copyrightLogoVisible: false,
-                        copyrightUaVisible: false,
-                        copyrightProvidersVisible: false
+                        // copyrightLogoVisible: false,
+                        // copyrightUaVisible: false,
+                        // copyrightProvidersVisible: false
                     };
                     
                     map = new ymaps.Map('map', mapOptions);
