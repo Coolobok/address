@@ -7,7 +7,6 @@
     
     <!-- Яндекс Карты API -->
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
-
     <style>
         /* ===== БАЗОВЫЕ СТИЛИ ===== */
         * {
@@ -16,7 +15,6 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             height: 100vh;
@@ -24,18 +22,26 @@
             background: #f5f5f7;
             position: relative;
         }
-
-        .map-container {
+        /* ===== МОБИЛЬНАЯ СТРУКТУРА ===== */
+        .mobile-container {
+            display: none;
+        }
+        /* ===== ПК ВЕРСИЯ (ИСХОДНАЯ) ===== */
+        .desktop-container {
             width: 100%;
             height: 100%;
             position: relative;
         }
-
-        #map {
+        /* Контейнер для карты ПК */
+        .desktop-container .map-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .desktop-container #map-desktop {
             width: 100%;
             height: 100%;
         }
-
         /* ===== КОМПАКТНАЯ ШАПКА ===== */
         .compact-header {
             position: absolute;
@@ -50,26 +56,22 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
         }
-
         .header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
         }
-
         .header-title {
             font-size: 16px;
             font-weight: 700;
             color: white;
         }
-
         .header-subtitle {
             font-size: 12px;
             opacity: 0.9;
             color: rgba(255,255,255,0.95);
         }
-
         .header-toggle {
             background: rgba(255,255,255,0.15);
             border: 1px solid rgba(255,255,255,0.2);
@@ -82,29 +84,24 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-
         .header-toggle:hover {
             background: rgba(255,255,255,0.25);
         }
-
         .header-toggle svg {
             width: 16px;
             height: 16px;
             stroke: white;
             transition: transform 0.3s ease;
         }
-
         .header-toggle.active svg {
             transform: rotate(180deg);
         }
-
         .header-stats-compact {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             margin-top: 8px;
         }
-
         .stat-compact {
             background: rgba(255,255,255,0.1);
             border-radius: 8px;
@@ -112,7 +109,6 @@
             text-align: center;
             border: 1px solid rgba(255,255,255,0.05);
         }
-
         .stat-label-compact {
             font-size: 10px;
             opacity: 0.9;
@@ -120,13 +116,11 @@
             margin-bottom: 4px;
             font-weight: 500;
         }
-
         .stat-value-compact {
             font-size: 14px;
             font-weight: 700;
             color: white;
         }
-
         /* ===== ПЛАВАЮЩАЯ ПАНЕЛЬ ===== */
         .floating-panel {
             position: fixed;
@@ -142,9 +136,16 @@
             max-height: 75vh;
             overflow: hidden;
         }
-
         /* ПК ВЕРСИЯ */
         @media (min-width: 769px) {
+            .desktop-container {
+                display: block;
+            }
+            
+            .mobile-container {
+                display: none !important;
+            }
+            
             .compact-header {
                 display: block;
                 position: fixed;
@@ -238,11 +239,6 @@
                 letter-spacing: 0.2px;
                 white-space: nowrap;
                 font-size: 9px;
-            }
-            
-            /* Убираем старую вертикальную навигацию */
-            .desktop-nav-bar {
-                display: none !important;
             }
             
             .mobile-nav-bar {
@@ -356,7 +352,7 @@
                 font-size: 16px;
             }
             
-            .map-container {
+            .desktop-container .map-container {
                 padding-top: 0;
             }
             
@@ -423,51 +419,125 @@
                 border: 4px solid #f3f4f6 !important;
             }
         }
+        
         /* МОБИЛЬНАЯ ВЕРСИЯ */
         @media (max-width: 768px) {
-            .compact-header {
-                display: block;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 900;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            }
-            
-            .floating-panel {
-                bottom: 70px;
-                transform: translateY(100%);
-                border-radius: 24px 24px 0 0;
-                max-height: calc(100vh - 250px);
-            }
-            
-            .floating-panel.active {
-                transform: translateY(0);
-            }
-            
-            .map-container {
-                padding-top: 120px;
-                padding-bottom: 70px;
-            }
-            
-            /* Скрываем десктопную навигацию в шапке на мобильных */
-            .desktop-header-nav {
+            .desktop-container {
                 display: none !important;
             }
             
-            /* Кнопка сброса в фильтрах для мобильных - во всю ширину */
-            .filter-reset-button-container {
+            .mobile-container {
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                width: 100vw;
+                overflow: hidden;
+                position: relative;
+            }
+            
+            /* ШАПКА для мобильной версии */
+            .mobile-container .compact-header {
+                position: relative;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 10;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                flex-shrink: 0;
+                padding: 12px 16px;
+                border-radius: 0;
+            }
+            
+            /* ОСНОВНОЙ КОНТЕНТ для мобильной версии */
+            .mobile-container .main-content {
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+            
+            /* КОНТЕЙНЕР КАРТЫ для мобильной версии */
+            .mobile-container .map-container {
+                position: relative;
+                flex: 1;
+                width: 100%;
+                height: 100%;
+                display: block;
+                z-index: 1;
+                min-height: 0;
+            }
+            
+            .mobile-container #map-mobile {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+            }
+            
+            /* ПАНЕЛЬ для мобильной версии */
+            .mobile-container .floating-panel {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 2;
+                display: none;
+                max-height: 100%;
+                border-radius: 0;
+                box-shadow: none;
+                border: none;
+                transform: none;
+                background: white;
+            }
+            
+            .mobile-container .floating-panel.active {
+                display: flex;
+            }
+            
+            /* МОБИЛЬНАЯ НАВИГАЦИЯ */
+            .mobile-container .mobile-nav-bar {
+                position: relative;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                border-top: 1px solid rgba(0, 0, 0, 0.08);
+                z-index: 20;
+                padding: 8px 12px;
+                display: flex;
+                gap: 4px;
+                flex-shrink: 0;
+            }
+            
+            /* Скрываем кнопку toggle на мобильных */
+            .mobile-container .header-toggle {
+                display: none !important;
+            }
+            
+            /* Прячем десктопную навигацию в шапке на мобильных */
+            .mobile-container .desktop-header-nav {
+                display: none !important;
+            }
+            
+            /* Кнопка сброса в фильтрах для мобильных */
+            .mobile-container .filter-reset-button-container {
                 padding: 16px;
                 border-bottom: 1px solid #e5e7eb;
                 margin-bottom: 16px;
             }
             
-            .filter-reset-button-container button {
+            .mobile-container .filter-reset-button-container button {
                 width: 100%;
             }
             
-            /* Адаптируем ширину балуна для мобильных - делаем меньше, чтобы был полностью виден */
+            /* Адаптируем ширину балуна для мобильных */
             .custom-balloon {
                 width: calc(100vw - 90px) !important;
                 max-width: calc(100vw - 90px) !important;
@@ -476,13 +546,9 @@
                 right: 10px !important;
             }
             
-            /* Центрируем кнопку сброса в мобильной версии */
-            .action-buttons {
-                justify-content: center;
-            }
-            
-            .action-button {
-                width: 80%;
+            /* Скрываем кнопку сброса в action-buttons для мобильных */
+            .mobile-container .action-buttons {
+                display: none !important;
             }
             
             /* Районы и статусы рисуем сразу все */
@@ -509,17 +575,17 @@
                 font-size: 10px;
             }
             
-            /* Скрываем кнопку сброса в action-buttons для мобильных */
-            .action-buttons {
-                display: none !important;
-            }
-            
-            /* Скрываем кнопку toggle в header на мобильных */
-            .header-toggle {
-                display: none;
+            /* Безопасные зоны для современных устройств */
+            @supports(padding: max(0px)) {
+                .mobile-nav-bar {
+                    padding-bottom: max(8px, env(safe-area-inset-bottom));
+                }
+                
+                .compact-header {
+                    padding-top: max(12px, env(safe-area-inset-top));
+                }
             }
         }
-
         /* ===== КОНТЕНТ ПАНЕЛИ ===== */
         .panel-content-wrapper {
             flex: 1;
@@ -528,12 +594,6 @@
             overflow: hidden;
             min-height: 0;
         }
-
-        /* УБИРАЕМ ВКЛАДКИ */
-        .panel-tabs {
-            display: none !important;
-        }
-
         /* КОНТЕЙНЕРЫ */
         .tab-content-wrapper {
             flex: 1;
@@ -542,7 +602,6 @@
             overflow: hidden;
             min-height: 0;
         }
-
         .tab-pane-content {
             flex: 1;
             display: none;
@@ -550,11 +609,9 @@
             overflow: hidden;
             min-height: 0;
         }
-
         .tab-pane-content.active {
             display: flex;
         }
-
         /* ⚙️ ФИЛЬТРЫ - ВСЕГДА ОДНА КОЛОНКА */
         .filters-grid {
             display: flex !important;
@@ -566,14 +623,12 @@
             min-height: 0;
             align-content: start;
         }
-
         @media (max-width: 480px) {
             .filters-grid {
                 gap: 12px;
                 padding: 16px;
             }
         }
-
         @media (min-width: 769px) {
             .filters-grid {
                 gap: 20px;
@@ -583,7 +638,6 @@
                 scrollbar-color: #667eea #f3f4f6 !important;
             }
         }
-
         .filter-card {
             background: #f9fafb;
             border-radius: 12px;
@@ -591,12 +645,10 @@
             border: 1px solid #e5e7eb;
             transition: all 0.2s ease;
         }
-
         .filter-card:hover {
             border-color: #d1d5db;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-
         .filter-card-title {
             font-weight: 600;
             color: #111827;
@@ -607,7 +659,6 @@
             gap: 8px;
             flex-wrap: wrap;
         }
-
         .filter-card-title::before {
             content: '';
             width: 4px;
@@ -615,19 +666,16 @@
             background: #667eea;
             border-radius: 2px;
         }
-
         .filter-card-title span {
             font-weight: 700;
             color: #667eea;
         }
-
         @media (max-width: 480px) {
             .filter-card-title {
                 margin-bottom: 12px;
                 font-size: 13px;
             }
         }
-
         /* ЧЕКБОКСЫ */
         .checkboxes-column {
             display: flex;
@@ -635,7 +683,6 @@
             gap: 8px;
             padding-right: 4px;
         }
-
         .checkbox-card {
             display: flex;
             align-items: center;
@@ -644,11 +691,9 @@
             transition: all 0.2s ease;
             cursor: pointer;
         }
-
         .checkbox-card:hover {
             background: #f3f4f6;
         }
-
         .checkbox-card input {
             margin-right: 10px;
             cursor: pointer;
@@ -663,12 +708,10 @@
             position: relative;
             transition: all 0.2s ease;
         }
-
         .checkbox-card input:checked {
             background: #667eea;
             border-color: #667eea;
         }
-
         .checkbox-card input:checked::after {
             content: '✓';
             position: absolute;
@@ -679,7 +722,6 @@
             font-size: 11px;
             font-weight: bold;
         }
-
         .checkbox-card label {
             font-size: 13px;
             color: #374151;
@@ -687,21 +729,18 @@
             flex: 1;
             line-height: 1.3;
         }
-
         /* Обновленные стили для числовых фильтров */
         .range-compact {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
-
         .range-row {
             display: flex;
             align-items: center;
             gap: 8px;
             width: 100%;
         }
-
         .range-button {
             width: 40px;
             height: 44px;
@@ -720,24 +759,20 @@
             padding: 0;
             line-height: 1;
         }
-
         .range-button:hover {
             border-color: #667eea;
             background: #f3f4f6;
             color: #667eea;
         }
-
         .range-button:active {
             transform: scale(0.95);
         }
-
         /* Стили для отключенных кнопок диапазона */
         .range-button.disabled {
             opacity: 0.5;
             cursor: not-allowed;
             pointer-events: none;
         }
-
         .range-button.disabled:hover {
             border-color: #e5e7eb;
             background: white;
@@ -745,7 +780,6 @@
             transform: none;
             box-shadow: none;
         }
-
         .range-input-compact {
             flex: 1;
             min-width: 0;
@@ -761,19 +795,16 @@
             transition: all 0.2s ease;
             -moz-appearance: textfield;
         }
-
         .range-input-compact::-webkit-outer-spin-button,
         .range-input-compact::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-
         .range-input-compact:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-
         /* Адаптивность для кнопок */
         @media (max-width: 480px) {
             .range-button {
@@ -788,7 +819,6 @@
                 padding: 8px 10px;
             }
         }
-
         @media (max-width: 360px) {
             .range-row {
                 gap: 6px;
@@ -823,25 +853,21 @@
                 font-size: 16px;
             }
         }
-
         /* СПИСОК */
         .precise-controls {
             padding: 16px 20px 8px 20px;
             border-bottom: 1px solid #e5e7eb;
             flex-shrink: 0;
         }
-
         .percentage-slider-container {
             margin-bottom: 12px;
         }
-
         .percentage-header-compact {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
         }
-
         .percentage-value-compact {
             font-weight: 700;
             color: #667eea;
@@ -849,12 +875,6 @@
             min-width: 45px;
             text-align: center;
         }
-
-        /* УБИРАЕМ счетчик зданий */
-        .percentage-count-compact {
-            display: none !important;
-        }
-
         .percentage-slider-compact {
             width: 100%;
             height: 6px;
@@ -865,7 +885,6 @@
             border-radius: 3px;
             margin: 8px 0;
         }
-
         .percentage-slider-compact::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -877,7 +896,6 @@
             border: 3px solid white;
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
-
         /* НОВЫЙ СТИЛЬ ДЛЯ КНОПОК УПРАВЛЕНИЯ ПРОЦЕНТОМ */
         .percentage-controls {
             display: flex;
@@ -885,21 +903,18 @@
             gap: 8px;
             width: 100%;
         }
-
         .percentage-label {
             font-size: 13px;
             color: #374151;
             font-weight: 500;
             white-space: nowrap;
         }
-
         .percentage-buttons {
             display: flex;
             align-items: center;
             gap: 8px;
             margin-left: auto;
         }
-
         .percentage-btn {
             width: 32px;
             height: 32px;
@@ -917,17 +932,14 @@
             padding: 0;
             line-height: 1;
         }
-
         .percentage-btn:hover {
             border-color: #667eea;
             background: #f3f4f6;
             color: #667eea;
         }
-
         .percentage-btn:active {
             transform: scale(0.95);
         }
-
         /* СПИСОК ЗДАНИЙ */
         .buildings-list-compact {
             flex: 1;
@@ -935,7 +947,6 @@
             min-height: 0;
             padding: 8px 0;
         }
-
         .building-card {
             position: relative;
             padding: 16px;
@@ -947,24 +958,20 @@
             border: 1px solid #e5e7eb;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
-
         .building-card:hover {
             transform: translateY(-1px);
             border-color: #d1d5db;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
         }
-
         .building-card.selected {
             border-color: #667eea;
             background: linear-gradient(to right, rgba(102, 126, 234, 0.03), white);
         }
-
         .building-card.hidden {
             opacity: 0.7;
             background: #f9fafb;
             position: relative;
         }
-
         .building-card.hidden::before {
             content: 'СКРЫТО';
             position: absolute;
@@ -979,7 +986,6 @@
             font-weight: 600;
             letter-spacing: 0.3px;
         }
-
         .building-address-compact {
             font-weight: 600;
             margin-bottom: 6px;
@@ -988,7 +994,6 @@
             line-height: 1.3;
             padding-right: 40px;
         }
-
         .building-info-compact {
             display: flex;
             flex-wrap: wrap;
@@ -996,7 +1001,6 @@
             font-size: 12px;
             color: #6b7280;
         }
-
         .info-chip-compact {
             display: inline-flex;
             align-items: center;
@@ -1006,16 +1010,13 @@
             border-radius: 16px;
             font-weight: 500;
         }
-
         .status-chip-compact {
             background: #10b981;
             color: white;
         }
-
         .status-chip-compact.busy {
             background: #ef4444;
         }
-
         /* Обновленные стили для кнопки скрытия (крестик) */
         .hide-building-btn-compact {
             position: absolute;
@@ -1036,26 +1037,22 @@
             transition: all 0.2s ease;
             padding: 0;
         }
-
         .hide-building-btn-compact:hover {
             background: #fef2f2;
             color: #ef4444;
             border-color: #fecaca;
             transform: scale(1.1);
         }
-
         .hide-building-btn-compact.hidden {
             background: #f0fdf4;
             color: #10b981;
             border-color: #bbf7d0;
         }
-
         .hide-building-btn-compact.hidden:hover {
             background: #dcfce7;
             color: #059669;
             border-color: #86efac;
         }
-
         /* КНОПКИ ДЕЙСТВИЙ */
         .action-buttons {
             display: flex;
@@ -1065,7 +1062,6 @@
             background: white;
             flex-shrink: 0;
         }
-
         .action-button {
             flex: 1;
             padding: 12px 16px;
@@ -1083,20 +1079,13 @@
             gap: 8px;
             height: 44px;
         }
-
         .action-button:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
         }
-
         .action-button.secondary {
             background: #6b7280;
         }
-
-        .action-button.danger {
-            background: #ef4444;
-        }
-
         /* МОБИЛЬНАЯ НАВИГАЦИЯ */
         .mobile-nav-bar {
             position: fixed;
@@ -1111,7 +1100,6 @@
             display: flex;
             gap: 4px;
         }
-
         .nav-button {
             flex: 1;
             padding: 10px 4px;
@@ -1129,12 +1117,10 @@
             position: relative;
             min-height: 48px;
         }
-
         .nav-button.active {
             color: #667eea;
             background: rgba(102, 126, 234, 0.1);
         }
-
         .nav-icon {
             font-size: 18px;
             width: 20px;
@@ -1143,13 +1129,11 @@
             align-items: center;
             justify-content: center;
         }
-
         .nav-label {
             font-weight: 500;
             letter-spacing: 0.2px;
             white-space: nowrap;
         }
-
         /* УВЕДОМЛЕНИЯ */
         .notification-toast {
             position: fixed;
@@ -1170,14 +1154,12 @@
             gap: 10px;
             border-left: 4px solid #10b981;
         }
-
         @media (min-width: 481px) {
             .notification-toast {
                 left: auto;
                 max-width: 320px;
             }
         }
-
         .notification-toast::before {
             content: '✓';
             width: 20px;
@@ -1192,35 +1174,28 @@
             font-size: 12px;
             flex-shrink: 0;
         }
-
         .notification-toast.error {
             border-left-color: #ef4444;
         }
-
         .notification-toast.error::before {
             content: '!';
             background: #ef4444;
         }
-
         .notification-toast.info {
             border-left-color: #3b82f6;
         }
-
         .notification-toast.info::before {
             content: 'i';
             background: #3b82f6;
         }
-
         @keyframes slideInTop {
             from { transform: translateY(-100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-
         @keyframes slideOutTop {
             from { transform: translateY(0); opacity: 1; }
             to { transform: translateY(-100%); opacity: 0; }
         }
-
         /* ЗАГРУЗКА */
         .loading-overlay {
             position: fixed;
@@ -1236,7 +1211,6 @@
             flex-direction: column;
             gap: 20px;
         }
-
         .loading-spinner {
             width: 50px;
             height: 50px;
@@ -1245,19 +1219,16 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-
         .loading-text {
             font-size: 16px;
             color: white;
             font-weight: 600;
             letter-spacing: 0.3px;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
         /* ПУСТОЙ СПИСОК */
         .empty-state {
             display: flex;
@@ -1269,26 +1240,22 @@
             color: #6b7280;
             flex: 1;
         }
-
         .empty-icon {
             font-size: 40px;
             margin-bottom: 16px;
             opacity: 0.3;
         }
-
         .empty-title {
             font-size: 16px;
             font-weight: 600;
             color: #374151;
             margin-bottom: 6px;
         }
-
         .empty-subtitle {
             font-size: 13px;
             line-height: 1.4;
             max-width: 240px;
         }
-
         /* ОПТИМИЗАЦИЯ ПРОКРУТКИ - ОБНОВЛЕННЫЕ СТИЛИ ДЛЯ СКРОЛЛА */
         .scrollable-content {
             overflow-y: auto;
@@ -1296,25 +1263,21 @@
             scrollbar-width: auto;
             scrollbar-color: #667eea #f3f4f6;
         }
-
         /* Принудительно показываем скроллбар всегда */
         .scrollable-content {
             overflow-y: scroll !important;
         }
-
         /* Стили для скроллбара - БОЛЕЕ ЯРКИЕ И ЗАМЕТНЫЕ */
         .scrollable-content::-webkit-scrollbar {
             width: 14px !important;
             height: 14px !important;
         }
-
         .scrollable-content::-webkit-scrollbar-track {
             background: #f3f4f6 !important;
             border-radius: 10px !important;
             margin: 6px !important;
             border: 2px solid #e5e7eb !important;
         }
-
         .scrollable-content::-webkit-scrollbar-thumb {
             background: #667eea !important;
             border-radius: 10px !important;
@@ -1322,21 +1285,17 @@
             background-clip: padding-box !important;
             box-shadow: inset 0 0 6px rgba(0,0,0,0.1) !important;
         }
-
         .scrollable-content::-webkit-scrollbar-thumb:hover {
             background: #5a67d8 !important;
             border: 4px solid #f3f4f6 !important;
             box-shadow: inset 0 0 6px rgba(0,0,0,0.2) !important;
         }
-
         .scrollable-content::-webkit-scrollbar-thumb:active {
             background: #4c51bf !important;
         }
-
         .scrollable-content::-webkit-scrollbar-corner {
             background: #f3f4f6 !important;
         }
-
         /* Для Firefox */
         @supports (scrollbar-width: auto) {
             .scrollable-content {
@@ -1344,7 +1303,6 @@
                 scrollbar-color: #667eea #f3f4f6 !important;
             }
         }
-
         /* Для браузеров, которые скрывают скроллбар по умолчанию (macOS) */
         @media screen and (-webkit-min-device-pixel-ratio:0) {
             .scrollable-content {
@@ -1376,56 +1334,6 @@
                 border: 4px solid #f3f4f6 !important;
             }
         }
-
-        /* БЕЗОПАСНЫЕ ЗОНЫ */
-        @supports(padding: max(0px)) {
-            .compact-header {
-                padding-top: max(12px, env(safe-area-inset-top));
-            }
-            
-            .mobile-nav-bar {
-                padding-bottom: max(8px, env(safe-area-inset-bottom));
-            }
-            
-            .floating-panel {
-                padding-bottom: max(0px, env(safe-area-inset-bottom));
-            }
-        }
-
-        /* ПОПАП ДЛЯ ВЫБОРА ЗНАЧЕНИЙ */
-        .values-popup {
-            position: fixed;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-            z-index: 2000;
-            display: none;
-            animation: slideInTop 0.2s ease;
-        }
-
-        .values-popup.show {
-            display: block;
-        }
-
-        .value-item {
-            padding: 10px 12px;
-            cursor: pointer;
-            font-size: 13px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            color: #374151;
-            font-weight: 500;
-        }
-
-        .value-item:hover {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-        }
-
         /* КНОПКА "ПОКАЗАТЬ ВСЕ" */
         .show-all-button {
             cursor: pointer;
@@ -1444,13 +1352,11 @@
             justify-content: center;
             gap: 10px;
         }
-
         .show-all-button:hover {
             background: rgba(102, 126, 234, 0.05);
             border-color: #667eea;
             transform: translateY(-1px);
         }
-
         /* БАЛУНЫ */
         .custom-balloon {
             background: white;
@@ -1467,7 +1373,6 @@
             overflow: hidden !important;
             border: 1px solid rgba(0, 0, 0, 0.08);
         }
-
         /* АДАПТИВНОСТЬ */
         @media (max-width: 360px) {
             .compact-header {
@@ -1508,13 +1413,11 @@
                 margin: 4px !important;
             }
         }
-
         @media (orientation: landscape) and (max-height: 600px) {
             .floating-panel {
                 max-height: 85vh;
             }
         }
-
         /* Подсказки для ПК */
         @media (min-width: 769px) {
             .info-chip-compact.status-chip-compact {
@@ -1619,13 +1522,10 @@
         <div class="loading-spinner"></div>
         <div class="loading-text">Загрузка данных...</div>
     </div>
-
-    <!-- Контейнер для карты -->
-    <div class="map-container">
-        <div id="map"></div>
-        
+    <!-- ПК ВЕРСИЯ -->
+    <div class="desktop-container">
         <!-- Компактная шапка -->
-        <div class="compact-header alone" id="compact-header">
+        <div class="compact-header alone" id="compact-header-desktop">
             <div class="header-top">
                 <div>
                     <div class="header-title">PR МАРКЕТ Рязань</div>
@@ -1642,21 +1542,20 @@
             <div class="header-stats-compact">
                 <div class="stat-compact">
                     <div class="stat-label-compact">Выбрано</div>
-                    <div class="stat-value-compact" id="stats-compact-selected">0</div>
+                    <div class="stat-value-compact" id="stats-compact-selected-desktop">0</div>
                 </div>
                 <div class="stat-compact">
                     <div class="stat-label-compact">В месяц</div>
-                    <div class="stat-value-compact" id="stats-compact-price">—</div>
+                    <div class="stat-value-compact" id="stats-compact-price-desktop">—</div>
                 </div>
                 <div class="stat-compact">
                     <div class="stat-label-compact">За квартиру</div>
-                    <div class="stat-value-compact" id="stats-compact-per-flat">—</div>
+                    <div class="stat-value-compact" id="stats-compact-per-flat-desktop">—</div>
                 </div>
             </div>
             
-            <!-- Десктопная навигация в шапке (теперь с кнопкой сброса вместо панели) -->
+            <!-- Десктопная навигация в шапке -->
             <div class="desktop-header-nav">
-                <!-- Кнопка сброса фильтров (заменяет кнопку панели) -->
                 <button class="desktop-nav-button" data-action="reset-filters">
                     <span class="desktop-nav-icon">↻</span>
                     <span class="desktop-nav-label">Сбросить</span>
@@ -1675,68 +1574,60 @@
                 </button>
             </div>
         </div>
-
+        <!-- Контейнер для карты -->
+        <div class="map-container">
+            <div id="map-desktop"></div>
+        </div>
+        
         <!-- Плавающая панель -->
-        <div class="floating-panel" id="floating-panel">
+        <div class="floating-panel" id="floating-panel-desktop">
             <div class="panel-content-wrapper">
                 <div class="tab-content-wrapper">
                     <!-- Вкладка фильтров -->
-                    <div class="tab-pane-content active" id="basic-tab-content">
-                        <!-- Кнопка сброса фильтров (только для мобильной версии) -->
-                        <div class="filter-reset-button-container">
-                            <button class="action-button secondary" id="reset-filters-btn">
-                                <span>↻</span>
-                                <span>Сбросить фильтры</span>
-                            </button>
-                        </div>
-                        
+                    <div class="tab-pane-content active" id="basic-tab-content-desktop">
                         <div class="filters-grid scrollable-content">
                             <!-- Статус -->
                             <div class="filter-card">
                                 <div class="filter-card-title">Статус стендов</div>
-                                <div class="checkboxes-column" id="status-filters-compact">
-                                    <!-- Чекбоксы будут добавлены динамически -->
-                                </div>
+                                <div class="checkboxes-column" id="status-filters-compact-desktop"></div>
                             </div>
                             
                             <!-- Районы -->
                             <div class="filter-card">
                                 <div class="filter-card-title">Район города</div>
-                                <div class="checkboxes-column" id="district-filters-compact">
-                                    <!-- Чекбоксы будут добавлены динамически -->
-                                </div>
+                                <div class="checkboxes-column" id="district-filters-compact-desktop"></div>
                             </div>
                             
                             <!-- Этажность зданий -->
                             <div class="filter-card">
-                                <div class="filter-card-title" id="floors-title">Этажность зданий</div>
+                                <div class="filter-card-title" id="floors-title-desktop">Этажность зданий</div>
                                 <div class="range-compact">
                                     <div class="range-row">
-                                        <button class="range-button minus" type="button" data-target="min-floors-compact">-</button>
-                                        <input type="number" id="min-floors-compact" class="range-input-compact" placeholder="От" min="1">
-                                        <button class="range-button plus" type="button" data-target="min-floors-compact">+</button>
+                                        <button class="range-button minus" type="button" data-target="min-floors-compact-desktop">-</button>
+                                        <input type="number" id="min-floors-compact-desktop" class="range-input-compact" placeholder="От" min="1">
+                                        <button class="range-button plus" type="button" data-target="min-floors-compact-desktop">+</button>
                                     </div>
                                     <div class="range-row">
-                                        <button class="range-button minus" type="button" data-target="max-floors-compact">-</button>
-                                        <input type="number" id="max-floors-compact" class="range-input-compact" placeholder="До" min="1">
-                                        <button class="range-button plus" type="button" data-target="max-floors-compact">+</button>
+                                        <button class="range-button minus" type="button" data-target="max-floors-compact-desktop">-</button>
+                                        <input type="number" id="max-floors-compact-desktop" class="range-input-compact" placeholder="До" min="1">
+                                        <button class="range-button plus" type="button" data-target="max-floors-compact-desktop">+</button>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Квартир в подъезде -->
                             <div class="filter-card">
-                                <div class="filter-card-title" id="flats-title">Квартир в подъезде</div>
+                                <div class="filter-card-title" id="flats-title-desktop">Квартир в подъезде</div>
                                 <div class="range-compact">
                                     <div class="range-row">
-                                        <button class="range-button minus" type="button" data-target="min-flats-compact">-</button>
-                                        <input type="number" id="min-flats-compact" class="range-input-compact" placeholder="От" min="1">
-                                        <button class="range-button plus" type="button" data-target="min-flats-compact">+</button>
+                                        <button class="range-button minus" type="button" data-target="min-flats-compact-desktop">-</button>
+                                        <input type="number" id="min-flats-compact-desktop" class="range-input-compact" placeholder="От" min="1">
+                                        <button class="range-button plus" type="button" data-target="min-flats-compact-desktop">+</button>
                                     </div>
                                     <div class="range-row">
-                                        <button class="range-button minus" type="button" data-target="max-flats-compact">-</button>
-                                        <input type="number" id="max-flats-compact" class="range-input-compact" placeholder="До" min="1">
-                                        <button class="range-button plus" type="button" data-target="max-flats-compact">+</button>
+                                        <button class="range-button minus" type="button" data-target="max-flats-compact-desktop">-</button>
+                                        <input type="number" id="max-flats-compact-desktop" class="range-input-compact" placeholder="До" min="1">
+                                        <button class="range-button plus" type="button" data-target="max-flats-compact-desktop">+</button>
                                     </div>
                                 </div>
                             </div>
@@ -1744,58 +1635,169 @@
                     </div>
                     
                     <!-- Вкладка настроек -->
-                    <div class="tab-pane-content" id="precise-tab-content">
+                    <div class="tab-pane-content" id="precise-tab-content-desktop">
                         <div class="precise-controls">
                             <div class="percentage-slider-container">
-                                <!-- ОБНОВЛЕННЫЙ ЗАГОЛОВОК С КНОПКАМИ -->
                                 <div class="percentage-controls">
                                     <span class="percentage-label">Процент отображения</span>
                                     <div class="percentage-buttons">
-                                        <button class="percentage-btn" id="percentage-decrease">-</button>
-                                        <span class="percentage-value-compact" id="percentage-value-compact">100%</span>
-                                        <button class="percentage-btn" id="percentage-increase">+</button>
+                                        <button class="percentage-btn" id="percentage-decrease-desktop">-</button>
+                                        <span class="percentage-value-compact" id="percentage-value-compact-desktop">100%</span>
+                                        <button class="percentage-btn" id="percentage-increase-desktop">+</button>
                                     </div>
                                 </div>
-                                <input type="range" id="percentage-slider-compact" class="percentage-slider-compact" 
+                                <input type="range" id="percentage-slider-compact-desktop" class="percentage-slider-compact" 
                                        min="1" max="100" step="1" value="100">
                             </div>
                         </div>
                         
-                        <div id="buildings-list-compact" class="buildings-list-compact scrollable-content">
-                            <!-- Список будет добавлен динамически -->
-                        </div>
+                        <div id="buildings-list-compact-desktop" class="buildings-list-compact scrollable-content"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Мобильная навигация (4 кнопки) -->
-    <div class="mobile-nav-bar" id="mobile-nav-bar">
-        <button class="nav-button active" data-action="map">
-            <span class="nav-icon">🗺️</span>
-            <span class="nav-label">Карта</span>
-        </button>
-        <button class="nav-button" data-action="filters">
-            <span class="nav-icon">⚙️</span>
-            <span class="nav-label">Фильтры</span>
-        </button>
-        <button class="nav-button" data-action="list">
-            <span class="nav-icon">📋</span>
-            <span class="nav-label">Список</span>
-        </button>
-        <button class="nav-button" data-action="report">
-            <span class="nav-icon">📄</span>
-            <span class="nav-label">Отчёт</span>
-        </button>
+    <!-- МОБИЛЬНАЯ ВЕРСИЯ -->
+    <div class="mobile-container">
+        <!-- Шапка -->
+        <div class="compact-header" id="compact-header-mobile">
+            <div class="header-top">
+                <div>
+                    <div class="header-title">PR МАРКЕТ Рязань</div>
+                    <div class="header-subtitle">Карта стендов у домофона: <span id="stats-total-stands-mobile">0</span> в базе</div>
+                </div>
+            </div>
+            
+            <div class="header-stats-compact">
+                <div class="stat-compact">
+                    <div class="stat-label-compact">Выбрано</div>
+                    <div class="stat-value-compact" id="stats-compact-selected-mobile">0</div>
+                </div>
+                <div class="stat-compact">
+                    <div class="stat-label-compact">В месяц</div>
+                    <div class="stat-value-compact" id="stats-compact-price-mobile">—</div>
+                </div>
+                <div class="stat-compact">
+                    <div class="stat-label-compact">За квартиру</div>
+                    <div class="stat-value-compact" id="stats-compact-per-flat-mobile">—</div>
+                </div>
+            </div>
+        </div>
+        <!-- Основной контент -->
+        <div class="main-content">
+            <!-- Контейнер карты -->
+            <div class="map-container" id="map-container-mobile">
+                <div id="map-mobile"></div>
+            </div>
+            
+            <!-- Плавающая панель -->
+            <div class="floating-panel" id="floating-panel-mobile">
+                <div class="panel-content-wrapper">
+                    <div class="tab-content-wrapper">
+                        <!-- Вкладка фильтров -->
+                        <div class="tab-pane-content active" id="basic-tab-content-mobile">
+                            <!-- Кнопка сброса фильтров -->
+                            <div class="filter-reset-button-container">
+                                <button class="action-button secondary" id="reset-filters-btn-mobile">
+                                    <span>↻</span>
+                                    <span>Сбросить фильтры</span>
+                                </button>
+                            </div>
+                            
+                            <div class="filters-grid scrollable-content">
+                                <!-- Статус -->
+                                <div class="filter-card">
+                                    <div class="filter-card-title">Статус стендов</div>
+                                    <div class="checkboxes-column" id="status-filters-compact-mobile"></div>
+                                </div>
+                                
+                                <!-- Районы -->
+                                <div class="filter-card">
+                                    <div class="filter-card-title">Район города</div>
+                                    <div class="checkboxes-column" id="district-filters-compact-mobile"></div>
+                                </div>
+                                
+                                <!-- Этажность зданий -->
+                                <div class="filter-card">
+                                    <div class="filter-card-title" id="floors-title-mobile">Этажность зданий</div>
+                                    <div class="range-compact">
+                                        <div class="range-row">
+                                            <button class="range-button minus" type="button" data-target="min-floors-compact-mobile">-</button>
+                                            <input type="number" id="min-floors-compact-mobile" class="range-input-compact" placeholder="От" min="1">
+                                            <button class="range-button plus" type="button" data-target="min-floors-compact-mobile">+</button>
+                                        </div>
+                                        <div class="range-row">
+                                            <button class="range-button minus" type="button" data-target="max-floors-compact-mobile">-</button>
+                                            <input type="number" id="max-floors-compact-mobile" class="range-input-compact" placeholder="До" min="1">
+                                            <button class="range-button plus" type="button" data-target="max-floors-compact-mobile">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Квартир в подъезде -->
+                                <div class="filter-card">
+                                    <div class="filter-card-title" id="flats-title-mobile">Квартир в подъезде</div>
+                                    <div class="range-compact">
+                                        <div class="range-row">
+                                            <button class="range-button minus" type="button" data-target="min-flats-compact-mobile">-</button>
+                                            <input type="number" id="min-flats-compact-mobile" class="range-input-compact" placeholder="От" min="1">
+                                            <button class="range-button plus" type="button" data-target="min-flats-compact-mobile">+</button>
+                                        </div>
+                                        <div class="range-row">
+                                            <button class="range-button minus" type="button" data-target="max-flats-compact-mobile">-</button>
+                                            <input type="number" id="max-flats-compact-mobile" class="range-input-compact" placeholder="До" min="1">
+                                            <button class="range-button plus" type="button" data-target="max-flats-compact-mobile">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Вкладка настроек -->
+                        <div class="tab-pane-content" id="precise-tab-content-mobile">
+                            <div class="precise-controls">
+                                <div class="percentage-slider-container">
+                                    <div class="percentage-controls">
+                                        <span class="percentage-label">Процент отображения</span>
+                                        <div class="percentage-buttons">
+                                            <button class="percentage-btn" id="percentage-decrease-mobile">-</button>
+                                            <span class="percentage-value-compact" id="percentage-value-compact-mobile">100%</span>
+                                            <button class="percentage-btn" id="percentage-increase-mobile">+</button>
+                                        </div>
+                                    </div>
+                                    <input type="range" id="percentage-slider-compact-mobile" class="percentage-slider-compact" 
+                                           min="1" max="100" step="1" value="100">
+                                </div>
+                            </div>
+                            
+                            <div id="buildings-list-compact-mobile" class="buildings-list-compact scrollable-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Мобильная навигация -->
+        <div class="mobile-nav-bar" id="mobile-nav-bar-mobile">
+            <button class="nav-button active" data-action="map">
+                <span class="nav-icon">🗺️</span>
+                <span class="nav-label">Карта</span>
+            </button>
+            <button class="nav-button" data-action="filters">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Фильтры</span>
+            </button>
+            <button class="nav-button" data-action="list">
+                <span class="nav-icon">📋</span>
+                <span class="nav-label">Список</span>
+            </button>
+            <button class="nav-button" data-action="report">
+                <span class="nav-icon">📄</span>
+                <span class="nav-label">Отчёт</span>
+            </button>
+        </div>
     </div>
-
     <!-- Вспомогательный контейнер для уведомлений -->
     <div id="notifications-container"></div>
-
-    <!-- Попап для выбора значений -->
-    <div id="values-popup" class="values-popup"></div>
-
     <script>
         // Конфигурация
         const CONFIG = {
@@ -1804,12 +1806,8 @@
             MAP_CENTER: [54.6416, 39.7126],
             MAP_ZOOM: 11,
             FREE_STATUS: 'Свободно',
-            DEBOUNCE_DELAY: 300,
-            DEFAULT_CLUSTER_LIMIT: 20,
-            LOAD_MORE_STEP: 20,
             DEFAULT_RENDER_LIMIT: 50
         };
-
         // Глобальные переменные
         let map;
         let objectManager;
@@ -1836,35 +1834,113 @@
         let currentRenderLimit = CONFIG.DEFAULT_RENDER_LIMIT;
         let isAppActive = true;
         let isMobile = window.innerWidth <= 768;
-
+        let currentMobileView = 'map'; // 'map', 'filters', 'list'
         // DOM элементы
         const elements = {
             loadingOverlay: document.getElementById('loading-overlay'),
-            compactHeader: document.getElementById('compact-header'),
+            
+            // ПК элементы
+            compactHeaderDesktop: document.getElementById('compact-header-desktop'),
             headerToggle: document.getElementById('header-toggle'),
-            floatingPanel: document.getElementById('floating-panel'),
-            map: document.getElementById('map'),
-            statsCompactSelected: document.getElementById('stats-compact-selected'),
-            statsCompactPrice: document.getElementById('stats-compact-price'),
-            statsCompactPerFlat: document.getElementById('stats-compact-per-flat'),
+            floatingPanelDesktop: document.getElementById('floating-panel-desktop'),
+            mapDesktop: document.getElementById('map-desktop'),
+            statsCompactSelectedDesktop: document.getElementById('stats-compact-selected-desktop'),
+            statsCompactPriceDesktop: document.getElementById('stats-compact-price-desktop'),
+            statsCompactPerFlatDesktop: document.getElementById('stats-compact-per-flat-desktop'),
             statsTotalStands: document.getElementById('stats-total-stands'),
-            statusFiltersCompact: document.getElementById('status-filters-compact'),
-            districtFiltersCompact: document.getElementById('district-filters-compact'),
-            minFloorsCompact: document.getElementById('min-floors-compact'),
-            maxFloorsCompact: document.getElementById('max-floors-compact'),
-            minFlatsCompact: document.getElementById('min-flats-compact'),
-            maxFlatsCompact: document.getElementById('max-flats-compact'),
-            floorsTitle: document.getElementById('floors-title'),
-            flatsTitle: document.getElementById('flats-title'),
-            percentageSliderCompact: document.getElementById('percentage-slider-compact'),
-            percentageValueCompact: document.getElementById('percentage-value-compact'),
-            buildingsListCompact: document.getElementById('buildings-list-compact'),
-            resetFiltersBtn: document.getElementById('reset-filters-btn'),
-            mobileNavBar: document.getElementById('mobile-nav-bar'),
-            percentageDecrease: document.getElementById('percentage-decrease'),
-            percentageIncrease: document.getElementById('percentage-increase')
+            statusFiltersCompactDesktop: document.getElementById('status-filters-compact-desktop'),
+            districtFiltersCompactDesktop: document.getElementById('district-filters-compact-desktop'),
+            minFloorsCompactDesktop: document.getElementById('min-floors-compact-desktop'),
+            maxFloorsCompactDesktop: document.getElementById('max-floors-compact-desktop'),
+            minFlatsCompactDesktop: document.getElementById('min-flats-compact-desktop'),
+            maxFlatsCompactDesktop: document.getElementById('max-flats-compact-desktop'),
+            floorsTitleDesktop: document.getElementById('floors-title-desktop'),
+            flatsTitleDesktop: document.getElementById('flats-title-desktop'),
+            percentageSliderCompactDesktop: document.getElementById('percentage-slider-compact-desktop'),
+            percentageValueCompactDesktop: document.getElementById('percentage-value-compact-desktop'),
+            buildingsListCompactDesktop: document.getElementById('buildings-list-compact-desktop'),
+            percentageDecreaseDesktop: document.getElementById('percentage-decrease-desktop'),
+            percentageIncreaseDesktop: document.getElementById('percentage-increase-desktop'),
+            
+            // Мобильные элементы
+            compactHeaderMobile: document.getElementById('compact-header-mobile'),
+            floatingPanelMobile: document.getElementById('floating-panel-mobile'),
+            mapContainerMobile: document.getElementById('map-container-mobile'),
+            mapMobile: document.getElementById('map-mobile'),
+            statsCompactSelectedMobile: document.getElementById('stats-compact-selected-mobile'),
+            statsCompactPriceMobile: document.getElementById('stats-compact-price-mobile'),
+            statsCompactPerFlatMobile: document.getElementById('stats-compact-per-flat-mobile'),
+            statsTotalStandsMobile: document.getElementById('stats-total-stands-mobile'),
+            statusFiltersCompactMobile: document.getElementById('status-filters-compact-mobile'),
+            districtFiltersCompactMobile: document.getElementById('district-filters-compact-mobile'),
+            minFloorsCompactMobile: document.getElementById('min-floors-compact-mobile'),
+            maxFloorsCompactMobile: document.getElementById('max-floors-compact-mobile'),
+            minFlatsCompactMobile: document.getElementById('min-flats-compact-mobile'),
+            maxFlatsCompactMobile: document.getElementById('max-flats-compact-mobile'),
+            floorsTitleMobile: document.getElementById('floors-title-mobile'),
+            flatsTitleMobile: document.getElementById('flats-title-mobile'),
+            percentageSliderCompactMobile: document.getElementById('percentage-slider-compact-mobile'),
+            percentageValueCompactMobile: document.getElementById('percentage-value-compact-mobile'),
+            buildingsListCompactMobile: document.getElementById('buildings-list-compact-mobile'),
+            resetFiltersBtnMobile: document.getElementById('reset-filters-btn-mobile'),
+            mobileNavBar: document.getElementById('mobile-nav-bar-mobile'),
+            percentageDecreaseMobile: document.getElementById('percentage-decrease-mobile'),
+            percentageIncreaseMobile: document.getElementById('percentage-increase-mobile')
         };
-
+        // Получаем актуальные элементы в зависимости от устройства
+        function getCurrentElements() {
+            if (isMobile) {
+                return {
+                    compactHeader: elements.compactHeaderMobile,
+                    floatingPanel: elements.floatingPanelMobile,
+                    map: elements.mapMobile,
+                    statsCompactSelected: elements.statsCompactSelectedMobile,
+                    statsCompactPrice: elements.statsCompactPriceMobile,
+                    statsCompactPerFlat: elements.statsCompactPerFlatMobile,
+                    statsTotalStands: elements.statsTotalStandsMobile,
+                    statusFiltersCompact: elements.statusFiltersCompactMobile,
+                    districtFiltersCompact: elements.districtFiltersCompactMobile,
+                    minFloorsCompact: elements.minFloorsCompactMobile,
+                    maxFloorsCompact: elements.maxFloorsCompactMobile,
+                    minFlatsCompact: elements.minFlatsCompactMobile,
+                    maxFlatsCompact: elements.maxFlatsCompactMobile,
+                    floorsTitle: elements.floorsTitleMobile,
+                    flatsTitle: elements.flatsTitleMobile,
+                    percentageSliderCompact: elements.percentageSliderCompactMobile,
+                    percentageValueCompact: elements.percentageValueCompactMobile,
+                    buildingsListCompact: elements.buildingsListCompactMobile,
+                    resetFiltersBtn: elements.resetFiltersBtnMobile,
+                    percentageDecrease: elements.percentageDecreaseMobile,
+                    percentageIncrease: elements.percentageIncreaseMobile,
+                    mapContainer: elements.mapContainerMobile
+                };
+            } else {
+                return {
+                    compactHeader: elements.compactHeaderDesktop,
+                    floatingPanel: elements.floatingPanelDesktop,
+                    map: elements.mapDesktop,
+                    statsCompactSelected: elements.statsCompactSelectedDesktop,
+                    statsCompactPrice: elements.statsCompactPriceDesktop,
+                    statsCompactPerFlat: elements.statsCompactPerFlatDesktop,
+                    statsTotalStands: elements.statsTotalStands,
+                    statusFiltersCompact: elements.statusFiltersCompactDesktop,
+                    districtFiltersCompact: elements.districtFiltersCompactDesktop,
+                    minFloorsCompact: elements.minFloorsCompactDesktop,
+                    maxFloorsCompact: elements.maxFloorsCompactDesktop,
+                    minFlatsCompact: elements.minFlatsCompactDesktop,
+                    maxFlatsCompact: elements.maxFlatsCompactDesktop,
+                    floorsTitle: elements.floorsTitleDesktop,
+                    flatsTitle: elements.flatsTitleDesktop,
+                    percentageSliderCompact: elements.percentageSliderCompactDesktop,
+                    percentageValueCompact: elements.percentageValueCompactDesktop,
+                    buildingsListCompact: elements.buildingsListCompactDesktop,
+                    resetFiltersBtn: null,
+                    percentageDecrease: elements.percentageDecreaseDesktop,
+                    percentageIncrease: elements.percentageIncreaseDesktop,
+                    mapContainer: null
+                };
+            }
+        }
         // Утилиты
         const Utils = {
             debounce(func, wait) {
@@ -1875,25 +1951,21 @@
                     timeout = setTimeout(() => func.apply(context, args), wait);
                 };
             },
-
             escapeHtml(text) {
                 if (text === null || text === undefined) return '';
                 const div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML;
             },
-
             formatNumber(num) {
                 return new Intl.NumberFormat('ru-RU').format(num);
             },
-
             formatPrice(num) {
                 return new Intl.NumberFormat('ru-RU', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                 }).format(num);
             },
-
             showNotification(message, type = 'success') {
                 if (!isAppActive) return;
                 
@@ -1913,17 +1985,8 @@
                         }
                     }, 300);
                 }, 3000);
-            },
-
-            runIdle(callback, timeout = 100) {
-                if ('requestIdleCallback' in window) {
-                    return requestIdleCallback(callback, { timeout });
-                } else {
-                    return requestAnimationFrame(callback);
-                }
             }
         };
-
         // Вспомогательные функции для эмодзи и обработки районов
         function getStatusWithEmoji(status) {
             if (status === CONFIG.FREE_STATUS) {
@@ -1933,7 +1996,6 @@
             }
             return status;
         }
-
         function getShortDistrictName(fullDistrict) {
             if (!fullDistrict) return '';
             const bracketIndex = fullDistrict.indexOf('(');
@@ -1942,129 +2004,109 @@
             }
             return fullDistrict;
         }
-
         // =============================
         // ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА
         // =============================
         function initInterface() {
-            // Кнопка переключения панели (для ПК)
+            const currentElements = getCurrentElements();
+            
             if (!isMobile) {
-                elements.headerToggle.addEventListener('click', toggleDesktopPanel);
+                // Кнопка переключения панели (для ПК)
+                if (elements.headerToggle) {
+                    elements.headerToggle.addEventListener('click', toggleDesktopPanel);
+                }
             } else {
-                elements.headerToggle.style.display = 'none';
+                // Мобильная версия - инициализируем начальное состояние
+                showMobileView('map');
+                
+                // Кнопка сброса фильтров для мобильных
+                if (currentElements.resetFiltersBtn) {
+                    currentElements.resetFiltersBtn.addEventListener('click', resetAllFilters);
+                }
             }
             
-            // Навигация (мобильная и десктопная)
+            // Навигация
             setupNavigation();
             
-            // Кнопки действий
-            elements.resetFiltersBtn.addEventListener('click', resetAllFilters);
-            
             // Процентный слайдер
-            elements.percentageSliderCompact.addEventListener('input', (e) => {
-                const value = parseInt(e.target.value);
-                displayPercentage = value;
-                updatePercentageDisplay();
-                
-                clearTimeout(percentageDebounceTimer);
-                percentageDebounceTimer = setTimeout(() => {
-                    applyPreciseFilters();
-                }, 100);
-            });
+            if (currentElements.percentageSliderCompact) {
+                currentElements.percentageSliderCompact.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    displayPercentage = value;
+                    updatePercentageDisplay();
+                    
+                    clearTimeout(percentageDebounceTimer);
+                    percentageDebounceTimer = setTimeout(() => {
+                        applyPreciseFilters();
+                    }, 100);
+                });
+            }
             
-            // Новые кнопки управления процентом
-            elements.percentageDecrease.addEventListener('click', () => {
-                let value = parseInt(elements.percentageSliderCompact.value);
-                value = Math.max(1, value - 1);
-                elements.percentageSliderCompact.value = value;
-                displayPercentage = value;
-                updatePercentageDisplay();
-                
-                clearTimeout(percentageDebounceTimer);
-                percentageDebounceTimer = setTimeout(() => {
-                    applyPreciseFilters();
-                }, 100);
-            });
+            // Кнопки управления процентом
+            if (currentElements.percentageDecrease) {
+                currentElements.percentageDecrease.addEventListener('click', () => {
+                    const slider = currentElements.percentageSliderCompact;
+                    let value = parseInt(slider.value);
+                    value = Math.max(1, value - 1);
+                    slider.value = value;
+                    displayPercentage = value;
+                    updatePercentageDisplay();
+                    
+                    clearTimeout(percentageDebounceTimer);
+                    percentageDebounceTimer = setTimeout(() => {
+                        applyPreciseFilters();
+                    }, 100);
+                });
+            }
             
-            elements.percentageIncrease.addEventListener('click', () => {
-                let value = parseInt(elements.percentageSliderCompact.value);
-                value = Math.min(100, value + 1);
-                elements.percentageSliderCompact.value = value;
-                displayPercentage = value;
-                updatePercentageDisplay();
-                
-                clearTimeout(percentageDebounceTimer);
-                percentageDebounceTimer = setTimeout(() => {
-                    applyPreciseFilters();
-                }, 100);
-            });
+            if (currentElements.percentageIncrease) {
+                currentElements.percentageIncrease.addEventListener('click', () => {
+                    const slider = currentElements.percentageSliderCompact;
+                    let value = parseInt(slider.value);
+                    value = Math.min(100, value + 1);
+                    slider.value = value;
+                    displayPercentage = value;
+                    updatePercentageDisplay();
+                    
+                    clearTimeout(percentageDebounceTimer);
+                    percentageDebounceTimer = setTimeout(() => {
+                        applyPreciseFilters();
+                    }, 100);
+                });
+            }
             
             // На ПК панель по умолчанию скрыта
             if (!isMobile) {
-                elements.floatingPanel.style.display = 'none';
-                elements.floatingPanel.classList.remove('active');
+                currentElements.floatingPanel.style.display = 'none';
+                currentElements.floatingPanel.classList.remove('active');
                 isPanelVisible = false;
                 updateHeaderToggleIcon();
-                
-                // Принудительно включаем скроллбар на ПК
-                setTimeout(() => {
-                    const filtersGrid = document.querySelector('.filters-grid');
-                    if (filtersGrid) {
-                        filtersGrid.style.overflowY = 'scroll';
-                        filtersGrid.style.scrollbarWidth = 'thin';
-                    }
-                    
-                    const buildingsList = document.getElementById('buildings-list-compact');
-                    if (buildingsList) {
-                        buildingsList.style.overflowY = 'scroll';
-                        buildingsList.style.scrollbarWidth = 'thin';
-                    }
-                }, 100);
             }
             
             // Обработка изменения размера окна
             window.addEventListener('resize', handleResize);
         }
-
         function setupNavigation() {
-            // Обработчик для навигации (общий для мобильной и десктопной)
             const handleNavClick = (button) => {
                 const action = button.dataset.action;
                 
-                // Для десктопных кнопок в шапке
-                if (button.closest('.desktop-header-nav')) {
-                    const navBar = button.closest('.desktop-header-nav');
-                    navBar.querySelectorAll('.desktop-nav-button').forEach(btn => {
-                        btn.classList.remove('active');
-                    });
-                    button.classList.add('active');
-                    
-                    // Синхронизируем с мобильной навигацией
-                    if (action !== 'reset-filters') {
-                        const mobileButton = elements.mobileNavBar.querySelector(`[data-action="${action}"]`);
-                        if (mobileButton) {
-                            elements.mobileNavBar.querySelectorAll('.nav-button').forEach(btn => {
-                                btn.classList.remove('active');
-                            });
-                            mobileButton.classList.add('active');
-                        }
-                    }
-                } 
-                // Для мобильной навигации
-                else if (button.closest('.mobile-nav-bar')) {
+                if (isMobile) {
+                    // Мобильная навигация
                     const navBar = button.closest('.mobile-nav-bar');
-                    navBar.querySelectorAll('.nav-button').forEach(btn => {
-                        btn.classList.remove('active');
-                    });
-                    button.classList.add('active');
-                    
-                    // Синхронизируем с десктопной навигацией в шапке
-                    const desktopButton = document.querySelector(`.desktop-header-nav [data-action="${action}"]`);
-                    if (desktopButton) {
-                        document.querySelectorAll('.desktop-header-nav .desktop-nav-button').forEach(btn => {
+                    if (navBar) {
+                        navBar.querySelectorAll('.nav-button').forEach(btn => {
                             btn.classList.remove('active');
                         });
-                        desktopButton.classList.add('active');
+                        button.classList.add('active');
+                    }
+                } else {
+                    // Десктопная навигация
+                    const navBar = button.closest('.desktop-header-nav');
+                    if (navBar) {
+                        navBar.querySelectorAll('.desktop-nav-button').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        button.classList.add('active');
                     }
                 }
                 
@@ -2078,7 +2120,7 @@
                 });
             }
             
-            // Десктопная навигация в шапке
+            // Десктопная навигация
             const desktopNavButtons = document.querySelectorAll('.desktop-header-nav .desktop-nav-button');
             if (desktopNavButtons.length > 0) {
                 desktopNavButtons.forEach(button => {
@@ -2095,147 +2137,140 @@
                 });
             }
         }
-
-        function handleNavigationAction(action, button) {
-            switch(action) {
+        // Функция для отображения мобильного вида
+        function showMobileView(view) {
+            if (!isMobile) return;
+            
+            currentMobileView = view;
+            const currentElements = getCurrentElements();
+            
+            switch(view) {
                 case 'map':
-                    if (!isMobile) {
-                        elements.floatingPanel.style.display = 'none';
-                        elements.floatingPanel.classList.remove('active');
-                        elements.compactHeader.classList.remove('with-panel');
-                        elements.compactHeader.classList.add('alone');
-                        isPanelVisible = false;
-                        updateHeaderToggleIcon();
-                    } else {
-                        elements.floatingPanel.classList.remove('active');
-                        isPanelVisible = false;
-                    }
-                    break;
-                    
-                case 'reset-filters':
-                    resetAllFilters();
-                    button.classList.add('active');
+                    currentElements.mapContainer.style.display = 'block';
+                    currentElements.floatingPanel.style.display = 'none';
+                    currentElements.floatingPanel.classList.remove('active');
+                    // Обновляем размеры карты после показа
                     setTimeout(() => {
-                        button.classList.remove('active');
-                    }, 500);
+                        if (map) {
+                            map.container.fitToViewport();
+                        }
+                    }, 100);
                     break;
                     
                 case 'filters':
-                    if (!isMobile) {
-                        if (isPanelVisible && currentMode === 'basic') {
-                            elements.floatingPanel.style.display = 'none';
-                            elements.floatingPanel.classList.remove('active');
-                            elements.compactHeader.classList.remove('with-panel');
-                            elements.compactHeader.classList.add('alone');
-                            isPanelVisible = false;
-                            updateHeaderToggleIcon();
-                        } else {
-                            elements.floatingPanel.style.display = 'flex';
-                            elements.floatingPanel.classList.add('active');
-                            elements.compactHeader.classList.remove('alone');
-                            elements.compactHeader.classList.add('with-panel');
-                            isPanelVisible = true;
-                            updateHeaderToggleIcon();
-                            switchContent('basic');
-                            
-                            setTimeout(() => {
-                                const filtersGrid = document.querySelector('.filters-grid');
-                                if (filtersGrid) {
-                                    filtersGrid.style.overflowY = 'scroll';
-                                    filtersGrid.style.scrollbarWidth = 'thin';
-                                }
-                            }, 50);
-                        }
-                    } else {
-                        if (isPanelVisible && currentMode === 'basic') {
-                            elements.floatingPanel.classList.remove('active');
-                            isPanelVisible = false;
-                        } else {
-                            elements.floatingPanel.classList.add('active');
-                            isPanelVisible = true;
-                            switchContent('basic');
-                        }
-                    }
+                    currentElements.mapContainer.style.display = 'none';
+                    currentElements.floatingPanel.style.display = 'flex';
+                    currentElements.floatingPanel.classList.add('active');
+                    switchContent('basic');
                     break;
                     
                 case 'list':
-                    if (!isMobile) {
-                        if (isPanelVisible && currentMode === 'precise') {
-                            elements.floatingPanel.style.display = 'none';
-                            elements.floatingPanel.classList.remove('active');
-                            elements.compactHeader.classList.remove('with-panel');
-                            elements.compactHeader.classList.add('alone');
-                            isPanelVisible = false;
-                            updateHeaderToggleIcon();
-                        } else {
-                            elements.floatingPanel.style.display = 'flex';
-                            elements.floatingPanel.classList.add('active');
-                            elements.compactHeader.classList.remove('alone');
-                            elements.compactHeader.classList.add('with-panel');
-                            isPanelVisible = true;
-                            updateHeaderToggleIcon();
-                            switchContent('precise');
-                            
-                            setTimeout(() => {
-                                const buildingsList = document.getElementById('buildings-list-compact');
-                                if (buildingsList) {
-                                    buildingsList.style.overflowY = 'scroll';
-                                    buildingsList.style.scrollbarWidth = 'thin';
-                                }
-                            }, 50);
-                        }
-                    } else {
-                        if (isPanelVisible && currentMode === 'precise') {
-                            elements.floatingPanel.classList.remove('active');
-                            isPanelVisible = false;
-                        } else {
-                            elements.floatingPanel.classList.add('active');
-                            isPanelVisible = true;
-                            switchContent('precise');
-                        }
-                    }
-                    break;
-                    
-                case 'report':
-                    copyReportToClipboard();
+                    currentElements.mapContainer.style.display = 'none';
+                    currentElements.floatingPanel.style.display = 'flex';
+                    currentElements.floatingPanel.classList.add('active');
+                    switchContent('precise');
                     break;
             }
         }
-
+        function handleNavigationAction(action, button) {
+            const currentElements = getCurrentElements();
+            
+            if (isMobile) {
+                // Мобильная версия
+                switch(action) {
+                    case 'map':
+                        showMobileView('map');
+                        break;
+                        
+                    case 'reset-filters':
+                        resetAllFilters();
+                        break;
+                        
+                    case 'filters':
+                        showMobileView('filters');
+                        break;
+                        
+                    case 'list':
+                        showMobileView('list');
+                        break;
+                        
+                    case 'report':
+                        copyReportToClipboard();
+                        break;
+                }
+            } else {
+                // Десктопная версия
+                switch(action) {
+                    case 'reset-filters':
+                        resetAllFilters();
+                        button.classList.add('active');
+                        setTimeout(() => {
+                            button.classList.remove('active');
+                        }, 500);
+                        break;
+                        
+                    case 'filters':
+                        if (isPanelVisible && currentMode === 'basic') {
+                            currentElements.floatingPanel.style.display = 'none';
+                            currentElements.floatingPanel.classList.remove('active');
+                            currentElements.compactHeader.classList.remove('with-panel');
+                            currentElements.compactHeader.classList.add('alone');
+                            isPanelVisible = false;
+                            updateHeaderToggleIcon();
+                        } else {
+                            currentElements.floatingPanel.style.display = 'flex';
+                            currentElements.floatingPanel.classList.add('active');
+                            currentElements.compactHeader.classList.remove('alone');
+                            currentElements.compactHeader.classList.add('with-panel');
+                            isPanelVisible = true;
+                            updateHeaderToggleIcon();
+                            switchContent('basic');
+                        }
+                        break;
+                        
+                    case 'list':
+                        if (isPanelVisible && currentMode === 'precise') {
+                            currentElements.floatingPanel.style.display = 'none';
+                            currentElements.floatingPanel.classList.remove('active');
+                            currentElements.compactHeader.classList.remove('with-panel');
+                            currentElements.compactHeader.classList.add('alone');
+                            isPanelVisible = false;
+                            updateHeaderToggleIcon();
+                        } else {
+                            currentElements.floatingPanel.style.display = 'flex';
+                            currentElements.floatingPanel.classList.add('active');
+                            currentElements.compactHeader.classList.remove('alone');
+                            currentElements.compactHeader.classList.add('with-panel');
+                            isPanelVisible = true;
+                            updateHeaderToggleIcon();
+                            switchContent('precise');
+                        }
+                        break;
+                        
+                    case 'report':
+                        copyReportToClipboard();
+                        break;
+                }
+            }
+        }
         function toggleDesktopPanel() {
             if (!isMobile) {
+                const currentElements = getCurrentElements();
                 isPanelVisible = !isPanelVisible;
                 if (isPanelVisible) {
-                    elements.floatingPanel.style.display = 'flex';
-                    elements.floatingPanel.classList.add('active');
-                    elements.compactHeader.classList.remove('alone');
-                    elements.compactHeader.classList.add('with-panel');
-                    
-                    setTimeout(() => {
-                        if (currentMode === 'basic') {
-                            const filtersGrid = document.querySelector('.filters-grid');
-                            if (filtersGrid) {
-                                filtersGrid.style.overflowY = 'scroll';
-                                filtersGrid.style.scrollbarWidth = 'thin';
-                            }
-                        } else if (currentMode === 'precise') {
-                            const buildingsList = document.getElementById('buildings-list-compact');
-                            if (buildingsList) {
-                                buildingsList.style.overflowY = 'scroll';
-                                buildingsList.style.scrollbarWidth = 'thin';
-                            }
-                        }
-                    }, 50);
+                    currentElements.floatingPanel.style.display = 'flex';
+                    currentElements.floatingPanel.classList.add('active');
+                    currentElements.compactHeader.classList.remove('alone');
+                    currentElements.compactHeader.classList.add('with-panel');
                 } else {
-                    elements.floatingPanel.style.display = 'none';
-                    elements.floatingPanel.classList.remove('active');
-                    elements.compactHeader.classList.remove('with-panel');
-                    elements.compactHeader.classList.add('alone');
+                    currentElements.floatingPanel.style.display = 'none';
+                    currentElements.floatingPanel.classList.remove('active');
+                    currentElements.compactHeader.classList.remove('with-panel');
+                    currentElements.compactHeader.classList.add('alone');
                 }
                 updateHeaderToggleIcon();
             }
         }
-
         function updateHeaderToggleIcon() {
             if (!isMobile && elements.headerToggle) {
                 if (isPanelVisible) {
@@ -2245,52 +2280,42 @@
                 }
             }
         }
-
         function switchContent(contentType) {
+            const suffix = isMobile ? '-mobile' : '-desktop';
+            
+            // Скрываем все вкладки
             document.querySelectorAll('.tab-pane-content').forEach(pane => {
-                pane.classList.remove('active');
+                if (pane.id.includes(suffix)) {
+                    pane.classList.remove('active');
+                }
             });
             
             if (contentType === 'basic') {
-                document.getElementById('basic-tab-content').classList.add('active');
+                const basicTab = document.getElementById(`basic-tab-content${suffix}`);
+                if (basicTab) {
+                    basicTab.classList.add('active');
+                }
                 currentMode = 'basic';
             } else if (contentType === 'precise') {
-                document.getElementById('precise-tab-content').classList.add('active');
+                const preciseTab = document.getElementById(`precise-tab-content${suffix}`);
+                if (preciseTab) {
+                    preciseTab.classList.add('active');
+                }
                 currentMode = 'precise';
                 updateBuildingsList();
             }
         }
-
         function handleResize() {
             const wasMobile = isMobile;
             isMobile = window.innerWidth <= 768;
             
             if (wasMobile !== isMobile) {
-                if (isMobile) {
-                    elements.headerToggle.style.display = 'none';
-                    elements.floatingPanel.style.display = 'flex';
-                    if (isPanelVisible) {
-                        elements.floatingPanel.classList.add('active');
-                    }
-                    elements.compactHeader.classList.remove('with-panel', 'alone');
-                } else {
-                    elements.headerToggle.style.display = 'flex';
-                    elements.floatingPanel.style.display = 'none';
-                    elements.floatingPanel.classList.remove('active');
-                    isPanelVisible = false;
-                    
-                    elements.compactHeader.classList.remove('with-panel');
-                    elements.compactHeader.classList.add('alone');
-                    
-                    updateHeaderToggleIcon();
-                }
+                location.reload(); // Перезагружаем страницу при изменении типа устройства
             }
         }
-
         // =============================
         // ОСНОВНЫЕ ФУНКЦИИ
         // =============================
-
         function calculatePrice(totalStands) {
             if (totalStands < 100) {
                 return { 
@@ -2315,7 +2340,6 @@
                 };
             }
         }
-
         function selectByPercentageBresenham(items, percentage) {
             if (percentage >= 100) return [...items];
             if (percentage <= 0 || items.length === 0) return [];
@@ -2340,19 +2364,22 @@
             
             return result;
         }
-
         function updatePercentageDisplay() {
-            elements.percentageValueCompact.textContent = `${displayPercentage}%`;
-            elements.percentageSliderCompact.value = displayPercentage;
+            const currentElements = getCurrentElements();
+            if (currentElements.percentageValueCompact) {
+                currentElements.percentageValueCompact.textContent = `${displayPercentage}%`;
+            }
+            if (currentElements.percentageSliderCompact) {
+                currentElements.percentageSliderCompact.value = displayPercentage;
+            }
         }
-
         function updateStatistics() {
-            Utils.runIdle(() => {
+            setTimeout(() => {
                 computeStatistics();
-            });
+            }, 0);
         }
-
         function computeStatistics() {
+            const currentElements = getCurrentElements();
             let totalStands = 0;
             let totalFlats = 0;
             let totalStandsAll = 0;
@@ -2368,57 +2395,93 @@
                 totalStandsAll += building.entrances || 0;
             }
             
-            updateStatsDOM(totalStands, totalFlats, totalStandsAll);
-        }
-
-        function updateStatsDOM(totalStands, totalFlats, totalStandsAll) {
-            elements.statsTotalStands.textContent = Utils.formatNumber(totalStandsAll);
-            elements.statsCompactSelected.textContent = Utils.formatNumber(totalStands);
+            // Обновляем оба набора статистики
+            if (elements.statsTotalStands) {
+                elements.statsTotalStands.textContent = Utils.formatNumber(totalStandsAll);
+            }
+            if (elements.statsTotalStandsMobile) {
+                elements.statsTotalStandsMobile.textContent = Utils.formatNumber(totalStandsAll);
+            }
+            
+            if (elements.statsCompactSelectedDesktop) {
+                elements.statsCompactSelectedDesktop.textContent = Utils.formatNumber(totalStands);
+            }
+            if (elements.statsCompactSelectedMobile) {
+                elements.statsCompactSelectedMobile.textContent = Utils.formatNumber(totalStands);
+            }
             
             if (totalStands === 0) {
-                elements.statsCompactPrice.textContent = '—';
-                elements.statsCompactPerFlat.textContent = '—';
+                if (elements.statsCompactPriceDesktop) {
+                    elements.statsCompactPriceDesktop.textContent = '—';
+                    elements.statsCompactPerFlatDesktop.textContent = '—';
+                }
+                if (elements.statsCompactPriceMobile) {
+                    elements.statsCompactPriceMobile.textContent = '—';
+                    elements.statsCompactPerFlatMobile.textContent = '—';
+                }
                 return;
             }
             
             const priceInfo = calculatePrice(totalStands);
             
             if (totalStands < 100) {
-                elements.statsCompactPrice.textContent = '—';
-                elements.statsCompactPerFlat.textContent = '—';
+                if (elements.statsCompactPriceDesktop) {
+                    elements.statsCompactPriceDesktop.textContent = '—';
+                    elements.statsCompactPerFlatDesktop.textContent = '—';
+                }
+                if (elements.statsCompactPriceMobile) {
+                    elements.statsCompactPriceMobile.textContent = '—';
+                    elements.statsCompactPerFlatMobile.textContent = '—';
+                }
             } else {
-                elements.statsCompactPrice.textContent = `${Utils.formatNumber(priceInfo.totalPrice)} ₽`;
+                if (elements.statsCompactPriceDesktop) {
+                    elements.statsCompactPriceDesktop.textContent = `${Utils.formatNumber(priceInfo.totalPrice)} ₽`;
+                }
+                if (elements.statsCompactPriceMobile) {
+                    elements.statsCompactPriceMobile.textContent = `${Utils.formatNumber(priceInfo.totalPrice)} ₽`;
+                }
                 
                 if (totalFlats > 0) {
                     const pricePerFlat = priceInfo.totalPrice / totalFlats;
-                    elements.statsCompactPerFlat.textContent = `${Utils.formatNumber(pricePerFlat.toFixed(2))} ₽`;
+                    const formattedPricePerFlat = Utils.formatNumber(pricePerFlat.toFixed(2));
+                    if (elements.statsCompactPerFlatDesktop) {
+                        elements.statsCompactPerFlatDesktop.textContent = `${formattedPricePerFlat} ₽`;
+                    }
+                    if (elements.statsCompactPerFlatMobile) {
+                        elements.statsCompactPerFlatMobile.textContent = `${formattedPricePerFlat} ₽`;
+                    }
                 } else {
-                    elements.statsCompactPerFlat.textContent = '—';
+                    if (elements.statsCompactPerFlatDesktop) {
+                        elements.statsCompactPerFlatDesktop.textContent = '—';
+                    }
+                    if (elements.statsCompactPerFlatMobile) {
+                        elements.statsCompactPerFlatMobile.textContent = '—';
+                    }
                 }
             }
         }
-
         // =============================
         // ИНИЦИАЛИЗАЦИЯ КАРТЫ
         // =============================
         function initMap() {
             return new Promise((resolve) => {
                 ymaps.ready(() => {
+                    const mapElementId = isMobile ? 'map-mobile' : 'map-desktop';
                     const mapOptions = {
                         center: CONFIG.MAP_CENTER,
                         zoom: CONFIG.MAP_ZOOM,
-                        // controls: isMobile ? ['zoomControl'] : ['zoomControl', 'fullscreenControl'],
                         avoidFractionalZoom: true,
                         suppressMapOpenBlock: true,
-                        // yandexMapDisablePoiInteractivity: true,
-                        suppressObsoleteBrowserNotifier: true,
-                        // copyrightLogoVisible: false,
-                        // copyrightUaVisible: false,
-                        // copyrightProvidersVisible: false
+                        suppressObsoleteBrowserNotifier: true
                     };
                     
-                    map = new ymaps.Map('map', mapOptions);
-
+                    
+                    map = new ymaps.Map(mapElementId, mapOptions);
+                    
+                    
+                    // Добавляем обработчик завершения загрузки тайлов
+                    map.events.add('tileload', function() {
+                    });
                     objectManager = new ymaps.ObjectManager({
                         clusterize: true,
                         gridSize: 64,
@@ -2426,34 +2489,38 @@
                         clusterOpenBalloonOnClick: false,
                         geoObjectOpenBalloonOnClick: false
                     });
-
                     objectManager.clusters.options.set({
                         preset: 'islands#invertedVioletClusterIcons',
                         clusterIconColor: '#667eea',
                         clusterIconPieStrokeWidth: 0,
                         clusterIconPieStrokeColor: '#ffffff'
                     });
-
                     objectManager.objects.options.set({
                         preset: 'islands#circleDotIcon',
                         iconColor: '#10b981'
                     });
-
                     map.geoObjects.add(objectManager);
                     
                     setupMapEventHandlers();
+                    
+                    // Обновляем размеры карты после создания
+                    setTimeout(() => {
+                        if (map) {
+                            map.container.fitToViewport();
+                        }
+                    }, 500);
                     
                     resolve();
                 });
             });
         }
-
         function setupMapEventHandlers() {
+            if (!objectManager) return;
+            
             objectManager.clusters.events.add('click', (e) => {
                 const clusterId = e.get('objectId');
                 handleClusterClick(clusterId);
             });
-
             objectManager.objects.events.add('click', (e) => {
                 const objectId = e.get('objectId');
                 const object = objectManager.objects.getById(objectId);
@@ -2469,8 +2536,9 @@
                 }
             });
         }
-
         function handleClusterClick(clusterId) {
+            if (!objectManager) return;
+            
             const cluster = objectManager.clusters.getById(clusterId);
             if (!cluster) return;
             
@@ -2478,7 +2546,6 @@
             const totalCount = cluster.properties?.number || geoObjects.length;
             const clusterBuildings = [];
             
-            // Получаем все здания кластера
             for (let i = 0; i < geoObjects.length; i++) {
                 const geoObject = geoObjects[i];
                 const originalIndex = geoObject.properties?.originalIndex;
@@ -2494,7 +2561,6 @@
                 showClusterBalloon(clusterBuildings, cluster.geometry.coordinates, totalCount);
             }
         }
-
         function showBuildingBalloon(building, coords) {
             const statusEmoji = building.status === CONFIG.FREE_STATUS ? '🟢' : '🔴';
             const content = `
@@ -2553,7 +2619,6 @@
             
             openCustomBalloon(coords, content, true);
         }
-
         function showClusterBalloon(buildings, coords, totalCount) {
             const allBuildingIds = buildings.map(b => b.originalIndex).join(',');
             
@@ -2631,9 +2696,10 @@
             
             openCustomBalloon(coords, content, true);
         }
-
         function openCustomBalloon(coords, content, shouldCenter = true) {
             try {
+                if (!map || !map.balloon) return;
+                
                 if (map.balloon.isOpen()) {
                     map.balloon.close();
                 }
@@ -2667,7 +2733,6 @@
                 console.error('Error opening balloon:', error);
             }
         }
-
         window.handleHideSingle = function(index) {
             if (!isAppActive) return;
             
@@ -2689,7 +2754,6 @@
                 map.balloon.close();
             }
         };
-
         window.handleHideAllCluster = function(buildingIds) {
             if (!isAppActive) return;
             
@@ -2724,8 +2788,8 @@
                 map.balloon.close();
             }
         };
-
         function checkAndUncheckDistrict(districtName) {
+            const currentElements = getCurrentElements();
             let visibleCount = 0;
             for (let i = 0; i < allBuildings.length; i++) {
                 const building = allBuildings[i];
@@ -2737,15 +2801,27 @@
             }
             
             if (visibleCount === 0) {
-                const checkbox = document.querySelector(`#district-filters-compact input[value="${districtName}"]`);
-                if (checkbox && checkbox.checked) {
-                    checkbox.checked = false;
-                    activeFilters.district.delete(districtName);
-                }
+                // Находим чекбоксы района в обоих версиях
+                const desktopCheckboxes = document.querySelectorAll('#district-filters-compact-desktop input[type="checkbox"]');
+                const mobileCheckboxes = document.querySelectorAll('#district-filters-compact-mobile input[type="checkbox"]');
+                
+                desktopCheckboxes.forEach(checkbox => {
+                    if (checkbox.value === districtName && checkbox.checked) {
+                        checkbox.checked = false;
+                        activeFilters.district.delete(districtName);
+                    }
+                });
+                
+                mobileCheckboxes.forEach(checkbox => {
+                    if (checkbox.value === districtName && checkbox.checked) {
+                        checkbox.checked = false;
+                        activeFilters.district.delete(districtName);
+                    }
+                });
             }
         }
-
         function checkAndUncheckStatus(statusName) {
+            const currentElements = getCurrentElements();
             let visibleCount = 0;
             for (let i = 0; i < allBuildings.length; i++) {
                 const building = allBuildings[i];
@@ -2757,42 +2833,55 @@
             }
             
             if (visibleCount === 0) {
-                const checkbox = document.querySelector(`#status-filters-compact input[value="${statusName}"]`);
-                if (checkbox && checkbox.checked) {
-                    checkbox.checked = false;
-                    activeFilters.status.delete(statusName);
-                }
+                // Находим чекбоксы статуса в обоих версиях
+                const desktopCheckboxes = document.querySelectorAll('#status-filters-compact-desktop input[type="checkbox"]');
+                const mobileCheckboxes = document.querySelectorAll('#status-filters-compact-mobile input[type="checkbox"]');
+                
+                desktopCheckboxes.forEach(checkbox => {
+                    if (checkbox.value === statusName && checkbox.checked) {
+                        checkbox.checked = false;
+                        activeFilters.status.delete(statusName);
+                    }
+                });
+                
+                mobileCheckboxes.forEach(checkbox => {
+                    if (checkbox.value === statusName && checkbox.checked) {
+                        checkbox.checked = false;
+                        activeFilters.status.delete(statusName);
+                    }
+                });
             }
         }
-
         // =============================
-        // ФУНКЦИИ ДЛЯ УПРАВЛЕНИЯ КНОПКАМИ ДИАПАЗОНА
+        // УПРАВЛЕНИЕ КНОПКАМИ ДИАПАЗОНА
         // =============================
         
         function updateRangeButtonsState() {
-            updateSingleRangeButtons(
-                'min-floors-compact', 
-                'max-floors-compact', 
-                availableValues.floors
-            );
+            const currentElements = getCurrentElements();
             
-            updateSingleRangeButtons(
-                'min-flats-compact', 
-                'max-flats-compact', 
-                availableValues.flatsPerEntrance
-            );
+            if (currentElements.minFloorsCompact && currentElements.maxFloorsCompact) {
+                updateSingleRangeButtons(
+                    currentElements.minFloorsCompact,
+                    currentElements.maxFloorsCompact,
+                    availableValues.floors
+                );
+            }
+            
+            if (currentElements.minFlatsCompact && currentElements.maxFlatsCompact) {
+                updateSingleRangeButtons(
+                    currentElements.minFlatsCompact,
+                    currentElements.maxFlatsCompact,
+                    availableValues.flatsPerEntrance
+                );
+            }
         }
-
-        function updateSingleRangeButtons(minInputId, maxInputId, availableValuesArray) {
-            if (availableValuesArray.length === 0) return;
+        function updateSingleRangeButtons(minInput, maxInput, availableValuesArray) {
+            if (!minInput || !maxInput || availableValuesArray.length === 0) return;
             
-            const minInput = document.getElementById(minInputId);
-            const maxInput = document.getElementById(maxInputId);
-            
-            const minMinusBtn = minInput.parentElement.querySelector('.minus[data-target="' + minInputId + '"]');
-            const minPlusBtn = minInput.parentElement.querySelector('.plus[data-target="' + minInputId + '"]');
-            const maxMinusBtn = maxInput.parentElement.querySelector('.minus[data-target="' + maxInputId + '"]');
-            const maxPlusBtn = maxInput.parentElement.querySelector('.plus[data-target="' + maxInputId + '"]');
+            const minMinusBtn = minInput.parentElement.querySelector('.minus');
+            const minPlusBtn = minInput.parentElement.querySelector('.plus');
+            const maxMinusBtn = maxInput.parentElement.querySelector('.minus');
+            const maxPlusBtn = maxInput.parentElement.querySelector('.plus');
             
             if (!minMinusBtn || !maxPlusBtn) return;
             
@@ -2801,25 +2890,16 @@
             
             if (minValue <= availableValuesArray[0]) {
                 minMinusBtn.classList.add('disabled');
-                minMinusBtn.style.opacity = '0.5';
-                minMinusBtn.style.cursor = 'not-allowed';
             } else {
                 minMinusBtn.classList.remove('disabled');
-                minMinusBtn.style.opacity = '1';
-                minMinusBtn.style.cursor = 'pointer';
             }
             
             if (maxValue >= availableValuesArray[availableValuesArray.length - 1]) {
                 maxPlusBtn.classList.add('disabled');
-                maxPlusBtn.style.opacity = '0.5';
-                maxPlusBtn.style.cursor = 'not-allowed';
             } else {
                 maxPlusBtn.classList.remove('disabled');
-                maxPlusBtn.style.opacity = '1';
-                maxPlusBtn.style.cursor = 'pointer';
             }
         }
-
         // =============================
         // ЗАГРУЗКА ДАННЫХ
         // =============================
@@ -2830,7 +2910,7 @@
                 
                 window.handleSheetData = function(response) {
                     try {
-                        Utils.runIdle(() => {
+                        setTimeout(() => {
                             const data = parseGoogleSheetResponse(response);
                             allBuildings = data;
                             
@@ -2839,19 +2919,17 @@
                             });
                             
                             resolve(data);
-                        }, 1000);
+                        }, 0);
                     } catch (error) {
                         reject(error);
                     }
                 };
-
                 const script = document.createElement('script');
                 script.src = url;
                 script.onerror = reject;
                 document.head.appendChild(script);
             });
         }
-
         function parseGoogleSheetResponse(response) {
             const rows = response.table?.rows || [];
             const buildings = [];
@@ -2885,7 +2963,6 @@
             if (!cell) return null;
             return cell.v !== undefined ? cell.v : cell.f;
         }
-
         function getIntValue(cell) {
             if (!cell) return null;
             const value = getCellValue(cell);
@@ -2893,7 +2970,6 @@
             const num = parseInt(value);
             return isNaN(num) ? null : num;
         }
-
         function collectAvailableValues(buildings) {
             const floorsSet = new Set();
             const flatsSet = new Set();
@@ -2916,9 +2992,12 @@
                 districts: Array.from(districtSet).sort()
             };
         }
-
         function createCheckboxFilter(containerId, values, label) {
             const container = document.getElementById(containerId);
+            if (!container) {
+                return;
+            }
+            
             container.innerHTML = '';
             
             for (let i = 0; i < values.length; i++) {
@@ -2941,7 +3020,7 @@
                 container.appendChild(checkboxItem);
                 
                 checkbox.addEventListener('change', () => {
-                    const filterType = containerId.replace('-filters-compact', '');
+                    const filterType = containerId.includes('status') ? 'status' : 'district';
                     if (checkbox.checked) {
                         activeFilters[filterType].add(value);
                     } else {
@@ -2951,29 +3030,50 @@
                 });
             }
         }
-
         function setupNumberInputs() {
-            setupRangeInput(elements.minFloorsCompact, elements.maxFloorsCompact, 'floors', false);
-            setupRangeInput(elements.maxFloorsCompact, elements.minFloorsCompact, 'floors', true);
+            // ПК
+            if (elements.minFloorsCompactDesktop && elements.maxFloorsCompactDesktop) {
+                setupRangeInput(elements.minFloorsCompactDesktop, elements.maxFloorsCompactDesktop, 'floors', false);
+                setupRangeInput(elements.maxFloorsCompactDesktop, elements.minFloorsCompactDesktop, 'floors', true);
+            }
             
-            setupRangeInput(elements.minFlatsCompact, elements.maxFlatsCompact, 'flatsPerEntrance', false);
-            setupRangeInput(elements.maxFlatsCompact, elements.minFlatsCompact, 'flatsPerEntrance', true);
+            if (elements.minFlatsCompactDesktop && elements.maxFlatsCompactDesktop) {
+                setupRangeInput(elements.minFlatsCompactDesktop, elements.maxFlatsCompactDesktop, 'flatsPerEntrance', false);
+                setupRangeInput(elements.maxFlatsCompactDesktop, elements.minFlatsCompactDesktop, 'flatsPerEntrance', true);
+            }
+            
+            // Мобильные
+            if (elements.minFloorsCompactMobile && elements.maxFloorsCompactMobile) {
+                setupRangeInput(elements.minFloorsCompactMobile, elements.maxFloorsCompactMobile, 'floors', false);
+                setupRangeInput(elements.maxFloorsCompactMobile, elements.minFloorsCompactMobile, 'floors', true);
+            }
+            
+            if (elements.minFlatsCompactMobile && elements.maxFlatsCompactMobile) {
+                setupRangeInput(elements.minFlatsCompactMobile, elements.maxFlatsCompactMobile, 'flatsPerEntrance', false);
+                setupRangeInput(elements.maxFlatsCompactMobile, elements.minFlatsCompactMobile, 'flatsPerEntrance', true);
+            }
             
             setupRangeButtons();
         }
-
         function setupRangeButtons() {
-            setupRangeButtonHandlers('min-floors-compact', 'floors');
-            setupRangeButtonHandlers('max-floors-compact', 'floors');
+            // ПК
+            setupRangeButtonHandlers('min-floors-compact-desktop', 'floors');
+            setupRangeButtonHandlers('max-floors-compact-desktop', 'floors');
+            setupRangeButtonHandlers('min-flats-compact-desktop', 'flatsPerEntrance');
+            setupRangeButtonHandlers('max-flats-compact-desktop', 'flatsPerEntrance');
             
-            setupRangeButtonHandlers('min-flats-compact', 'flatsPerEntrance');
-            setupRangeButtonHandlers('max-flats-compact', 'flatsPerEntrance');
+            // Мобильные
+            setupRangeButtonHandlers('min-floors-compact-mobile', 'floors');
+            setupRangeButtonHandlers('max-floors-compact-mobile', 'floors');
+            setupRangeButtonHandlers('min-flats-compact-mobile', 'flatsPerEntrance');
+            setupRangeButtonHandlers('max-flats-compact-mobile', 'flatsPerEntrance');
         }
-
         function setupRangeButtonHandlers(inputId, fieldType) {
             const input = document.getElementById(inputId);
-            const plusBtn = input.parentElement.querySelector('.plus[data-target="' + inputId + '"]');
-            const minusBtn = input.parentElement.querySelector('.minus[data-target="' + inputId + '"]');
+            if (!input) return;
+            
+            const plusBtn = input.parentElement.querySelector('.plus');
+            const minusBtn = input.parentElement.querySelector('.minus');
             
             if (!plusBtn || !minusBtn) return;
             
@@ -2985,7 +3085,6 @@
                 adjustRangeValue(input, fieldType, -1);
             });
         }
-
         function adjustRangeValue(input, fieldType, direction) {
             const values = availableValues[fieldType];
             if (values.length === 0) return;
@@ -3008,8 +3107,9 @@
             
             Utils.debounce(applyBaseFilters, 300)();
         }
-
         function setupRangeInput(inputElement, oppositeElement, fieldType, isMaxField) {
+            if (!inputElement || !oppositeElement) return;
+            
             const values = availableValues[fieldType];
             if (values.length === 0) return;
             
@@ -3058,9 +3158,9 @@
                 
                 updateRangeButtonsState();
                 
-                Utils.runIdle(() => {
+                setTimeout(() => {
                     applyBaseFilters();
-                }, 100);
+                }, 0);
             }, 300);
             
             inputElement.addEventListener('input', () => {
@@ -3068,18 +3168,22 @@
                 updateRangeButtonsState();
             });
         }
-
         function setupWheelHandlers() {
-            setupWheelHandler('min-floors-compact', availableValues.floors);
-            setupWheelHandler('max-floors-compact', availableValues.floors);
-            setupWheelHandler('min-flats-compact', availableValues.flatsPerEntrance);
-            setupWheelHandler('max-flats-compact', availableValues.flatsPerEntrance);
+            // ПК
+            setupWheelHandler('min-floors-compact-desktop', availableValues.floors);
+            setupWheelHandler('max-floors-compact-desktop', availableValues.floors);
+            setupWheelHandler('min-flats-compact-desktop', availableValues.flatsPerEntrance);
+            setupWheelHandler('max-flats-compact-desktop', availableValues.flatsPerEntrance);
+            
+            // Мобильные
+            setupWheelHandler('min-floors-compact-mobile', availableValues.floors);
+            setupWheelHandler('max-floors-compact-mobile', availableValues.floors);
+            setupWheelHandler('min-flats-compact-mobile', availableValues.flatsPerEntrance);
+            setupWheelHandler('max-flats-compact-mobile', availableValues.flatsPerEntrance);
         }
-
         function setupWheelHandler(inputId, valuesArray) {
             const input = document.getElementById(inputId);
             if (!input || valuesArray.length === 0) return;
-
             const handleWheel = (e) => {
                 e.preventDefault();
                 
@@ -3107,19 +3211,21 @@
             
             input.addEventListener('wheel', handleWheel, { passive: false });
         }
-
         function showAllBuildingsInList() {
+            const currentElements = getCurrentElements();
             currentRenderLimit = preciseFilteredBuildings.length;
             updateBuildingsList();
             Utils.showNotification(`Показано все ${preciseFilteredBuildings.length} зданий`, 'info');
-            elements.buildingsListCompact.scrollTop = 0;
+            if (currentElements.buildingsListCompact) {
+                currentElements.buildingsListCompact.scrollTop = 0;
+            }
         }
-
         function applyBaseFilters() {
-            const minFloors = parseInt(elements.minFloorsCompact.value) || null;
-            const maxFloors = parseInt(elements.maxFloorsCompact.value) || null;
-            const minFlats = parseInt(elements.minFlatsCompact.value) || null;
-            const maxFlats = parseInt(elements.maxFlatsCompact.value) || null;
+            const currentElements = getCurrentElements();
+            const minFloors = currentElements.minFloorsCompact ? parseInt(currentElements.minFloorsCompact.value) || null : null;
+            const maxFloors = currentElements.maxFloorsCompact ? parseInt(currentElements.maxFloorsCompact.value) || null : null;
+            const minFlats = currentElements.minFlatsCompact ? parseInt(currentElements.minFlatsCompact.value) || null : null;
+            const maxFlats = currentElements.maxFlatsCompact ? parseInt(currentElements.maxFlatsCompact.value) || null : null;
             
             filteredBuildings = allBuildings.filter(building => {
                 if (hiddenInBasicFilters.has(building.originalIndex)) {
@@ -3156,17 +3262,14 @@
             updatePercentageDisplay();
             applyPreciseFilters();
         }
-
         function updateFilters() {
             applyBaseFilters();
         }
-
         function applyPreciseFilters() {
-            Utils.runIdle(() => {
+            setTimeout(() => {
                 performPreciseFiltering();
-            }, 100);
+            }, 0);
         }
-
         function performPreciseFiltering() {
             currentRenderLimit = CONFIG.DEFAULT_RENDER_LIMIT;
             preciseFilteredBuildings = [...filteredBuildings];
@@ -3181,15 +3284,15 @@
             
             updateDisplay();
         }
-
         function updateDisplay() {
             updateStatistics();
             updateMap();
             updateBuildingsList();
         }
-
         function updateMap() {
-            if (!objectManager) return;
+            if (!objectManager) {
+                return;
+            }
             
             if (mapUpdateRafId) {
                 cancelAnimationFrame(mapUpdateRafId);
@@ -3200,6 +3303,7 @@
                 
                 const features = [];
                 const buildingsToShow = preciseFilteredBuildings;
+                
                 
                 for (let i = 0; i < buildingsToShow.length; i++) {
                     const building = buildingsToShow[i];
@@ -3233,9 +3337,11 @@
                 mapUpdateRafId = null;
             });
         }
-
         function updateBuildingsList() {
-            const container = elements.buildingsListCompact;
+            const currentElements = getCurrentElements();
+            const container = currentElements.buildingsListCompact;
+            
+            if (!container) return;
             
             if (preciseFilteredBuildings.length === 0) {
                 container.innerHTML = `
@@ -3310,7 +3416,7 @@
                 item.addEventListener('click', (e) => {
                     if (e.target === hideBtn || e.target.closest('.hide-building-btn-compact')) return;
                     
-                    if (building.lng && building.lat) {
+                    if (building.lng && building.lat && map) {
                         map.panTo([building.lng, building.lat], {
                             duration: 300,
                             timingFunction: 'ease-in-out'
@@ -3340,59 +3446,87 @@
             
             container.innerHTML = '';
             container.appendChild(fragment);
-            
-            setTimeout(() => {
-                container.style.overflowY = 'scroll';
-                container.style.scrollbarWidth = 'thin';
-            }, 10);
         }
-
         function resetAllFilters() {
+            const currentElements = getCurrentElements();
             currentRenderLimit = CONFIG.DEFAULT_RENDER_LIMIT;
             
-            elements.minFloorsCompact.value = '';
-            elements.maxFloorsCompact.value = '';
-            elements.minFlatsCompact.value = '';
-            elements.maxFlatsCompact.value = '';
+            // Сброс значений
+            if (currentElements.minFloorsCompact) currentElements.minFloorsCompact.value = '';
+            if (currentElements.maxFloorsCompact) currentElements.maxFloorsCompact.value = '';
+            if (currentElements.minFlatsCompact) currentElements.minFlatsCompact.value = '';
+            if (currentElements.maxFlatsCompact) currentElements.maxFlatsCompact.value = '';
             
+            // Сброс скрытых элементов
             hiddenInBasicFilters.clear();
             hiddenInPreciseSettings.clear();
             
-            const allStatuses = new Set();
-            const allDistricts = new Set();
+            // Сброс чекбоксов для обеих версий
+            const desktopStatusContainer = elements.statusFiltersCompactDesktop;
+            const desktopDistrictContainer = elements.districtFiltersCompactDesktop;
+            const mobileStatusContainer = elements.statusFiltersCompactMobile;
+            const mobileDistrictContainer = elements.districtFiltersCompactMobile;
             
-            for (let i = 0; i < allBuildings.length; i++) {
-                const building = allBuildings[i];
-                if (building.status) allStatuses.add(building.status);
-                if (building.district) allDistricts.add(building.district);
+            // Сброс для десктопной версии
+            if (desktopStatusContainer) {
+                desktopStatusContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = true;
+                });
             }
             
-            document.querySelectorAll('#status-filters-compact input[type="checkbox"]').forEach(checkbox => {
-                const status = checkbox.value;
-                if (allStatuses.has(status)) {
+            if (desktopDistrictContainer) {
+                desktopDistrictContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                     checkbox.checked = true;
-                    activeFilters.status.add(status);
-                } else {
-                    checkbox.checked = false;
-                    activeFilters.status.delete(status);
-                }
-            });
+                });
+            }
             
-            document.querySelectorAll('#district-filters-compact input[type="checkbox"]').forEach(checkbox => {
-                const district = checkbox.value;
-                if (allDistricts.has(district)) {
+            // Сброс для мобильной версии
+            if (mobileStatusContainer) {
+                mobileStatusContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                     checkbox.checked = true;
-                    activeFilters.district.add(district);
-                } else {
-                    checkbox.checked = false;
-                    activeFilters.district.delete(district);
-                }
-            });
+                });
+            }
+            
+            if (mobileDistrictContainer) {
+                mobileDistrictContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+            }
+            
+            // Восстановление активных фильтров
+            activeFilters.status = new Set();
+            activeFilters.district = new Set();
+            
+            // Добавление всех значений обратно из десктопной версии
+            if (desktopStatusContainer) {
+                desktopStatusContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    activeFilters.status.add(checkbox.value);
+                });
+            }
+            
+            if (desktopDistrictContainer) {
+                desktopDistrictContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    activeFilters.district.add(checkbox.value);
+                });
+            }
+            
+            // Также добавляем из мобильной версии (значения те же)
+            if (mobileStatusContainer) {
+                mobileStatusContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    activeFilters.status.add(checkbox.value);
+                });
+            }
+            
+            if (mobileDistrictContainer) {
+                mobileDistrictContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    activeFilters.district.add(checkbox.value);
+                });
+            }
             
             displayPercentage = 100;
             
-            if (elements.percentageSliderCompact) {
-                elements.percentageSliderCompact.value = 100;
+            if (currentElements.percentageSliderCompact) {
+                currentElements.percentageSliderCompact.value = 100;
             }
             
             updatePercentageDisplay();
@@ -3401,29 +3535,49 @@
             
             Utils.showNotification('Все фильтры сброшены', 'info');
         }
-
         function updateRangeDisplay() {
+            const currentElements = getCurrentElements();
+            
             if (availableValues.floors.length > 0) {
                 const minFloor = availableValues.floors[0];
                 const maxFloor = availableValues.floors[availableValues.floors.length - 1];
-                elements.floorsTitle.textContent = `Этажность зданий: ${minFloor}-${maxFloor}`;
                 
-                elements.minFloorsCompact.value = minFloor;
-                elements.maxFloorsCompact.value = maxFloor;
+                // Обновляем для ПК
+                if (elements.floorsTitleDesktop) {
+                    elements.floorsTitleDesktop.textContent = `Этажность зданий: ${minFloor}-${maxFloor}`;
+                }
+                if (elements.minFloorsCompactDesktop) elements.minFloorsCompactDesktop.value = minFloor;
+                if (elements.maxFloorsCompactDesktop) elements.maxFloorsCompactDesktop.value = maxFloor;
+                
+                // Обновляем для мобильных
+                if (elements.floorsTitleMobile) {
+                    elements.floorsTitleMobile.textContent = `Этажность зданий: ${minFloor}-${maxFloor}`;
+                }
+                if (elements.minFloorsCompactMobile) elements.minFloorsCompactMobile.value = minFloor;
+                if (elements.maxFloorsCompactMobile) elements.maxFloorsCompactMobile.value = maxFloor;
             }
             
             if (availableValues.flatsPerEntrance.length > 0) {
                 const minFlat = availableValues.flatsPerEntrance[0];
                 const maxFlat = availableValues.flatsPerEntrance[availableValues.flatsPerEntrance.length - 1];
-                elements.flatsTitle.textContent = `Квартир в подъезде: ${minFlat}-${maxFlat}`;
                 
-                elements.minFlatsCompact.value = minFlat;
-                elements.maxFlatsCompact.value = maxFlat;
+                // Обновляем для ПК
+                if (elements.flatsTitleDesktop) {
+                    elements.flatsTitleDesktop.textContent = `Квартир в подъезде: ${minFlat}-${maxFlat}`;
+                }
+                if (elements.minFlatsCompactDesktop) elements.minFlatsCompactDesktop.value = minFlat;
+                if (elements.maxFlatsCompactDesktop) elements.maxFlatsCompactDesktop.value = maxFlat;
+                
+                // Обновляем для мобильных
+                if (elements.flatsTitleMobile) {
+                    elements.flatsTitleMobile.textContent = `Квартир в подъезде: ${minFlat}-${maxFlat}`;
+                }
+                if (elements.minFlatsCompactMobile) elements.minFlatsCompactMobile.value = minFlat;
+                if (elements.maxFlatsCompactMobile) elements.maxFlatsCompactMobile.value = maxFlat;
             }
             
             updateRangeButtonsState();
         }
-
         async function copyReportToClipboard() {
             try {
                 const report = generateReport();
@@ -3432,6 +3586,7 @@
                 
                 Utils.showNotification('Отчёт скопирован в буфер обмена');
                 
+                // Визуальная обратная связь
                 let reportBtn;
                 if (isMobile) {
                     reportBtn = elements.mobileNavBar.querySelector('[data-action="report"]');
@@ -3469,7 +3624,6 @@
                 Utils.showNotification('Ошибка копирования отчёта', 'error');
             }
         }
-
         function generateReport() {
             const now = new Date();
             const formattedDate = now.toLocaleString('ru-RU', {
@@ -3480,7 +3634,6 @@
                 minute: '2-digit',
                 second: '2-digit'
             });
-
             let report = `ОТЧЕТ ПО СТЕНДАМ У ДОМОФОНОВ - РЯЗАНЬ\n`;
             report += `Сформирован: ${formattedDate}\n\n`;
             
@@ -3491,23 +3644,25 @@
             const totalFlats = preciseFilteredBuildings.reduce((sum, b) => sum + (b.flats || 0), 0);
             
             report += `Стендов выбрано: ${Utils.formatNumber(totalStands)}\n`;
-            report += `Всего стендов в базе: ${elements.statsTotalStands.textContent}\n`;
+            
+            const totalStandsAll = allBuildings.reduce((sum, b) => sum + (b.entrances || 0), 0);
+            report += `Всего стендов в базе: ${Utils.formatNumber(totalStandsAll)}\n`;
             
             const priceInfo = calculatePrice(totalStands);
             
-			if (totalStands >= 100) {
-				report += `Стоимость в месяц: ${elements.statsCompactPrice.textContent}\n`;
-				
-				if (totalFlats > 0) {
-					const pricePerFlat = priceInfo.totalPrice / totalFlats;
-					const formattedPricePerFlat = pricePerFlat.toFixed(2).replace(',', '.');
-					report += `Стоимость за квартиру: ${formattedPricePerFlat} ₽\n`;
-				} else {
-					report += `Стоимость за квартиру: —\n`;
-				}
-			} else {
-				report += `Стоимость: требуется больше зданий для расчёта\n`;
-			}
+            if (totalStands >= 100) {
+                report += `Стоимость в месяц: ${Utils.formatNumber(priceInfo.totalPrice)} ₽\n`;
+                
+                if (totalFlats > 0) {
+                    const pricePerFlat = priceInfo.totalPrice / totalFlats;
+                    const formattedPricePerFlat = pricePerFlat.toFixed(2).replace(',', '.');
+                    report += `Стоимость за квартиру: ${formattedPricePerFlat} ₽\n`;
+                } else {
+                    report += `Стоимость за квартиру: —\n`;
+                }
+            } else {
+                report += `Стоимость: требуется больше зданий для расчёта\n`;
+            }
             
             report += `\n<=== ФИЛЬТРЫ ===>\n`;
             report += `Процент отображения: ${displayPercentage}%\n`;
@@ -3520,12 +3675,13 @@
                 report += `Районы: ${Array.from(activeFilters.district).join(', ')}\n`;
             }
             
-            if (elements.minFloorsCompact.value || elements.maxFloorsCompact.value) {
-                report += `Этажность: ${elements.minFloorsCompact.value || '1'} - ${elements.maxFloorsCompact.value || '10'}\n`;
+            const currentElements = getCurrentElements();
+            if (currentElements.minFloorsCompact && currentElements.maxFloorsCompact) {
+                report += `Этажность: ${currentElements.minFloorsCompact.value || '1'} - ${currentElements.maxFloorsCompact.value || '10'}\n`;
             }
             
-            if (elements.minFlatsCompact.value || elements.maxFlatsCompact.value) {
-                report += `Квартир в подъезде: ${elements.minFlatsCompact.value || '1'} - ${elements.maxFlatsCompact.value || '100'}\n`;
+            if (currentElements.minFlatsCompact && currentElements.maxFlatsCompact) {
+                report += `Квартир в подъезде: ${currentElements.minFlatsCompact.value || '1'} - ${currentElements.maxFlatsCompact.value || '100'}\n`;
             }
             
             report += `\n<=== СПИСОК АДРЕСОВ ===>\n`;
@@ -3550,7 +3706,6 @@
             
             return report;
         }
-
         async function initApp() {
             try {
                 isMobile = window.innerWidth <= 768;
@@ -3561,16 +3716,19 @@
                 
                 const { statuses, districts } = collectAvailableValues(allBuildings);
                 
-                createCheckboxFilter('status-filters-compact', statuses, 'Статус');
-                createCheckboxFilter('district-filters-compact', districts, 'Район');
+                // Создаем фильтры для обеих версий
+                createCheckboxFilter('status-filters-compact-desktop', statuses, 'Статус');
+                createCheckboxFilter('district-filters-compact-desktop', districts, 'Район');
+                createCheckboxFilter('status-filters-compact-mobile', statuses, 'Статус');
+                createCheckboxFilter('district-filters-compact-mobile', districts, 'Район');
                 
                 setupNumberInputs();
-                
                 setupWheelHandlers();
                 
                 updateRangeDisplay();
                 updateRangeButtonsState();
                 
+                // Инициализируем активные фильтры
                 activeFilters.status = new Set(statuses);
                 activeFilters.district = new Set(districts);
                 
@@ -3578,19 +3736,15 @@
                 
                 applyBaseFilters();
                 
+                // Скрываем индикатор загрузки
                 setTimeout(() => {
                     elements.loadingOverlay.style.display = 'none';
                     
-                    const filtersGrid = document.querySelector('.filters-grid');
-                    if (filtersGrid) {
-                        filtersGrid.style.overflowY = 'scroll';
-                        filtersGrid.style.scrollbarWidth = 'thin';
-                    }
-                    
-                    const buildingsList = document.getElementById('buildings-list-compact');
-                    if (buildingsList) {
-                        buildingsList.style.overflowY = 'scroll';
-                        buildingsList.style.scrollbarWidth = 'thin';
+                    // Обновляем размеры карты после полной загрузки
+                    if (map) {
+                        setTimeout(() => {
+                            map.container.fitToViewport();
+                        }, 1000);
                     }
                 }, 500);
                 
@@ -3604,7 +3758,6 @@
                 }, 2000);
             }
         }
-
         window.addEventListener('beforeunload', () => {
             isAppActive = false;
             
@@ -3620,7 +3773,6 @@
                 map.destroy();
             }
         });
-
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
