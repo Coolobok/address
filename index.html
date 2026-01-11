@@ -49,6 +49,106 @@
             padding-bottom: var(--safe-area-inset-bottom);
         }
 
+        /* ЗАГЛУШКА ДЛЯ ЛАНДШАФТНОГО РЕЖИМА */
+        #landscape-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--brand-color), var(--brand-light));
+            color: var(--text-on-brand);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        #landscape-warning.active {
+            display: flex;
+            opacity: 1;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .landscape-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            animation: rotateIcon 3s ease-in-out infinite;
+        }
+
+        @keyframes rotateIcon {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg); }
+            50% { transform: rotate(90deg); }
+            75% { transform: rotate(0deg); }
+        }
+
+        .landscape-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.3;
+        }
+
+        .landscape-message {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .landscape-hint {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            max-width: 400px;
+            line-height: 1.4;
+        }
+
+        .landscape-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-lg);
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .landscape-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .landscape-button:active {
+            transform: translateY(0);
+        }
+
         /* LOADING OVERLAY */
         #loading-overlay {
             position: fixed;
@@ -2055,6 +2155,42 @@
                 padding: 3px 6px;
                 margin-right: 3px;
             }
+            
+            /* Стили для заглушки ландшафтного режима на мобильных */
+            @media (max-height: 500px) and (orientation: landscape) {
+                #landscape-warning {
+                    display: flex !important;
+                    opacity: 1 !important;
+                }
+                
+                #compact-header,
+                #mobile-nav,
+                #main-content {
+                    display: none !important;
+                }
+            }
+            
+            @media (max-height: 400px) {
+                .landscape-title {
+                    font-size: 1.5rem;
+                }
+                
+                .landscape-message {
+                    font-size: 1rem;
+                    margin-bottom: 1.5rem;
+                }
+                
+                .landscape-icon {
+                    font-size: 3rem;
+                    margin-bottom: 1rem;
+                }
+                
+                .landscape-hint {
+                    margin-top: 1rem;
+                    padding: 0.75rem;
+                    font-size: 0.85rem;
+                }
+            }
         }
 
         @media (max-width: 360px) {
@@ -2161,10 +2297,51 @@
                 padding: 8px 12px;
                 font-size: 12px;
             }
+            
+            /* Стили для заглушки на очень маленьких экранах */
+            .landscape-title {
+                font-size: 1.3rem;
+            }
+            
+            .landscape-message {
+                font-size: 0.9rem;
+            }
+            
+            .landscape-icon {
+                font-size: 2.5rem;
+            }
+            
+            .landscape-button {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .landscape-hint {
+                font-size: 0.8rem;
+                padding: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Добавляем заглушку для ландшафтного режима -->
+    <div id="landscape-warning">
+        <div class="landscape-icon">📱</div>
+        <h1 class="landscape-title">Поверните устройство</h1>
+        <p class="landscape-message">
+            Для удобной работы с картой и списком объектов поверните устройство 
+            в портретную ориентацию или увеличьте высоту окна браузера.
+        </p>
+        <button class="landscape-button" onclick="window.location.reload()">
+            <span>🔄</span>
+            <span>Обновить после поворота</span>
+        </button>
+        <div class="landscape-hint">
+            Если вы используете компьютер, увеличьте высоту окна браузера 
+            для продолжения работы с приложением.
+        </div>
+    </div>
+	
     <div id="loading-overlay">
         <div class="spinner"></div>
         <div>Загрузка карты...</div>
@@ -2470,6 +2647,65 @@
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
 
     <script>
+	
+	    // ============================================================================
+    // МОДУЛЬ ДЛЯ ЛАНДШАФТНОЙ ЗАГЛУШКИ
+    // ============================================================================
+    const LandscapeWarningModule = {
+        init() {
+            this.checkLandscapeWarning();
+            window.addEventListener('resize', Utils.debounce(() => this.checkLandscapeWarning(), 250));
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => this.checkLandscapeWarning(), 300);
+            });
+        },
+        
+        checkLandscapeWarning() {
+            const warning = document.getElementById('landscape-warning');
+            if (!warning) return;
+            
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const isMobile = width <= 768;
+            
+            // Показываем заглушку только на мобильных устройствах в ландшафтном режиме с маленькой высотой
+            const shouldShowWarning = isMobile && height < 500 && width > height;
+            
+            if (shouldShowWarning) {
+                warning.classList.add('active');
+                // Блокируем скролл на странице
+                document.body.style.overflow = 'hidden';
+            } else {
+                warning.classList.remove('active');
+                // Восстанавливаем скролл
+                document.body.style.overflow = '';
+            }
+        },
+        
+        // Добавляем кнопку для принудительного скрытия заглушки (на случай, если пользователь понимает, что делает)
+        addForceContinueButton() {
+            const warning = document.getElementById('landscape-warning');
+            if (!warning) return;
+            
+            const continueButton = document.createElement('button');
+            continueButton.className = 'landscape-button';
+            continueButton.style.marginTop = '0.5rem';
+            continueButton.style.background = 'rgba(255, 255, 255, 0.1)';
+            continueButton.innerHTML = '<span>⚠️</span><span>Продолжить в ландшафтном режиме</span>';
+            
+            continueButton.addEventListener('click', () => {
+                warning.classList.remove('active');
+                document.body.style.overflow = '';
+                Utils.showNotification('Вы продолжили в ландшафтном режиме. Некоторые функции могут быть ограничены.', 'info');
+            });
+            
+            const hint = warning.querySelector('.landscape-hint');
+            if (hint) {
+                hint.parentNode.insertBefore(continueButton, hint.nextSibling);
+            }
+        }
+    };
+	
     // ============================================================================
     // КОНФИГУРАЦИЯ И ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
     // ============================================================================
@@ -4873,6 +5109,12 @@
     // ============================================================================
     async function initApp() {
         try {
+			
+			// Инициализируем заглушку ландшафтного режима
+            LandscapeWarningModule.init();
+            // Добавляем кнопку "Продолжить"
+            setTimeout(() => LandscapeWarningModule.addForceContinueButton(), 1000);
+			
             Utils.updateMainContentHeight();
             
             await MapModule.initMap();
