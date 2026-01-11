@@ -439,6 +439,338 @@
             transform: translateY(0);
         }
 
+        /* Стили для балунов пользовательских меток */
+        .marker-balloon,
+        .markers-control-panel,
+        .markers-full-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            max-width: 400px;
+            min-width: 300px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            position: relative;
+        }
+
+        .marker-balloon-header,
+        .markers-control-header,
+        .markers-list-header {
+            background: #475493;
+            color: white;
+            padding: 12px 16px;
+            padding-right: 45px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .marker-balloon-header h3,
+        .markers-control-header h3,
+        .markers-list-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .marker-balloon-close-btn,
+        .markers-control-close-btn,
+        .markers-list-close-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .marker-balloon-close-btn:hover,
+        .markers-control-close-btn:hover,
+        .markers-list-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .marker-balloon-close-btn:active,
+        .markers-control-close-btn:active,
+        .markers-list-close-btn:active {
+            transform: scale(0.95);
+        }
+
+        .marker-balloon-content,
+        .markers-control-content,
+        .markers-list-content {
+            padding: 16px;
+        }
+
+        /* Стили для информации о метке */
+        .marker-info {
+            margin-bottom: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #1f2937;
+        }
+
+        .marker-info div {
+            margin-bottom: 8px;
+        }
+
+        .marker-info strong {
+            color: #374151;
+            font-weight: 600;
+        }
+
+        /* Стили для действий с меткой */
+        .marker-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .marker-action-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .marker-action-btn.edit-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .marker-action-btn.edit-btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+        }
+
+        .marker-action-btn.delete-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .marker-action-btn.delete-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25);
+        }
+
+        /* Стили для панели управления метками */
+        .markers-control-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .marker-stat {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .marker-stat-label {
+            font-size: 10px;
+            color: #6b7280;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .marker-stat-value {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 13px;
+        }
+
+        .markers-control-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .markers-control-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .markers-control-btn.add-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .markers-control-btn.add-btn:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.25);
+        }
+
+        .markers-control-btn.list-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .markers-control-btn.list-btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+        }
+
+        .markers-control-btn.delete-all-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .markers-control-btn.delete-all-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25);
+        }
+
+        /* Стили для превью списка меток */
+        .markers-list-preview {
+            margin-top: 16px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 12px;
+        }
+
+        .markers-list-preview h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .markers-preview-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .markers-preview-list li {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .markers-preview-list li:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .marker-preview-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .marker-preview-date {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        /* Стили для полного списка меток */
+        .markers-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .markers-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 12px;
+        }
+
+        .markers-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f3f4;
+            vertical-align: middle;
+        }
+
+        .markers-table tr:hover td {
+            background: #f8f9fa;
+        }
+
+        .marker-action-small {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-right: 4px;
+            background: #f3f4f6;
+            color: #374151;
+            transition: all 0.2s;
+        }
+
+        .marker-action-small:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        /* Кнопки в футере списка меток */
+        .markers-list-footer {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* Класс для режима добавления метки */
+        .map-crosshair-mode {
+            cursor: crosshair !important;
+        }
+
+        /* Стиль для пользовательской метки на карте */
+        .user-marker .ymaps-2-1-79-balloon__content {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
         /* =============== ОБЩАЯ СТРУКТУРА =============== */
         #app-container {
             display: flex;
@@ -1520,6 +1852,17 @@
             .tab-content.active {
                 display: flex !important;
             }
+            
+            /* Десктопные стили для балунов меток */
+            .marker-balloon,
+            .markers-control-panel,
+            .markers-full-list {
+                max-width: 400px;
+            }
+            
+            .markers-table {
+                font-size: 13px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1539,7 +1882,7 @@
             
             .header-title {
                 font-size: 1.125rem;
-				padding-right: 50px;
+                padding-right: 50px;
             }
             
             .header-subtitle {
@@ -1675,11 +2018,42 @@
                 position: absolute;
                 top: 10px;
                 right: 10px !important;
-				left: auto !important;
+                left: auto !important;
                 width: 32px;
                 height: 32px;
                 font-size: 18px;
-				z-index: 1001 !important;
+                z-index: 1001 !important;
+            }
+            
+            /* Мобильные стили для балунов меток */
+            .marker-balloon,
+            .markers-control-panel,
+            .markers-full-list {
+                max-width: 320px;
+                min-width: 280px;
+            }
+            
+            .marker-actions {
+                flex-direction: column;
+            }
+            
+            .markers-control-actions {
+                flex-direction: column;
+            }
+            
+            .markers-table {
+                font-size: 12px;
+            }
+            
+            .markers-table th,
+            .markers-table td {
+                padding: 8px;
+            }
+            
+            .marker-action-small {
+                font-size: 10px;
+                padding: 3px 6px;
+                margin-right: 3px;
             }
         }
 
@@ -1745,11 +2119,47 @@
             /* Кнопка отмены на очень маленьких экранах */
             .mobile-undo-button {
                 top: 8px;
-				right: 8px !important;
-				left: auto !important;
+                right: 8px !important;
+                left: auto !important;
                 width: 28px;
                 height: 28px;
                 font-size: 16px;
+            }
+            
+            /* Стили для балунов меток на очень маленьких экранах */
+            .marker-balloon,
+            .markers-control-panel,
+            .markers-full-list {
+                max-width: 280px;
+                min-width: 250px;
+            }
+            
+            .marker-balloon-header,
+            .markers-control-header,
+            .markers-list-header {
+                padding: 10px 12px;
+                padding-right: 40px;
+            }
+            
+            .marker-balloon-close-btn,
+            .markers-control-close-btn,
+            .markers-list-close-btn {
+                width: 26px;
+                height: 26px;
+                font-size: 16px;
+                top: 6px;
+                right: 6px;
+            }
+            
+            .marker-balloon-content,
+            .markers-control-content,
+            .markers-list-content {
+                padding: 12px;
+            }
+            
+            .marker-action-btn {
+                padding: 8px 12px;
+                font-size: 12px;
             }
         }
     </style>
