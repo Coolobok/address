@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PR МАРКЕТ Рязань - стенды у домофонов</title>
+    <!-- Добавляем библиотеку для сжатия -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <style>
         /* RESET & BASE STYLES */
         * {
@@ -47,6 +49,59 @@
             background: var(--color-background);
             padding-top: var(--safe-area-inset-top);
             padding-bottom: var(--safe-area-inset-bottom);
+        }
+
+        /* SVG ICON STYLES */
+        .icon {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            stroke-width: 0;
+            stroke: currentColor;
+            fill: currentColor;
+            vertical-align: middle;
+        }
+
+        .icon-sm {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .icon-md {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .icon-lg {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        .icon-xl {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        /* Иконки в кнопках навигации */
+        .nav-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Иконки в кнопках действий */
+        .action-icon {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Иконки в статистике */
+        .stat-icon {
+            width: 1rem;
+            height: 1rem;
+            margin-bottom: 0.25rem;
+            opacity: 0.9;
         }
 
         /* ЗАГЛУШКА ДЛЯ ЛАНДШАФТНОГО РЕЖИМА */
@@ -1174,8 +1229,12 @@
             transition: background 0.1s;
         }
 
+        /* Обновляем стили для навигационных иконок */
         .nav-icon {
-            font-size: 1.25rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-bottom: 0.25rem;
+            fill: currentColor;
             filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
         }
 
@@ -1316,6 +1375,324 @@
             transform: scale(1.1);
         }
 
+        /* КНОПКИ ДЛЯ ГЕНЕРАЦИИ ССЫЛКИ */
+		
+		#desktop-map-share-btn {
+			position: absolute;
+			top: 20px;
+			left: 415px; /* Перемещаем в левый верхний угол */
+			width: 44px;
+			height: 44px;
+			background: rgba(255, 255, 255, 0.95);
+			color: var(--brand-color);
+			border: 2px solid var(--brand-color);
+			border-radius: var(--radius-md);
+			font-size: 1.25rem;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.3s;
+			z-index: 1000;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+			backdrop-filter: blur(10px);
+		}
+
+		#desktop-map-share-btn:hover {
+			background: var(--brand-color);
+			color: white;
+			transform: scale(1.1);
+			box-shadow: 0 6px 20px rgba(59, 130, 246, 0.25);
+		}
+
+		#desktop-map-share-btn:active {
+			transform: scale(0.95);
+		}
+
+
+		/* Обновляем позицию кнопки полноэкранного режима */
+		#sidebar-fullscreen-btn {
+			position: absolute;
+			top: 1.25rem;
+			right: 1.5rem; /* Смещаем к правому краю */
+			width: 40px;
+			height: 40px;
+		}
+
+        .sidebar-share-btn,
+        .mobile-share-btn,
+        .fullscreen-share-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-md);
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+/* Обновляем стили для кнопки поделиться в десктопной версии */
+.sidebar-share-btn {
+    position: absolute;
+    top: 1.25rem;
+    right: 4.5rem; /* Смещаем левее, чтобы освободить место для кнопки отмены */
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-md);
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    z-index: 10;
+}
+
+/* Добавляем стили для кнопки на карте */
+.map-share-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-md);
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    z-index: 1000;
+}
+
+.map-share-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.map-share-btn:active {
+    transform: scale(0.95);
+}
+
+/* Обновляем стили для полноэкранной кнопки поделиться */
+.fullscreen-share-btn {
+    position: absolute;
+    top: 1rem;
+    right: 4rem;
+    width: 32px;
+    height: 32px;
+}
+
+
+        .fullscreen-share-btn {
+            position: absolute;
+            top: 1rem;
+            right: 8.5rem;
+            width: 32px;
+            height: 32px;
+        }
+
+        .sidebar-share-btn:hover,
+        .mobile-share-btn:hover,
+        .fullscreen-share-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .sidebar-share-btn:active,
+        .mobile-share-btn:active,
+        .fullscreen-share-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* МОДАЛЬНОЕ ОКНО ДЛЯ ССЫЛКИ */
+        .share-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+            padding: 1rem;
+        }
+
+        .share-modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .share-modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .share-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .share-modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--brand-color);
+            margin: 0;
+        }
+
+        .share-modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--color-secondary);
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .share-modal-close:hover {
+            background: var(--color-border);
+            color: var(--color-busy);
+        }
+
+        .share-modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .share-url-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .share-url-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-family: monospace;
+            word-break: break-all;
+            background: var(--color-background);
+            user-select: all;
+        }
+
+        .share-copy-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--brand-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .share-copy-btn:hover {
+            background: var(--brand-light);
+            transform: translateY(-1px);
+        }
+
+        .share-copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .share-hint {
+            font-size: 0.875rem;
+            color: var(--color-secondary);
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .share-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .share-action-btn {
+            padding: 0.75rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .share-action-btn.whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .share-action-btn.telegram {
+            background: #0088cc;
+            color: white;
+        }
+
+        .share-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .share-action-btn:active {
+            transform: translateY(0);
+        }
+
+        .share-status {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .share-status.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--color-free);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            display: block;
+        }
+
+        .share-status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--color-busy);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            display: block;
+        }
+
         /* КНОПКА ОТМЕНЫ */
         .mobile-undo-button,
         .desktop-undo-button,
@@ -1450,6 +1827,10 @@
             cursor: pointer;
             transition: all 0.2s;
             border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .sidebar-tab:hover {
@@ -1516,6 +1897,10 @@
             width: 100%;
             font-size: 0.9rem;
             -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .mobile-reset-button:hover {
@@ -1595,6 +1980,9 @@
             font-weight: 600;
             color: #495057;
             white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .percentage-controls {
@@ -1756,6 +2144,14 @@
             font-size: 0.875rem;
             color: var(--color-secondary);
             flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .building-details .icon {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.25rem;
+            opacity: 0.8;
         }
 
         /* КНОПКИ */
@@ -1770,6 +2166,10 @@
             font-weight: 500;
             transition: all 0.2s;
             width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .reset-button:hover {
@@ -1790,6 +2190,10 @@
             transition: all 0.2s;
             width: 100%;
             -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .load-more:hover {
@@ -1810,6 +2214,10 @@
             transition: all 0.2s;
             width: 100%;
             -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .action-button:hover {
@@ -1865,7 +2273,6 @@
         }
 
         .notification-icon {
-            font-size: 1.25rem;
             width: 24px;
             height: 24px;
             display: flex;
@@ -1962,6 +2369,12 @@
             
             .markers-table {
                 font-size: 13px;
+            }
+            
+            /* Адаптивность модального окна */
+            .share-modal-content {
+                padding: 2rem;
+                max-width: 500px;
             }
         }
 
@@ -2114,16 +2527,28 @@
             }
             
             /* Кнопка отмены на мобильных */
-            .mobile-undo-button {
-                position: absolute;
-                top: 10px;
-                right: 10px !important;
-                left: auto !important;
-                width: 32px;
-                height: 32px;
-                font-size: 18px;
-                z-index: 1001 !important;
-            }
+.mobile-undo-button {
+    position: absolute;
+    top: 10px;
+    right: 48px !important; /* Смещаем от правого края */
+    left: auto !important;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    z-index: 1001 !important;
+}
+            
+            /* Кнопка поделиться на мобильных */
+.mobile-share-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px !important; /* Смещаем к правому краю */
+    left: auto !important;
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+    z-index: 1001 !important;
+}
             
             /* Мобильные стили для балунов меток */
             .marker-balloon,
@@ -2154,6 +2579,24 @@
                 font-size: 10px;
                 padding: 3px 6px;
                 margin-right: 3px;
+            }
+            
+            /* Адаптивность модального окна */
+            .share-modal-content {
+                padding: 1.5rem;
+                max-width: 100%;
+            }
+            
+            .share-modal-title {
+                font-size: 1.25rem;
+            }
+            
+            .share-url-container {
+                flex-direction: column;
+            }
+            
+            .share-actions {
+                grid-template-columns: 1fr;
             }
             
             /* Стили для заглушки ландшафтного режима на мобильных */
@@ -2189,6 +2632,12 @@
                     margin-top: 1rem;
                     padding: 0.75rem;
                     font-size: 0.85rem;
+                }
+                
+                .share-modal-content {
+                    padding: 1rem;
+                    max-height: 90vh;
+                    overflow-y: auto;
                 }
             }
         }
@@ -2262,6 +2711,15 @@
                 font-size: 16px;
             }
             
+            /* Кнопка поделиться на очень маленьких экранах */
+            .mobile-share-btn {
+                top: 8px;
+                right: 44px;
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+            
             /* Стили для балунов меток на очень маленьких экранах */
             .marker-balloon,
             .markers-control-panel,
@@ -2324,6 +2782,103 @@
     </style>
 </head>
 <body>
+    <!-- SVG Sprite со всеми иконками -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <!-- Навигационные иконки -->
+        <symbol id="icon-map" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+        </symbol>
+        <symbol id="icon-filter" viewBox="0 0 24 24">
+            <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
+        </symbol>
+        <symbol id="icon-list" viewBox="0 0 24 24">
+            <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+            <path d="M7 7h2v2H7zm0 4h2v2H7zm0 4h2v2H7zm4-8h2v2h-2zm0 4h2v2h-2zm0 4h2v2h-2zm4-8h2v2h-2zm0 4h2v2h-2zm0 4h2v2h-2z"/>
+        </symbol>
+        <symbol id="icon-report" viewBox="0 0 24 24">
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+        </symbol>
+        
+        <!-- Иконки действий -->
+        <symbol id="icon-undo" viewBox="0 0 24 24">
+            <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+        </symbol>
+        <symbol id="icon-share" viewBox="0 0 24 24">
+            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+        </symbol>
+        <symbol id="icon-add" viewBox="0 0 24 24">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </symbol>
+        <symbol id="icon-edit" viewBox="0 0 24 24">
+            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+        </symbol>
+        <symbol id="icon-delete" viewBox="0 0 24 24">
+            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+        </symbol>
+        <symbol id="icon-view" viewBox="0 0 24 24">
+            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+        </symbol>
+        <symbol id="icon-close" viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        </symbol>
+        <symbol id="icon-refresh" viewBox="0 0 24 24">
+            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+        </symbol>
+        
+        <!-- Иконки статуса -->
+        <symbol id="icon-success" viewBox="0 0 24 24">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+        </symbol>
+        <symbol id="icon-error" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </symbol>
+        <symbol id="icon-info" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </symbol>
+        <symbol id="icon-warning" viewBox="0 0 24 24">
+            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+        </symbol>
+        
+        <!-- Иконки объектов -->
+        <symbol id="icon-building" viewBox="0 0 24 24">
+            <path d="M18.99 9.99V11H5V9.99h13.99zM5 19h14v-2H5v2zm0-6h14v-2H5v2z"/>
+        </symbol>
+        <symbol id="icon-district" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+        </symbol>
+        <symbol id="icon-stands" viewBox="0 0 24 24">
+            <path d="M4 6h16v2H4zm0 4h16v2H4zm0 4h16v2H4zm0 4h16v2H4z"/>
+        </symbol>
+        <symbol id="icon-flats" viewBox="0 0 24 24">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </symbol>
+        <symbol id="icon-home" viewBox="0 0 24 24">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </symbol>
+        
+        <!-- Иконки соцсетей -->
+        <symbol id="icon-whatsapp" viewBox="0 0 24 24">
+            <path d="M16.75 13.96c.25.13.41.2.46.3.06.11.04.61-.21 1.18-.2.56-1.24 1.1-1.7 1.12-.46.02-.47.36-2.96-.73-2.49-1.09-3.99-3.75-4.11-3.92-.12-.17-.96-1.38-.92-2.61.05-1.22.69-1.8.95-2.04.24-.26.51-.29.68-.26h.47c.15 0 .36-.06.55.45l.69 1.87c.06.13.1.28.01.44l-.27.41-.39.42c-.12.12-.26.25-.12.5.12.26.62 1.09 1.32 1.78.91.88 1.71 1.17 1.95 1.3.24.14.39.12.54-.04l.81-.94c.19-.25.35-.19.58-.11l1.67.88M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10c-1.97 0-3.8-.57-5.35-1.55L2 22l1.55-4.65A9.969 9.969 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8c0 1.72.54 3.31 1.46 4.61L4.5 19.5l2.89-.96A7.95 7.95 0 0 0 12 20a8 8 0 0 0 8-8 8 8 0 0 0-8-8z"/>
+        </symbol>
+        <symbol id="icon-telegram" viewBox="0 0 24 24">
+            <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/>
+        </symbol>
+        
+        <!-- Иконки управления -->
+        <symbol id="icon-fullscreen" viewBox="0 0 24 24">
+            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+        </symbol>
+        <symbol id="icon-marker" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+        </symbol>
+        <symbol id="icon-phone" viewBox="0 0 24 24">
+            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+        </symbol>
+        <symbol id="icon-send" viewBox="0 0 24 24">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </symbol>
+    </svg>
+    
     <!-- Добавляем заглушку для ландшафтного режима -->
     <div id="landscape-warning">
         <div class="landscape-icon">📱</div>
@@ -2333,7 +2888,7 @@
             в портретную ориентацию или увеличьте высоту окна браузера.
         </p>
         <button class="landscape-button" onclick="window.location.reload()">
-            <span>🔄</span>
+            <svg class="icon icon-md"><use xlink:href="#icon-refresh"></use></svg>
             <span>Обновить после поворота</span>
         </button>
         <div class="landscape-hint">
@@ -2341,7 +2896,42 @@
             для продолжения работы с приложением.
         </div>
     </div>
-	
+    
+    <!-- Модальное окно для генерации ссылки -->
+    <div class="share-modal" id="share-modal">
+        <div class="share-modal-content">
+            <div class="share-modal-header">
+                <h2 class="share-modal-title">Поделиться настройками</h2>
+                <button class="share-modal-close" id="share-modal-close">
+                    <svg class="icon"><use xlink:href="#icon-close"></use></svg>
+                </button>
+            </div>
+            <div class="share-modal-body">
+                <div class="share-url-container">
+                    <input type="text" readonly class="share-url-input" id="share-url-input">
+                    <button class="share-copy-btn" id="share-copy-btn">
+                        <svg class="icon icon-sm"><use xlink:href="#icon-share"></use></svg>
+                        Копировать
+                    </button>
+                </div>
+                <div class="share-hint">
+                    Эта ссылка содержит все текущие настройки: фильтры, процент отбора, скрытые адреса и пользовательские метки
+                </div>
+                <div class="share-actions">
+                    <button class="share-action-btn whatsapp" id="share-whatsapp">
+                        <svg class="icon icon-sm"><use xlink:href="#icon-whatsapp"></use></svg>
+                        Поделиться в WhatsApp
+                    </button>
+                    <button class="share-action-btn telegram" id="share-telegram">
+                        <svg class="icon icon-sm"><use xlink:href="#icon-telegram"></use></svg>
+                        Поделиться в Telegram
+                    </button>
+                </div>
+                <div class="share-status" id="share-status"></div>
+            </div>
+        </div>
+    </div>
+
     <div id="loading-overlay">
         <div class="spinner"></div>
         <div>Загрузка карты...</div>
@@ -2350,6 +2940,11 @@
     <div id="app-container">
         <!-- МОБИЛЬНАЯ ВЕРСИЯ -->
         <div id="compact-header">
+            <!-- Кнопка поделиться на мобильных -->
+            <button class="mobile-share-btn" id="mobile-share-btn" title="Поделиться настройками">
+                <svg class="icon"><use xlink:href="#icon-share"></use></svg>
+            </button>
+            
             <div class="header-title">
                 PR МАРКЕТ Рязань
                 <div class="header-subtitle">Стенды у домофонов: <span id="total-in-base">0</span> в базе</div>
@@ -2380,7 +2975,10 @@
             <div id="mobile-panel">
                 <div id="mobile-filters-tab" class="mobile-panel-inner" style="display: none;">
                     <div class="mobile-panel-header">
-                        <button class="mobile-reset-button" id="mobile-reset-filters">↻ Сбросить фильтры</button>
+                        <button class="mobile-reset-button" id="mobile-reset-filters">
+                            <svg class="icon icon-sm"><use xlink:href="#icon-refresh"></use></svg>
+                            Сбросить фильтры
+                        </button>
                     </div>
                     <div class="mobile-panel-content">
                         <div class="filter-section">
@@ -2443,7 +3041,10 @@
                 <div id="mobile-list-tab" class="mobile-panel-inner" style="display: none;">
                     <div class="percentage-selector">
                         <div class="percentage-header">
-                            <div class="percentage-title">ПРОЦЕНТ ПОКАЗА 🏠</div>
+                            <div class="percentage-title">
+                                <svg class="icon icon-sm"><use xlink:href="#icon-home"></use></svg>
+                                ПРОЦЕНТ ПОКАЗА
+                            </div>
                             <div class="percentage-controls">
                                 <button class="percentage-button" id="mobile-percentage-decrease">-</button>
                                 <span class="percentage-value-display" id="mobile-percentage-value">100%</span>
@@ -2457,7 +3058,10 @@
                     
                     <div class="mobile-panel-content">
                         <div id="building-list"></div>
-                        <button class="load-more" id="load-more">Показать еще</button>
+                        <button class="load-more" id="load-more">
+                            <svg class="icon icon-sm"><use xlink:href="#icon-add"></use></svg>
+                            Показать еще
+                        </button>
                     </div>
                 </div>
             </div>
@@ -2466,19 +3070,19 @@
         <div id="mobile-nav">
             <div class="nav-buttons">
                 <button class="nav-button active" data-view="map">
-                    <span class="nav-icon">🗺️</span>
+                    <svg class="icon nav-icon"><use xlink:href="#icon-map"></use></svg>
                     <span>Карта</span>
                 </button>
                 <button class="nav-button" data-view="filters">
-                    <span class="nav-icon">⚙️</span>
+                    <svg class="icon nav-icon"><use xlink:href="#icon-filter"></use></svg>
                     <span>Фильтры</span>
                 </button>
                 <button class="nav-button" data-view="list">
-                    <span class="nav-icon">🛒</span>
+                    <svg class="icon nav-icon"><use xlink:href="#icon-list"></use></svg>
                     <span>Список</span>
                 </button>
                 <button class="nav-button" id="mobile-report-button">
-                    <span class="nav-icon">📄</span>
+                    <svg class="icon nav-icon"><use xlink:href="#icon-report"></use></svg>
                     <span>Отчёт</span>
                 </button>
             </div>
@@ -2490,6 +3094,10 @@
             <div id="fullscreen-header">
                 <div class="fullscreen-header-title">
                     <span>PR МАРКЕТ Рязань</span>
+                    <!-- Кнопка поделиться в полноэкранном режиме -->
+                    <button class="fullscreen-share-btn" id="fullscreen-share-btn" title="Поделиться настройками">
+                        <svg class="icon"><use xlink:href="#icon-share"></use></svg>
+                    </button>
                     <button class="fullscreen-close-btn" id="fullscreen-close-btn">◀</button>
                 </div>
                 <div class="fullscreen-header-subtitle">
@@ -2518,7 +3126,9 @@
             <div id="desktop-sidebar">
                 <div class="sidebar-header">
                     <!-- Кнопка в шапке -->
-                    <button class="sidebar-fullscreen-btn" id="sidebar-fullscreen-btn" title="Развернуть на весь экран">◀</button>
+                    <button class="sidebar-fullscreen-btn" id="sidebar-fullscreen-btn" title="Развернуть на весь экран">
+                        <svg class="icon"><use xlink:href="#icon-fullscreen"></use></svg>
+                    </button>
                     
                     <div class="sidebar-title">
                         PR МАРКЕТ Рязань
@@ -2545,8 +3155,14 @@
                 </div>
                 
                 <div class="sidebar-tabs">
-                    <button class="sidebar-tab active" data-tab="filters">⚙️ Фильтры</button>
-                    <button class="sidebar-tab" data-tab="list">🛒 Список</button>
+                    <button class="sidebar-tab active" data-tab="filters">
+                        <svg class="icon icon-sm"><use xlink:href="#icon-filter"></use></svg>
+                        Фильтры
+                    </button>
+                    <button class="sidebar-tab" data-tab="list">
+                        <svg class="icon icon-sm"><use xlink:href="#icon-list"></use></svg>
+                        Список
+                    </button>
                 </div>
                 
                 <div class="sidebar-content">
@@ -2608,14 +3224,20 @@
                             </div>
                         </div>
                         <div class="tab-footer">
-                            <button class="reset-button" id="desktop-reset-filters">↻ Сбросить фильтры</button>
+                            <button class="reset-button" id="desktop-reset-filters">
+                                <svg class="icon icon-sm"><use xlink:href="#icon-refresh"></use></svg>
+                                Сбросить фильтры
+                            </button>
                         </div>
                     </div>
                     
                     <div class="tab-content" id="desktop-list-tab">
                         <div class="percentage-selector">
                             <div class="percentage-header">
-                                <div class="percentage-title">ПРОЦЕНТ ПОКАЗА 🏠</div>
+                                <div class="percentage-title">
+                                    <svg class="icon icon-sm"><use xlink:href="#icon-home"></use></svg>
+                                    ПРОЦЕНТ ПОКАЗА
+                                </div>
                                 <div class="percentage-controls">
                                     <button class="percentage-button" id="desktop-percentage-decrease">-</button>
                                     <span class="percentage-value-display" id="desktop-percentage-value">100%</span>
@@ -2629,16 +3251,26 @@
                         
                         <div class="tab-content-inner">
                             <div id="desktop-building-list"></div>
-                            <button class="load-more" id="desktop-load-more">Показать еще</button>
+                            <button class="load-more" id="desktop-load-more">
+                                <svg class="icon icon-sm"><use xlink:href="#icon-add"></use></svg>
+                                Показать еще
+                            </button>
                         </div>
                         <div class="tab-footer">
-                            <button class="action-button" id="desktop-generate-report">📃 Сформировать отчёт</button>
+                            <button class="action-button" id="desktop-generate-report">
+                                <svg class="icon icon-sm"><use xlink:href="#icon-report"></use></svg>
+                                Сформировать отчёт
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
             
             <div id="desktop-map-container"></div>
+			<!-- Кнопка поделиться на карте (десктоп) -->
+            <div id="desktop-map-share-btn" class="map-share-btn" title="Поделиться настройками" style="display: none;">
+                <svg class="icon"><use xlink:href="#icon-share"></use></svg>
+            </div>
         </div>
     </div>
 
@@ -2647,8 +3279,7 @@
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
 
     <script>
-	
-	    // ============================================================================
+    // ============================================================================
     // МОДУЛЬ ДЛЯ ЛАНДШАФТНОЙ ЗАГЛУШКИ
     // ============================================================================
     const LandscapeWarningModule = {
@@ -2691,7 +3322,7 @@
             continueButton.className = 'landscape-button';
             continueButton.style.marginTop = '0.5rem';
             continueButton.style.background = 'rgba(255, 255, 255, 0.1)';
-            continueButton.innerHTML = '<span>⚠️</span><span>Продолжить в ландшафтном режиме</span>';
+            continueButton.innerHTML = '<svg class="icon icon-md"><use xlink:href="#icon-warning"></use></svg><span>Продолжить в ландшафтном режиме</span>';
             
             continueButton.addEventListener('click', () => {
                 warning.classList.remove('active');
@@ -2705,7 +3336,7 @@
             }
         }
     };
-	
+    
     // ============================================================================
     // КОНФИГУРАЦИЯ И ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
     // ============================================================================
@@ -2805,12 +3436,13 @@
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             
-            let icon = 'ℹ️';
-            if (type === 'success') icon = '✅';
-            if (type === 'error') icon = '❌';
+            let iconSvg = '';
+            if (type === 'success') iconSvg = '<svg class="icon"><use xlink:href="#icon-success"></use></svg>';
+            if (type === 'error') iconSvg = '<svg class="icon"><use xlink:href="#icon-error"></use></svg>';
+            if (type === 'info') iconSvg = '<svg class="icon"><use xlink:href="#icon-info"></use></svg>';
             
             notification.innerHTML = `
-                <div class="notification-icon">${icon}</div>
+                <div class="notification-icon">${iconSvg}</div>
                 <div class="notification-content">${message}</div>
             `;
             
@@ -2937,7 +3569,7 @@
                 return greaterValues.length > 0 ? Math.min(...greaterValues) : nearest;
             } else if (direction < 0) {
                 const lesserValues = valuesArray.filter(v => v < value);
-                return lesserValues.length > 0 ? Math.max(...lesserValues) : nearest;
+                return lesserValues.length > 0 ? Math.max(...greaterValues) : nearest;
             }
             
             return nearest;
@@ -3172,10 +3804,12 @@
                         </div>
                         <div class="marker-actions">
                             <button class="marker-action-btn edit-btn" onclick="MapModule.editMarker(${index})">
-                                ✏️ Редактировать
+                                <svg class="icon icon-sm"><use xlink:href="#icon-edit"></use></svg>
+                                Редактировать
                             </button>
                             <button class="marker-action-btn delete-btn" onclick="MapModule.deleteMarker(${index})">
-                                🗑️ Удалить метку
+                                <svg class="icon icon-sm"><use xlink:href="#icon-delete"></use></svg>
+                                Удалить метку
                             </button>
                         </div>
                     </div>
@@ -3350,7 +3984,10 @@
             const panelContent = `
                 <div class="markers-control-panel">
                     <div class="markers-control-header">
-                        <h3>📌 Управление метками</h3>
+                        <h3>
+                            <svg class="icon icon-sm"><use xlink:href="#icon-marker"></use></svg>
+                            Управление метками
+                        </h3>
                         <button class="markers-control-close-btn" title="Закрыть" onclick="MapModule.closeCurrentMarkerBalloon()">×</button>
                     </div>
                     <div class="markers-control-stats">
@@ -3367,14 +4004,17 @@
                     </div>
                     <div class="markers-control-actions">
                         <button class="markers-control-btn add-btn" onclick="MapModule.enterAddMarkerMode()">
-                            ➕ Добавить новую метку
+                            <svg class="icon icon-sm"><use xlink:href="#icon-add"></use></svg>
+                            Добавить новую метку
                         </button>
                         <button class="markers-control-btn list-btn" onclick="MapModule.showMarkersList()">
-                            📋 Список всех меток
+                            <svg class="icon icon-sm"><use xlink:href="#icon-list"></use></svg>
+                            Список всех меток
                         </button>
                         ${markerCount > 0 ? `
                             <button class="markers-control-btn delete-all-btn" onclick="MapModule.deleteAllMarkers()">
-                                🗑️ Удалить все метки
+                                <svg class="icon icon-sm"><use xlink:href="#icon-delete"></use></svg>
+                                Удалить все метки
                             </button>
                         ` : ''}
                     </div>
@@ -3426,7 +4066,10 @@
             const listContent = `
                 <div class="markers-full-list">
                     <div class="markers-list-header">
-                    <h3>📋 Все метки (${this.userMarkers.length})</h3>
+                    <h3>
+                        <svg class="icon icon-sm"><use xlink:href="#icon-list"></use></svg>
+                        Все метки (${this.userMarkers.length})
+                    </h3>
                     <button class="markers-list-close-btn" title="Закрыть" onclick="MapModule.closeCurrentMarkerBalloon()">×</button>
                     </div>
                     <div class="markers-list-content">
@@ -3446,9 +4089,15 @@
                                         <td>${marker.lat.toFixed(4)}, ${marker.lng.toFixed(4)}</td>
                                         <td>${new Date(marker.createdAt).toLocaleDateString()}</td>
                                         <td>
-                                            <button class="marker-action-small" onclick="MapModule.focusOnMarker(${index})">👁️</button>
-                                            <button class="marker-action-small" onclick="MapModule.editMarker(${index})">✏️</button>
-                                            <button class="marker-action-small" onclick="MapModule.deleteMarker(${index})">🗑️</button>
+                                            <button class="marker-action-small" onclick="MapModule.focusOnMarker(${index})">
+                                                <svg class="icon icon-xs"><use xlink:href="#icon-view"></use></svg>
+                                            </button>
+                                            <button class="marker-action-small" onclick="MapModule.editMarker(${index})">
+                                                <svg class="icon icon-xs"><use xlink:href="#icon-edit"></use></svg>
+                                            </button>
+                                            <button class="marker-action-small" onclick="MapModule.deleteMarker(${index})">
+                                                <svg class="icon icon-xs"><use xlink:href="#icon-delete"></use></svg>
+                                            </button>
                                         </td>
                                     </tr>
                                 `).join('')}
@@ -3457,7 +4106,8 @@
                     </div>
                     <div class="markers-list-footer">
                         <button class="markers-control-btn" onclick="MapModule.deleteAllMarkers()">
-                            🗑️ Удалить все метки
+                            <svg class="icon icon-sm"><use xlink:href="#icon-delete"></use></svg>
+                            Удалить все метки
                         </button>
                     </div>
                 </div>
@@ -3587,7 +4237,8 @@
                                         <div class="cluster-balloon-inner">
                                             <div class="cluster-header">
                                                 <div class="cluster-title">
-                                                    Кластер: ${geoObjects.length} 🏠
+                                                    Кластер: ${geoObjects.length} 
+                                                    <svg class="icon icon-sm"><use xlink:href="#icon-building"></use></svg>
                                                 </div>
                                                 <button class="cluster-close-btn" title="Закрыть">×</button>
                                             </div>
@@ -3604,7 +4255,8 @@
                                             </div>
                                             <div class="cluster-footer">
                                                 <button class="hide-cluster-btn" id="cluster-hide-button">
-                                                    ✕ Скрыть кластер
+                                                    <svg class="icon icon-sm"><use xlink:href="#icon-close"></use></svg>
+                                                    Скрыть кластер
                                                 </button>
                                             </div>
                                         </div>
@@ -3706,15 +4358,24 @@
                                             <div class="single-balloon-stats">
                                                 <div class="single-stat-item">
                                                     <div class="single-stat-label">РАЙОН</div>
-                                                    <div class="single-stat-value">${Utils.escapeHtml(shortDistrict)}</div>
+                                                    <div class="single-stat-value">
+                                                        <svg class="icon icon-xs"><use xlink:href="#icon-district"></use></svg>
+                                                        ${Utils.escapeHtml(shortDistrict)}
+                                                    </div>
                                                 </div>
                                                 <div class="single-stat-item">
                                                     <div class="single-stat-label">СТЕНДОВ</div>
-                                                    <div class="single-stat-value stands">${building.entrances}</div>
+                                                    <div class="single-stat-value stands">
+                                                        <svg class="icon icon-xs"><use xlink:href="#icon-stands"></use></svg>
+                                                        ${building.entrances}
+                                                    </div>
                                                 </div>
                                                 <div class="single-stat-item">
                                                     <div class="single-stat-label">КВАРТИР</div>
-                                                    <div class="single-stat-value">${building.flats}</div>
+                                                    <div class="single-stat-value">
+                                                        <svg class="icon icon-xs"><use xlink:href="#icon-flats"></use></svg>
+                                                        ${building.flats}
+                                                    </div>
                                                 </div>
                                                 <div class="single-stat-item">
                                                     <div class="single-stat-label">ЭТАЖЕЙ</div>
@@ -3722,7 +4383,8 @@
                                                 </div>
                                             </div>
                                             <button class="single-balloon-hide-btn" onclick="handleHideBuilding(${building.originalIndex})">
-                                                ✕ Скрыть адрес
+                                                <svg class="icon icon-sm"><use xlink:href="#icon-close"></use></svg>
+                                                Скрыть адрес
                                             </button>
                                         </div>
                                     </div>
@@ -3760,7 +4422,7 @@
                         
                         const markersControl = new ymaps.control.Button({
                             data: {
-                                content: "📍 Метки",
+                                content: "<svg class='icon icon-sm'><use xlink:href='#icon-marker'></use></svg> Метки",
                                 title: "Управление пользовательскими метками"
                             },
                             options: {
@@ -3777,7 +4439,7 @@
                         
                         const addMarkerButton = new ymaps.control.Button({
                             data: {
-                                content: "➕ Метка",
+                                content: "<svg class='icon icon-sm'><use xlink:href='#icon-add'></use></svg> Метка",
                                 title: "Добавить метку на карту"
                             },
                             options: {
@@ -4065,7 +4727,7 @@
                 const undoBtn = document.createElement('button');
                 undoBtn.id = 'mobile-undo-btn';
                 undoBtn.className = 'mobile-undo-button';
-                undoBtn.innerHTML = '↶';
+                undoBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-undo"></use></svg>';
                 undoBtn.title = 'Отменить последнее действие (Ctrl+Z)';
                 undoBtn.style.cssText = `
                     position: absolute;
@@ -4085,7 +4747,7 @@
                 const undoBtn = document.createElement('button');
                 undoBtn.id = 'desktop-undo-btn';
                 undoBtn.className = 'desktop-undo-button';
-                undoBtn.innerHTML = '↶';
+                undoBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-undo"></use></svg>';
                 undoBtn.title = 'Отменить последнее действие (Ctrl+Z)';
                 undoBtn.style.cssText = `
                     position: absolute;
@@ -4105,7 +4767,7 @@
                 const undoBtn = document.createElement('button');
                 undoBtn.id = 'fullscreen-undo-btn';
                 undoBtn.className = 'fullscreen-undo-button';
-                undoBtn.innerHTML = '↶';
+                undoBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-undo"></use></svg>';
                 undoBtn.title = 'Отменить последнее действие (Ctrl+Z)';
                 undoBtn.style.cssText = `
                     position: absolute;
@@ -4699,9 +5361,18 @@
                         <button class="building-hide" onclick="handleHideBuilding(${building.originalIndex}, event)">×</button>
                     </div>
                     <div class="building-details">
-                        <span>🏘️ ${Utils.escapeHtml(shortDistrict)}</span>
-                        <span>📄 ${building.entrances} ${this.getStandsText(building.entrances)}</span>
-                        <span>🚪 ${building.flats} кв.</span>
+                        <span>
+                            <svg class="icon"><use xlink:href="#icon-district"></use></svg>
+                            ${Utils.escapeHtml(shortDistrict)}
+                        </span>
+                        <span>
+                            <svg class="icon"><use xlink:href="#icon-stands"></use></svg>
+                            ${building.entrances} ${this.getStandsText(building.entrances)}
+                        </span>
+                        <span>
+                            <svg class="icon"><use xlink:href="#icon-flats"></use></svg>
+                            ${building.flats} кв.
+                        </span>
                     </div>
                 `;
                 
@@ -4730,15 +5401,24 @@
                                 <div class="single-balloon-stats">
                                     <div class="single-stat-item">
                                         <div class="single-stat-label">РАЙОН</div>
-                                        <div class="single-stat-value">${Utils.escapeHtml(shortDistrict)}</div>
+                                        <div class="single-stat-value">
+                                            <svg class="icon icon-xs"><use xlink:href="#icon-district"></use></svg>
+                                            ${Utils.escapeHtml(shortDistrict)}
+                                        </div>
                                     </div>
                                     <div class="single-stat-item">
                                         <div class="single-stat-label">СТЕНДОВ</div>
-                                        <div class="single-stat-value stands">${building.entrances}</div>
+                                        <div class="single-stat-value stands">
+                                            <svg class="icon icon-xs"><use xlink:href="#icon-stands"></use></svg>
+                                            ${building.entrances}
+                                        </div>
                                     </div>
                                     <div class="single-stat-item">
                                         <div class="single-stat-label">КВАРТИР</div>
-                                        <div class="single-stat-value">${building.flats}</div>
+                                        <div class="single-stat-value">
+                                            <svg class="icon icon-xs"><use xlink:href="#icon-flats"></use></svg>
+                                            ${building.flats}
+                                        </div>
                                     </div>
                                     <div class="single-stat-item">
                                         <div class="single-stat-label">ЭТАЖЕЙ</div>
@@ -4746,7 +5426,8 @@
                                     </div>
                                 </div>
                                 <button class="single-balloon-hide-btn" onclick="handleHideBuilding(${building.originalIndex})">
-                                    ✕ Скрыть адрес
+                                    <svg class="icon icon-sm"><use xlink:href="#icon-close"></use></svg>
+                                    Скрыть адрес
                                 </button>
                             </div>
                         </div>
@@ -4827,32 +5508,6 @@
             }
         }
     };
-
-    // ============================================================================
-    // ГЛОБАЛЬНЫЕ ОБРАБОТЧИКИ
-    // ============================================================================
-    function handleHideBuilding(buildingId, event) {
-        if (event) {
-            event.stopPropagation();
-        }
-        
-        const building = allBuildings.find(b => b.originalIndex === buildingId);
-        if (building) {
-            hiddenBuildings.add(buildingId);
-            HistoryModule.saveHideBuilding(buildingId, building.address);
-            FilterModule.applyFiltersDebounced();
-            Utils.showNotification('Адрес скрыт', 'success');
-            if (map && map.balloon && map.balloon.isOpen()) map.balloon.close();
-        }
-    }
-
-    function handleHideCluster(buildingIds) {
-        const ids = buildingIds.split(',').map(id => parseInt(id.trim()));
-        ids.forEach(id => hiddenBuildings.add(id));
-        HistoryModule.saveHideCluster(ids, ids.length);
-        FilterModule.applyFiltersDebounced();
-        if (map && map.balloon && map.balloon.isOpen()) map.balloon.close();
-    }
 
     // ============================================================================
     // МОДУЛЬ 7: ФОРМИРОВАНИЕ ОТЧЁТА
@@ -5068,53 +5723,561 @@
             dragData = null;
         },
         
-        toggleFullscreen() {
-            const sidebar = document.getElementById('desktop-sidebar');
-            const mapContainer = document.getElementById('desktop-map-container');
-            const fullscreenHeader = document.getElementById('fullscreen-header');
-            const sidebarBtn = document.getElementById('sidebar-fullscreen-btn');
-            const fullscreenBtn = document.getElementById('fullscreen-close-btn');
+toggleFullscreen() {
+    const sidebar = document.getElementById('desktop-sidebar');
+    const mapContainer = document.getElementById('desktop-map-container');
+    const fullscreenHeader = document.getElementById('fullscreen-header');
+    const sidebarBtn = document.getElementById('sidebar-fullscreen-btn');
+    const fullscreenBtn = document.getElementById('fullscreen-close-btn');
+    const mapShareBtn = document.getElementById('desktop-map-share-btn');
+    
+    if (!isFullscreen) {
+        isFullscreen = true;
+        sidebar.classList.add('hidden');
+        mapContainer.classList.add('fullscreen');
+        fullscreenHeader.style.display = 'block';
+        sidebarBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-fullscreen"></use></svg>';
+        sidebarBtn.title = 'Вернуться к обычному виду';
+        fullscreenBtn.innerHTML = '◀';
+        
+        // Скрываем кнопку на карте в полноэкранном режиме
+        if (mapShareBtn) {
+            mapShareBtn.style.display = 'none';
+        }
+        
+        Utils.showNotification('Включен полноэкранный режим', 'success');
+    } else {
+        isFullscreen = false;
+        sidebar.classList.remove('hidden');
+        mapContainer.classList.remove('fullscreen');
+        fullscreenHeader.style.display = 'none';
+        sidebarBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-fullscreen"></use></svg>';
+        sidebarBtn.title = 'Развернуть на весь экран';
+        
+        // Показываем кнопку на карте при выходе из полноэкранного режима
+        if (mapShareBtn) {
+            mapShareBtn.style.display = 'flex';
+        }
+        
+        Utils.showNotification('Обычный режим', 'info');
+    }
+    
+    if (map) {
+        setTimeout(() => {
+            map.container.fitToViewport();
+        }, 100);
+    }
+}
+    };
+
+    // ============================================================================
+    // МОДУЛЬ 9: ПОДЕЛИТЬСЯ ССЫЛКОЙ С НАСТРОЙКАМИ (ОБНОВЛЕННЫЙ)
+    // ============================================================================
+    const ShareModule = {
+        init() {
+            this.createShareButtons();
+            this.setupEventListeners();
+            this.checkForSharedState();
+			// Добавляем обработчик для кнопки на карте
+    document.getElementById('desktop-map-share-btn')?.addEventListener('click', () => this.showShareModal());
+        },
+        
+        createShareButtons() {
+            // Кнопки уже добавлены в HTML
+        },
+        
+        setupEventListeners() {
+            document.getElementById('mobile-share-btn')?.addEventListener('click', () => this.showShareModal());
+            document.getElementById('fullscreen-share-btn')?.addEventListener('click', () => this.showShareModal());
             
-            if (!isFullscreen) {
-                isFullscreen = true;
-                sidebar.classList.add('hidden');
-                mapContainer.classList.add('fullscreen');
-                fullscreenHeader.style.display = 'block';
-                sidebarBtn.innerHTML = '▶';
-                sidebarBtn.title = 'Вернуться к обычному виду';
-                fullscreenBtn.innerHTML = '◀';
-                
-                Utils.showNotification('Включен полноэкранный режим', 'success');
-            } else {
-                isFullscreen = false;
-                sidebar.classList.remove('hidden');
-                mapContainer.classList.remove('fullscreen');
-                fullscreenHeader.style.display = 'none';
-                sidebarBtn.innerHTML = '◀';
-                sidebarBtn.title = 'Развернуть на весь экран';
-                
-                Utils.showNotification('Обычный режим', 'info');
+            document.getElementById('share-modal-close')?.addEventListener('click', () => this.hideShareModal());
+            document.getElementById('share-copy-btn')?.addEventListener('click', () => this.copyShareUrl());
+            document.getElementById('share-whatsapp')?.addEventListener('click', () => this.shareToWhatsApp());
+            document.getElementById('share-telegram')?.addEventListener('click', () => this.shareToTelegram());
+            
+            // Закрытие по клику вне модального окна
+            document.getElementById('share-modal')?.addEventListener('click', (e) => {
+                if (e.target.id === 'share-modal') {
+                    this.hideShareModal();
+                }
+            });
+            
+            // Закрытие по клавише ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && document.getElementById('share-modal')?.classList.contains('active')) {
+                    this.hideShareModal();
+                }
+            });
+        },
+        
+        showShareModal() {
+            const modal = document.getElementById('share-modal');
+            const urlInput = document.getElementById('share-url-input');
+            
+            if (!modal || !urlInput) return;
+            
+            const shareUrl = this.generateShareUrl();
+            urlInput.value = shareUrl;
+            
+            modal.classList.add('active');
+            urlInput.select();
+            
+            // Обновляем кнопки соцсетей
+            this.updateSocialButtons(shareUrl);
+        },
+        
+        hideShareModal() {
+            const modal = document.getElementById('share-modal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        },
+        
+        generateShareUrl() {
+            const state = this.captureCurrentState();
+            const encodedState = this.encodeState(state);
+            
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${baseUrl}?state=${encodedState}`;
+            
+            // Проверяем длину ссылки
+            if (shareUrl.length > 2000) {
+                console.warn('Ссылка очень длинная:', shareUrl.length, 'символов');
+                Utils.showNotification('Ссылка очень длинная, некоторые браузеры могут не поддерживать', 'info');
             }
             
-            if (map) {
+            return shareUrl;
+        },
+        
+        captureCurrentState() {
+            const state = {
+                v: '2.0', // Версия формата
+                t: Date.now(),
+                
+                // Только измененные фильтры (короткие ключи)
+                f: {
+                    s: activeFilters.status.size > 0 ? Array.from(activeFilters.status) : undefined,
+                    d: activeFilters.district.size > 0 ? Array.from(activeFilters.district) : undefined,
+                    fl: activeFilters.floors.min || activeFilters.floors.max ? {
+                        min: activeFilters.floors.min,
+                        max: activeFilters.floors.max
+                    } : undefined,
+                    fe: activeFilters.flatsPerEntrance.min || activeFilters.flatsPerEntrance.max ? {
+                        min: activeFilters.flatsPerEntrance.min,
+                        max: activeFilters.flatsPerEntrance.max
+                    } : undefined
+                },
+                
+                // Скрытые здания - только если есть
+                h: hiddenBuildings.size > 0 ? Array.from(hiddenBuildings) : undefined,
+                
+                // Процент - только если не 100%
+                p: currentPercentage !== 100 ? currentPercentage : undefined,
+                
+                // Метки - только если есть (упрощенный формат)
+                m: MapModule.userMarkers.length > 0 ? MapModule.userMarkers.map(marker => ({
+                    l: [marker.lat, marker.lng], // Координаты
+                    t: marker.text, // Текст
+                    d: marker.createdAt // Дата
+                })) : undefined,
+                
+                // Вид/вкладка
+                vw: isMobile ? currentView : undefined,
+                vt: !isMobile ? currentDesktopTab : undefined,
+                
+                // Карта - только если отличается от начальной
+                mp: map ? {
+                    c: map.getCenter(),
+                    z: map.getZoom()
+                } : undefined
+            };
+            
+            // Очищаем объект от undefined значений
+            return this.cleanObject(state);
+        },
+        
+        cleanObject(obj) {
+            const cleaned = {};
+            for (const [key, value] of Object.entries(obj)) {
+                if (value !== undefined && value !== null) {
+                    if (Array.isArray(value)) {
+                        if (value.length > 0) cleaned[key] = value;
+                    } else if (typeof value === 'object') {
+                        const nested = this.cleanObject(value);
+                        if (Object.keys(nested).length > 0) cleaned[key] = nested;
+                    } else {
+                        cleaned[key] = value;
+                    }
+                }
+            }
+            return cleaned;
+        },
+        
+        encodeState(state) {
+            try {
+                const json = JSON.stringify(state);
+                
+                // Проверяем доступность LZString
+                if (typeof LZString !== 'undefined' && LZString.compressToEncodedURIComponent) {
+                    return LZString.compressToEncodedURIComponent(json);
+                } else {
+                    // Fallback: обычное base64 кодирование
+                    console.warn('LZString не загружен, используем base64');
+                    return btoa(encodeURIComponent(json));
+                }
+            } catch (error) {
+                console.error('Ошибка кодирования состояния:', error);
+                Utils.showNotification('Ошибка создания ссылки', 'error');
+                return '';
+            }
+        },
+        
+        decodeState(encodedState) {
+            try {
+                // Сначала пробуем декодировать как LZString
+                if (typeof LZString !== 'undefined' && LZString.decompressFromEncodedURIComponent) {
+                    const json = LZString.decompressFromEncodedURIComponent(encodedState);
+                    if (json) {
+                        return JSON.parse(json);
+                    }
+                }
+                
+                // Если LZString не сработал, пробуем base64 (для обратной совместимости)
+                try {
+                    const json = decodeURIComponent(atob(encodedState));
+                    return JSON.parse(json);
+                } catch {
+                    throw new Error('Неверный формат данных');
+                }
+            } catch (e) {
+                console.error('Ошибка декодирования состояния:', e);
+                return null;
+            }
+        },
+        
+        updateSocialButtons(shareUrl) {
+            const encodedUrl = encodeURIComponent(shareUrl);
+            const text = encodeURIComponent('Посмотрите мою подборку стендов для рекламы у домофонов');
+            
+            const whatsappBtn = document.getElementById('share-whatsapp');
+            const telegramBtn = document.getElementById('share-telegram');
+            
+            if (whatsappBtn) {
+                whatsappBtn.onclick = () => {
+                    window.open(`https://wa.me/?text=${text}%0A%0A${encodedUrl}`, '_blank');
+                };
+            }
+            
+            if (telegramBtn) {
+                telegramBtn.onclick = () => {
+                    window.open(`https://t.me/share/url?url=${encodedUrl}&text=${text}`, '_blank');
+                };
+            }
+        },
+        
+        copyShareUrl() {
+            const urlInput = document.getElementById('share-url-input');
+            const statusEl = document.getElementById('share-status');
+            
+            if (!urlInput || !statusEl) return;
+            
+            urlInput.select();
+            urlInput.setSelectionRange(0, 99999); // Для мобильных устройств
+            
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(urlInput.value)
+                        .then(() => this.showCopyStatus('success', 'Ссылка скопирована!'))
+                        .catch(() => this.fallbackCopy(urlInput));
+                } else {
+                    this.fallbackCopy(urlInput);
+                }
+            } catch (error) {
+                this.fallbackCopy(urlInput);
+            }
+        },
+        
+        fallbackCopy(input) {
+            const oldContentEditable = input.contentEditable;
+            const oldReadOnly = input.readOnly;
+            
+            try {
+                input.contentEditable = 'true';
+                input.readOnly = false;
+                
+                const range = document.createRange();
+                range.selectNodeContents(input);
+                
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
+                input.setSelectionRange(0, 999999);
+                
+                const result = document.execCommand('copy');
+                
+                if (result) {
+                    this.showCopyStatus('success', 'Ссылка скопирована!');
+                } else {
+                    this.showCopyStatus('error', 'Не удалось скопировать');
+                }
+            } catch (error) {
+                this.showCopyStatus('error', 'Ошибка копирования');
+            } finally {
+                input.contentEditable = oldContentEditable;
+                input.readOnly = oldReadOnly;
+                window.getSelection().removeAllRanges();
+            }
+        },
+        
+        showCopyStatus(type, message) {
+            const statusEl = document.getElementById('share-status');
+            if (!statusEl) return;
+            
+            statusEl.className = `share-status ${type}`;
+            statusEl.textContent = message;
+            statusEl.style.display = 'block';
+            
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 3000);
+        },
+        
+        shareToWhatsApp() {
+            // Обработчик уже установлен в updateSocialButtons
+        },
+        
+        shareToTelegram() {
+            // Обработчик уже установлен в updateSocialButtons
+        },
+        
+        checkForSharedState() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const encodedState = urlParams.get('state');
+            
+            if (encodedState) {
                 setTimeout(() => {
-                    map.container.fitToViewport();
-                }, 100);
+                    if (confirm('Обнаружены сохраненные настройки. Применить их?')) {
+                        this.applySharedState(encodedState);
+                    } else {
+                        // Очищаем параметр из URL без перезагрузки
+                        const newUrl = window.location.origin + window.location.pathname;
+                        window.history.replaceState({}, document.title, newUrl);
+                    }
+                }, 1000);
             }
+        },
+        
+        applySharedState(encodedState) {
+            const state = this.decodeState(encodedState);
+            if (!state) {
+                Utils.showNotification('Ошибка загрузки сохраненных настроек', 'error');
+                return;
+            }
+            
+            // Применяем состояние
+            this.restoreState(state);
+            
+            Utils.showNotification('Настройки загружены', 'success');
+            
+            // Очищаем параметр из URL
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        },
+        
+        restoreState(state) {
+            if (!state || typeof state !== 'object') return;
+            
+            // Восстанавливаем фильтры (с поддержкой старого формата)
+            if (state.f || state.filters) {
+                const filters = state.f || state.filters;
+                
+                if (filters.s || filters.status) {
+                    activeFilters.status = new Set(filters.s || filters.status || []);
+                }
+                
+                if (filters.d || filters.district) {
+                    activeFilters.district = new Set(filters.d || filters.district || []);
+                }
+                
+                if (filters.fl || filters.floors) {
+                    const floorsData = filters.fl || filters.floors;
+                    activeFilters.floors.min = floorsData?.min || null;
+                    activeFilters.floors.max = floorsData?.max || null;
+                }
+                
+                if (filters.fe || filters.flatsPerEntrance) {
+                    const flatsData = filters.fe || filters.flatsPerEntrance;
+                    activeFilters.flatsPerEntrance.min = flatsData?.min || null;
+                    activeFilters.flatsPerEntrance.max = flatsData?.max || null;
+                }
+            }
+            
+            // Восстанавливаем скрытые здания
+            if (state.h || state.hiddenBuildings) {
+                hiddenBuildings = new Set(state.h || state.hiddenBuildings || []);
+            }
+            
+            // Восстанавливаем процент
+            if (state.p !== undefined) {
+                currentPercentage = state.p;
+            } else if (state.percentage !== undefined) {
+                currentPercentage = state.percentage;
+            }
+            
+            // Восстанавливаем метки
+            if (state.m || state.userMarkers) {
+                const markersData = state.m || state.userMarkers;
+                MapModule.userMarkers = markersData.map(marker => {
+                    // Поддержка нового и старого формата
+                    if (marker.l) {
+                        // Новый формат: { l: [lat, lng], t: text, d: createdAt }
+                        return {
+                            lat: marker.l[0],
+                            lng: marker.l[1],
+                            text: marker.t,
+                            createdAt: marker.d
+                        };
+                    } else {
+                        // Старый формат: { lat, lng, text, createdAt }
+                        return marker;
+                    }
+                });
+                MapModule.renderUserMarkers();
+            }
+            
+            // Восстанавливаем вид/вкладку
+            if (isMobile && (state.vw || state.mobileView)) {
+                currentView = state.vw || state.mobileView;
+            } else if (!isMobile && (state.vt || state.desktopTab)) {
+                currentDesktopTab = state.vt || state.desktopTab;
+            }
+            
+            // Восстанавливаем положение карты
+            if ((state.mp || state.mapState) && map) {
+                const mapState = state.mp || state.mapState;
+                setTimeout(() => {
+                    map.setCenter(mapState.c || mapState.center, mapState.z || mapState.zoom);
+                }, 500);
+            }
+            
+            // Обновляем UI
+            this.updateUIFromState(state);
+            
+            // Применяем фильтры
+            FilterModule.applyFiltersDebounced();
+            
+            // Обновляем вкладки
+            if (isMobile) {
+                Utils.setMobileView(currentView);
+            } else {
+                Utils.setDesktopTab(currentDesktopTab);
+            }
+        },
+        
+        updateUIFromState(state) {
+            // Обновляем чекбоксы фильтров
+            const statusValues = state.f?.s || state.filters?.status || [];
+            const districtValues = state.f?.d || state.filters?.district || [];
+            
+            this.updateFilterCheckboxes('status-filter', statusValues);
+            this.updateFilterCheckboxes('desktop-status-filter', statusValues);
+            this.updateFilterCheckboxes('district-filter', districtValues);
+            this.updateFilterCheckboxes('desktop-district-filter', districtValues);
+            
+            // Обновляем поля ввода
+            const floors = state.f?.fl || state.filters?.floors || {};
+            const flats = state.f?.fe || state.filters?.flatsPerEntrance || {};
+            
+            this.updateRangeInputs(floors, flats);
+            
+            // Обновляем процент
+            const percentage = state.p !== undefined ? state.p : state.percentage;
+            if (percentage !== undefined) {
+                this.updatePercentage(percentage);
+            }
+        },
+        
+        updateFilterCheckboxes(containerId, filterValues) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = filterValues.includes(checkbox.value);
+            });
+        },
+        
+        updateRangeInputs(floors, flats) {
+            const floorMin = floors.min || '';
+            const floorMax = floors.max || '';
+            const flatMin = flats.min || '';
+            const flatMax = flats.max || '';
+            
+            // Обновляем оба набора полей (мобильные и десктоп)
+            document.getElementById('floors-min').value = floorMin;
+            document.getElementById('floors-max').value = floorMax;
+            document.getElementById('flats-min').value = flatMin;
+            document.getElementById('flats-max').value = flatMax;
+            
+            document.getElementById('desktop-floors-min').value = floorMin;
+            document.getElementById('desktop-floors-max').value = floorMax;
+            document.getElementById('desktop-flats-min').value = flatMin;
+            document.getElementById('desktop-flats-max').value = flatMax;
+        },
+        
+        updatePercentage(percentage) {
+            const elements = [
+                { slider: 'mobile-percentage-slider', value: 'mobile-percentage-value' },
+                { slider: 'desktop-percentage-slider', value: 'desktop-percentage-value' }
+            ];
+            
+            elements.forEach(el => {
+                const slider = document.getElementById(el.slider);
+                const valueDisplay = document.getElementById(el.value);
+                
+                if (slider) slider.value = percentage;
+                if (valueDisplay) valueDisplay.textContent = `${percentage}%`;
+            });
         }
     };
+
+    // ============================================================================
+    // ГЛОБАЛЬНЫЕ ОБРАБОТЧИКИ
+    // ============================================================================
+    function handleHideBuilding(buildingId, event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        
+        const building = allBuildings.find(b => b.originalIndex === buildingId);
+        if (building) {
+            hiddenBuildings.add(buildingId);
+            HistoryModule.saveHideBuilding(buildingId, building.address);
+            FilterModule.applyFiltersDebounced();
+            Utils.showNotification('Адрес скрыт', 'success');
+            if (map && map.balloon && map.balloon.isOpen()) map.balloon.close();
+        }
+    }
+
+    function handleHideCluster(buildingIds) {
+        const ids = buildingIds.split(',').map(id => parseInt(id.trim()));
+        ids.forEach(id => hiddenBuildings.add(id));
+        HistoryModule.saveHideCluster(ids, ids.length);
+        FilterModule.applyFiltersDebounced();
+        if (map && map.balloon && map.balloon.isOpen()) map.balloon.close();
+    }
 
     // ============================================================================
     // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
     // ============================================================================
     async function initApp() {
         try {
-			
-			// Инициализируем заглушку ландшафтного режима
+            // Инициализируем заглушку ландшафтного режима
             LandscapeWarningModule.init();
             // Добавляем кнопку "Продолжить"
             setTimeout(() => LandscapeWarningModule.addForceContinueButton(), 1000);
-			
+            
             Utils.updateMainContentHeight();
             
             await MapModule.initMap();
@@ -5126,6 +6289,7 @@
             PercentageModule.initPercentageSelector();
             
             HistoryModule.init();
+            ShareModule.init(); // <-- Обновленный модуль
             
             FilterModule.applyFilters();
             
@@ -5201,45 +6365,62 @@
         });
     }
 
-    async function updateResponsive() {
-        const nowIsMobile = window.innerWidth <= 768;
-        
-        if (nowIsMobile !== isMobile) {
-            let oldCenter, oldZoom;
-            if (map) {
-                oldCenter = map.getCenter();
-                oldZoom = map.getZoom();
-            }
-            
-            isMobile = nowIsMobile;
-            
-            await MapModule.initMap();
-            
-            if (oldCenter && oldZoom) {
-                map.setCenter(oldCenter, oldZoom);
-            }
-            
-            if (displayedBuildings.length > 0) {
-                MapModule.renderBuildings(displayedBuildings);
-            }
-        }
-        
-        if (isMobile) {
-            if (currentView !== 'map') {
-                Utils.setMobileView('map');
-            }
-            Utils.updateMainContentHeight();
-        } else {
-            if (appInitialized) {
-                Utils.setDesktopTab(currentDesktopTab);
-                FullscreenModule.init();
-            }
-        }
-        
+async function updateResponsive() {
+    const nowIsMobile = window.innerWidth <= 768;
+    
+    if (nowIsMobile !== isMobile) {
+        let oldCenter, oldZoom;
         if (map) {
-            setTimeout(() => map.container.fitToViewport(), 100);
+            oldCenter = map.getCenter();
+            oldZoom = map.getZoom();
+        }
+        
+        isMobile = nowIsMobile;
+        
+        await MapModule.initMap();
+        
+        if (oldCenter && oldZoom) {
+            map.setCenter(oldCenter, oldZoom);
+        }
+        
+        if (displayedBuildings.length > 0) {
+            MapModule.renderBuildings(displayedBuildings);
         }
     }
+    
+    const mapShareBtn = document.getElementById('desktop-map-share-btn');
+    
+    if (isMobile) {
+        if (currentView !== 'map') {
+            Utils.setMobileView('map');
+        }
+        Utils.updateMainContentHeight();
+        
+        // Скрываем кнопку на карте в мобильной версии
+        if (mapShareBtn) {
+            mapShareBtn.style.display = 'none';
+        }
+    } else {
+        if (appInitialized) {
+            Utils.setDesktopTab(currentDesktopTab);
+            FullscreenModule.init();
+        }
+        
+        // Показываем кнопку на карте в десктопной версии
+        // В полноэкранном режиме скрываем
+        if (mapShareBtn) {
+            if (isFullscreen) {
+                mapShareBtn.style.display = 'none';
+            } else {
+                mapShareBtn.style.display = 'flex';
+            }
+        }
+    }
+    
+    if (map) {
+        setTimeout(() => map.container.fitToViewport(), 100);
+    }
+}
 
     function setupResponsive() {
         const debouncedUpdate = Utils.debounce(updateResponsive, 250);
