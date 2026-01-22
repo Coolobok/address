@@ -5869,315 +5869,398 @@
         // ============================================================================
         // МОДУЛЬ 9: СОХРАНЕНИЕ И ВОССТАНОВЛЕНИЕ СОСТОЯНИЯ
         // ============================================================================
-        const StateModule = {
-            currentDataHash: null,
-            stateVersion: 1,
-            
-            init: function(buildings) {
-                this.currentDataHash = this.computeDataHash(buildings);
-                this.checkAndApplyURLState();
-            },
-            
-            computeDataHash: function(buildings) {
-                try {
-                    const dataString = buildings
-                        .map(b => `${b.address}|${b.lat}|${b.lng}|${b.status}|${b.district}|${b.entrances}|${b.floors}|${b.flats}|${b.flatsPerEntrance}`)
-                        .sort()
-                        .join(';');
-                    
-                    let hash = 0;
-                    for (let i = 0; i < dataString.length; i++) {
-                        const char = dataString.charCodeAt(i);
-                        hash = ((hash << 5) - hash) + char;
-                        hash = hash & hash;
-                    }
-                    
-                    return Math.abs(hash).toString(36).substring(0, 8);
-                } catch (error) {
-                    console.error('Ошибка вычисления хэша:', error);
-                    return 'error';
-                }
-            },
-            
-            collectCurrentState: function() {
-                return {
-                    version: this.stateVersion,
-                    dataHash: this.currentDataHash,
-                    filters: {
-                        status: Array.from(activeFilters.status),
-                        district: Array.from(activeFilters.district),
-                        floors: { ...activeFilters.floors },
-                        flatsPerEntrance: { ...activeFilters.flatsPerEntrance }
-                    },
-                    percentage: currentPercentage,
-                    hiddenBuildings: Array.from(hiddenBuildings),
-                    userMarkers: MapModule.userMarkers || []
-                };
-            },
-            
-            encodeState: function(state) {
-                try {
-                    const compactState = {
-                        v: state.version,
-                        h: state.dataHash,
-                        f: {
-                            s: state.filters.status,
-                            d: state.filters.district,
-                            fl: [state.filters.floors.min, state.filters.floors.max],
-                            fa: [state.filters.flatsPerEntrance.min, state.filters.flatsPerEntrance.max]
-                        },
-                        p: state.percentage,
-                        hb: state.hiddenBuildings,
-                        m: state.userMarkers.map(marker => ({
-                            t: marker.text,
-                            lat: marker.lat,
-                            lng: marker.lng,
-                            c: marker.createdAt
-                        }))
-                    };
-                    
-                    const jsonString = JSON.stringify(compactState);
-                    const base64 = btoa(encodeURIComponent(jsonString))
-                        .replace(/\+/g, '-')
-                        .replace(/\//g, '_')
-                        .replace(/=+$/, '');
-                    
-                    return base64;
-                } catch (error) {
-                    console.error('Ошибка кодирования состояния:', error);
-                    return null;
-                }
-            },
-            
-            decodeState: function(encodedString) {
-                try {
-                    let base64 = encodedString.replace(/-/g, '+').replace(/_/g, '/');
-                    while (base64.length % 4) {
-                        base64 += '=';
-                    }
-                    
-                    const jsonString = decodeURIComponent(atob(base64));
-                    const compactState = JSON.parse(jsonString);
-                    
-                    const state = {
-                        version: compactState.v,
-                        dataHash: compactState.h,
-                        filters: {
-                            status: compactState.f.s || [],
-                            district: compactState.f.d || [],
-                            floors: {
-                                min: compactState.f.fl?.[0] || null,
-                                max: compactState.f.fl?.[1] || null
-                            },
-                            flatsPerEntrance: {
-                                min: compactState.f.fa?.[0] || null,
-                                max: compactState.f.fa?.[1] || null
-                            }
-                        },
-                        percentage: compactState.p || 100,
-                        hiddenBuildings: compactState.hb || [],
-                        userMarkers: (compactState.m || []).map(marker => ({
-                            text: marker.t,
-                            lat: marker.lat,
-                            lng: marker.lng,
-                            createdAt: marker.c || new Date().toISOString()
-                        }))
-                    };
-                    
-                    return state;
-                } catch (error) {
-                    console.error('Ошибка декодирования состояния:', error);
-                    return null;
-                }
-            },
-            
-            generateShareableURL: function() {
-                const state = this.collectCurrentState();
-                const encoded = this.encodeState(state);
-                
-                if (!encoded) {
-                    return null;
-                }
-                
-                const baseURL = window.location.origin + window.location.pathname;
-                return `${baseURL}?state=${encoded}`;
-            },
-            
-            checkAndApplyURLState: function() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const stateParam = urlParams.get('state');
-                
-                if (!stateParam) {
-                    return;
-                }
-                
-                Utils.showNotification('Загрузка настроек из ссылки...', 'info');
-                
-                setTimeout(() => {
-                    this.applyStateFromURL(stateParam);
-                }, 500);
-            },
-            
-            applyStateFromURL: function(encodedState) {
-                try {
-                    const state = this.decodeState(encodedState);
-                    
-                    if (!state) {
-                        Utils.showNotification('Ошибка загрузки настроек', 'error');
-                        return;
-                    }
-                    
-                    if (state.version !== this.stateVersion) {
-                        Utils.showNotification('Устаревший формат ссылки. Сброс настроек.', 'warning');
-                        FilterModule.resetFilters();
-                        return;
-                    }
-                    
-                    if (state.dataHash !== this.currentDataHash) {
-                        const userConfirmed = confirm(
-                            'Данные в базе обновились с момента создания ссылки.\n' +
-                            'Настройки фильтров будут сброшены.\n' +
-                            'Пользовательские метки будут восстановлены.\n\n' +
-                            'Хотите продолжить?'
-                        );
-                        
-                        if (!userConfirmed) {
-                            Utils.showNotification('Загрузка настроек отменена', 'info');
-                            return;
-                        }
-                        
-                        if (state.userMarkers && state.userMarkers.length > 0) {
-                            MapModule.userMarkers = state.userMarkers;
-                            MapModule.saveUserMarkers();
-                            MapModule.renderUserMarkers();
-                            Utils.showNotification(`Восстановлено ${state.userMarkers.length} меток`, 'success');
-                        }
-                        
-                        Utils.showNotification('Данные обновлены. Фильтры сброшены.', 'warning');
-                        return;
-                    }
-                    
-                    this.applyState(state);
-                    Utils.showNotification('Настройки восстановлены из ссылки', 'success');
-                    
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    
-                } catch (error) {
-                    console.error('Ошибка применения состояния:', error);
-                    Utils.showNotification('Ошибка загрузки настроек', 'error');
-                }
-            },
-            
-            applyState: function(state) {
-                activeFilters.status = new Set(state.filters.status);
-                activeFilters.district = new Set(state.filters.district);
-                activeFilters.floors = { ...state.filters.floors };
-                activeFilters.flatsPerEntrance = { ...state.filters.flatsPerEntrance };
-                
-                currentPercentage = state.percentage;
-                
-                hiddenBuildings = new Set(state.hiddenBuildings);
-                
-                if (state.userMarkers && state.userMarkers.length > 0) {
-                    MapModule.userMarkers = state.userMarkers;
-                    MapModule.saveUserMarkers();
-                    MapModule.renderUserMarkers();
-                }
-                
-                this.updateUIFromState(state);
-                
-                FilterModule.applyFiltersDebounced();
-            },
-            
-            updateUIFromState: function(state) {
-                this.updateFilterCheckboxes('status-filter', state.filters.status);
-                this.updateFilterCheckboxes('desktop-status-filter', state.filters.status);
-                
-                this.updateFilterCheckboxes('district-filter', state.filters.district);
-                this.updateFilterCheckboxes('desktop-district-filter', state.filters.district);
-                
-                this.updateRangeInput('floors-min', state.filters.floors.min);
-                this.updateRangeInput('floors-max', state.filters.floors.max);
-                this.updateRangeInput('desktop-floors-min', state.filters.floors.min);
-                this.updateRangeInput('desktop-floors-max', state.filters.floors.max);
-                
-                this.updateRangeInput('flats-min', state.filters.flatsPerEntrance.min);
-                this.updateRangeInput('flats-max', state.filters.flatsPerEntrance.max);
-                this.updateRangeInput('desktop-flats-min', state.filters.flatsPerEntrance.min);
-                this.updateRangeInput('desktop-flats-max', state.filters.flatsPerEntrance.max);
-                
-                const percentageSliders = [
-                    'mobile-percentage-slider',
-                    'desktop-percentage-slider'
-                ];
-                const percentageValues = [
-                    'mobile-percentage-value',
-                    'desktop-percentage-value'
-                ];
-                
-                percentageSliders.forEach(sliderId => {
-                    const slider = document.getElementById(sliderId);
-                    if (slider) slider.value = state.percentage;
-                });
-                
-                percentageValues.forEach(valueId => {
-                    const value = document.getElementById(valueId);
-                    if (value) value.textContent = `${state.percentage}%`;
-                });
-            },
-            
-            updateFilterCheckboxes: function(containerId, selectedValues) {
-                const container = document.getElementById(containerId);
-                if (!container) return;
-                
-                const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = selectedValues.includes(checkbox.value);
-                });
-            },
-            
-            updateRangeInput: function(inputId, value) {
-                const input = document.getElementById(inputId);
-                if (input) {
-                    input.value = value || '';
-                }
-            },
-            
-            copyShareableURL: async function() {
-                const url = this.generateShareableURL();
-                
-                if (!url) {
-                    Utils.showNotification('Не удалось создать ссылку', 'error');
-                    return;
-                }
-                
-                try {
-                    if (navigator.clipboard && window.isSecureContext) {
-                        await navigator.clipboard.writeText(url);
-                    } else {
-                        const textArea = document.createElement('textarea');
-                        textArea.value = url;
-                        document.body.appendChild(textArea);
-                        textArea.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(textArea);
-                    }
-                    
-                    const message = `✅ Ссылка скопирована!\n\n⚠️ Внимание: ссылка временная.\nОна станет некорректной при обновлении данных в базе.`;
-                    
-                    if (isMobile) {
-                        Utils.showNotification('Ссылка скопирована! (Временная)', 'success');
-                    } else {
-                        alert(message);
-                    }
-                    
-                } catch (error) {
-                    console.error('Ошибка копирования:', error);
-                    Utils.showNotification('Ошибка копирования ссылки', 'error');
-                }
-            }
-        };
-
+		const StateModule = {
+			currentDataHash: null,
+			stateVersion: 1,
+			
+			init: function(buildings) {
+				this.currentDataHash = this.computeDataHash(buildings);
+				this.checkAndApplyURLState();
+			},
+			
+			computeDataHash: function(buildings) {
+				try {
+					const dataString = buildings
+						.map(b => `${b.address}|${b.lat}|${b.lng}|${b.status}|${b.district}|${b.entrances}|${b.floors}|${b.flats}|${b.flatsPerEntrance}`)
+						.sort()
+						.join(';');
+					
+					let hash = 0;
+					for (let i = 0; i < dataString.length; i++) {
+						const char = dataString.charCodeAt(i);
+						hash = ((hash << 5) - hash) + char;
+						hash = hash & hash;
+					}
+					
+					return Math.abs(hash).toString(36).substring(0, 8);
+				} catch (error) {
+					console.error('Ошибка вычисления хэша:', error);
+					return 'error';
+				}
+			},
+			
+			collectCurrentState: function() {
+				return {
+					version: this.stateVersion,
+					dataHash: this.currentDataHash,
+					filters: {
+						status: Array.from(activeFilters.status),
+						district: Array.from(activeFilters.district),
+						floors: { ...activeFilters.floors },
+						flatsPerEntrance: { ...activeFilters.flatsPerEntrance }
+					},
+					percentage: currentPercentage,
+					hiddenBuildings: Array.from(hiddenBuildings),
+					userMarkers: MapModule.userMarkers || []
+				};
+			},
+			
+			encodeState: function(state) {
+				try {
+					const compactState = {
+						v: state.version,
+						h: state.dataHash,
+						f: {
+							s: state.filters.status,
+							d: state.filters.district,
+							fl: [state.filters.floors.min, state.filters.floors.max],
+							fa: [state.filters.flatsPerEntrance.min, state.filters.flatsPerEntrance.max]
+						},
+						p: state.percentage,
+						hb: state.hiddenBuildings,
+						m: state.userMarkers.map(marker => ({
+							t: marker.text,
+							lat: marker.lat,
+							lng: marker.lng,
+							c: marker.createdAt
+						}))
+					};
+					
+					const jsonString = JSON.stringify(compactState);
+					const base64 = btoa(encodeURIComponent(jsonString))
+						.replace(/\+/g, '-')
+						.replace(/\//g, '_')
+						.replace(/=+$/, '');
+					
+					return base64;
+				} catch (error) {
+					console.error('Ошибка кодирования состояния:', error);
+					return null;
+				}
+			},
+			
+			decodeState: function(encodedString) {
+				try {
+					let base64 = encodedString.replace(/-/g, '+').replace(/_/g, '/');
+					while (base64.length % 4) {
+						base64 += '=';
+					}
+					
+					const jsonString = decodeURIComponent(atob(base64));
+					const compactState = JSON.parse(jsonString);
+					
+					const state = {
+						version: compactState.v,
+						dataHash: compactState.h,
+						filters: {
+							status: compactState.f.s || [],
+							district: compactState.f.d || [],
+							floors: {
+								min: compactState.f.fl?.[0] || null,
+								max: compactState.f.fl?.[1] || null
+							},
+							flatsPerEntrance: {
+								min: compactState.f.fa?.[0] || null,
+								max: compactState.f.fa?.[1] || null
+							}
+						},
+						percentage: compactState.p || 100,
+						hiddenBuildings: compactState.hb || [],
+						userMarkers: (compactState.m || []).map(marker => ({
+							text: marker.t,
+							lat: marker.lat,
+							lng: marker.lng,
+							createdAt: marker.c || new Date().toISOString()
+						}))
+					};
+					
+					return state;
+				} catch (error) {
+					console.error('Ошибка декодирования состояния:', error);
+					return null;
+				}
+			},
+			
+			generateShareableURL: function() {
+				const state = this.collectCurrentState();
+				const encoded = this.encodeState(state);
+				
+				if (!encoded) {
+					return null;
+				}
+				
+				const baseURL = window.location.origin + window.location.pathname;
+				return `${baseURL}?state=${encoded}`;
+			},
+			
+			checkAndApplyURLState: function() {
+				const urlParams = new URLSearchParams(window.location.search);
+				const stateParam = urlParams.get('state');
+				
+				if (!stateParam) {
+					return;
+				}
+				
+				Utils.showNotification('Загрузка настроек из ссылки...', 'info');
+				
+				setTimeout(() => {
+					this.applyStateFromURL(stateParam);
+				}, 500);
+			},
+			
+			applyStateFromURL: function(encodedState) {
+				try {
+					const state = this.decodeState(encodedState);
+					
+					if (!state) {
+						Utils.showNotification('Ошибка загрузки настроек', 'error');
+						return;
+					}
+					
+					if (state.version !== this.stateVersion) {
+						Utils.showNotification('Устаревший формат ссылки. Сброс настроек.', 'warning');
+						FilterModule.resetFilters();
+						return;
+					}
+					
+					if (state.dataHash !== this.currentDataHash) {
+						const userConfirmed = confirm(
+							'Данные в базе обновились с момента создания ссылки.\n' +
+							'Настройки фильтров будут сброшены.\n' +
+							'Пользовательские метки будут восстановлены.\n\n' +
+							'Хотите продолжить?'
+						);
+						
+						if (!userConfirmed) {
+							Utils.showNotification('Загрузка настроек отменена', 'info');
+							return;
+						}
+						
+						if (state.userMarkers && state.userMarkers.length > 0) {
+							MapModule.userMarkers = state.userMarkers;
+							MapModule.saveUserMarkers();
+							MapModule.renderUserMarkers();
+							Utils.showNotification(`Восстановлено ${state.userMarkers.length} меток`, 'success');
+						}
+						
+						Utils.showNotification('Данные обновлены. Фильтры сброшены.', 'warning');
+						return;
+					}
+					
+					this.applyState(state);
+					Utils.showNotification('Настройки восстановлены из ссылки', 'success');
+					
+					window.history.replaceState({}, document.title, window.location.pathname);
+					
+				} catch (error) {
+					console.error('Ошибка применения состояния:', error);
+					Utils.showNotification('Ошибка загрузки настроек', 'error');
+				}
+			},
+			
+			applyState: function(state) {
+				// Корректируем значения до ближайших доступных в текущем наборе данных
+				const correctedState = this.correctValuesToAvailable(state);
+				
+				// Устанавливаем скорректированные значения в активные фильтры
+				activeFilters.status = new Set(correctedState.filters.status);
+				activeFilters.district = new Set(correctedState.filters.district);
+				activeFilters.floors = { ...correctedState.filters.floors };
+				activeFilters.flatsPerEntrance = { ...correctedState.filters.flatsPerEntrance };
+				
+				currentPercentage = correctedState.percentage;
+				
+				hiddenBuildings = new Set(correctedState.hiddenBuildings);
+				
+				if (correctedState.userMarkers && correctedState.userMarkers.length > 0) {
+					MapModule.userMarkers = correctedState.userMarkers;
+					MapModule.saveUserMarkers();
+					MapModule.renderUserMarkers();
+				}
+				
+				this.updateUIFromState(correctedState);
+				
+				FilterModule.applyFiltersDebounced();
+			},
+			
+			correctValuesToAvailable: function(state) {
+				// Создаем глубокую копию состояния
+				const corrected = JSON.parse(JSON.stringify(state));
+				
+				// Корректируем этажность до ближайших доступных значений
+				if (corrected.filters.floors.min !== null && availableValues.floors && availableValues.floors.length > 0) {
+					corrected.filters.floors.min = Utils.getNearestValue(
+						corrected.filters.floors.min, 
+						availableValues.floors, 
+						0
+					);
+				}
+				
+				if (corrected.filters.floors.max !== null && availableValues.floors && availableValues.floors.length > 0) {
+					corrected.filters.floors.max = Utils.getNearestValue(
+						corrected.filters.floors.max, 
+						availableValues.floors, 
+						0
+					);
+				}
+				
+				// Корректируем квартиры в подъезде до ближайших доступных значений
+				if (corrected.filters.flatsPerEntrance.min !== null && availableValues.flatsPerEntrance && availableValues.flatsPerEntrance.length > 0) {
+					corrected.filters.flatsPerEntrance.min = Utils.getNearestValue(
+						corrected.filters.flatsPerEntrance.min, 
+						availableValues.flatsPerEntrance, 
+						0
+					);
+				}
+				
+				if (corrected.filters.flatsPerEntrance.max !== null && availableValues.flatsPerEntrance && availableValues.flatsPerEntrance.length > 0) {
+					corrected.filters.flatsPerEntrance.max = Utils.getNearestValue(
+						corrected.filters.flatsPerEntrance.max, 
+						availableValues.flatsPerEntrance, 
+						0
+					);
+				}
+				
+				return corrected;
+			},
+			
+			updateUIFromState: function(state) {
+				// Обновляем чекбоксы статусов
+				this.updateFilterCheckboxes('status-filter', state.filters.status);
+				this.updateFilterCheckboxes('desktop-status-filter', state.filters.status);
+				
+				// Обновляем чекбоксы районов
+				this.updateFilterCheckboxes('district-filter', state.filters.district);
+				this.updateFilterCheckboxes('desktop-district-filter', state.filters.district);
+				
+				// Обновляем числовые поля (уже скорректированные)
+				this.updateRangeInput('floors-min', state.filters.floors.min);
+				this.updateRangeInput('floors-max', state.filters.floors.max);
+				this.updateRangeInput('desktop-floors-min', state.filters.floors.min);
+				this.updateRangeInput('desktop-floors-max', state.filters.floors.max);
+				
+				this.updateRangeInput('flats-min', state.filters.flatsPerEntrance.min);
+				this.updateRangeInput('flats-max', state.filters.flatsPerEntrance.max);
+				this.updateRangeInput('desktop-flats-min', state.filters.flatsPerEntrance.min);
+				this.updateRangeInput('desktop-flats-max', state.filters.flatsPerEntrance.max);
+				
+				// Обновляем процентный отбор
+				const percentageSliders = [
+					'mobile-percentage-slider',
+					'desktop-percentage-slider'
+				];
+				const percentageValues = [
+					'mobile-percentage-value',
+					'desktop-percentage-value'
+				];
+				
+				percentageSliders.forEach(sliderId => {
+					const slider = document.getElementById(sliderId);
+					if (slider) slider.value = state.percentage;
+				});
+				
+				percentageValues.forEach(valueId => {
+					const value = document.getElementById(valueId);
+					if (value) value.textContent = `${state.percentage}%`;
+				});
+				
+				// После установки значений вызываем валидацию для пар мин/макс
+				this.validateRangePairs();
+			},
+			
+			updateFilterCheckboxes: function(containerId, selectedValues) {
+				const container = document.getElementById(containerId);
+				if (!container) return;
+				
+				const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+				checkboxes.forEach(checkbox => {
+					checkbox.checked = selectedValues.includes(checkbox.value);
+				});
+			},
+			
+			updateRangeInput: function(inputId, value) {
+				const input = document.getElementById(inputId);
+				if (input) {
+					input.value = value !== null ? value : '';
+				}
+			},
+			
+			validateRangePairs: function() {
+				// Валидируем пары полей мин/макс
+				const pairs = [
+					{ minId: 'floors-min', maxId: 'floors-max', desktopMinId: 'desktop-floors-min', desktopMaxId: 'desktop-floors-max' },
+					{ minId: 'flats-min', maxId: 'flats-max', desktopMinId: 'desktop-flats-min', desktopMaxId: 'desktop-flats-max' }
+				];
+				
+				pairs.forEach(pair => {
+					const minInput = document.getElementById(pair.minId);
+					const maxInput = document.getElementById(pair.maxId);
+					const desktopMinInput = document.getElementById(pair.desktopMinId);
+					const desktopMaxInput = document.getElementById(pair.desktopMaxId);
+					
+					if (minInput && maxInput) {
+						const minValue = minInput.value ? parseInt(minInput.value) : null;
+						const maxValue = maxInput.value ? parseInt(maxInput.value) : null;
+						
+						if (minValue !== null && maxValue !== null && minValue > maxValue) {
+							// Меняем значения местами
+							minInput.value = maxValue;
+							maxInput.value = minValue;
+							
+							// Синхронизируем с десктопной версией
+							if (desktopMinInput && desktopMaxInput) {
+								desktopMinInput.value = maxValue;
+								desktopMaxInput.value = minValue;
+							}
+						}
+					}
+				});
+			},
+			
+			copyShareableURL: async function() {
+				const url = this.generateShareableURL();
+				
+				if (!url) {
+					Utils.showNotification('Не удалось создать ссылку', 'error');
+					return;
+				}
+				
+				try {
+					if (navigator.clipboard && window.isSecureContext) {
+						await navigator.clipboard.writeText(url);
+					} else {
+						const textArea = document.createElement('textarea');
+						textArea.value = url;
+						document.body.appendChild(textArea);
+						textArea.select();
+						document.execCommand('copy');
+						document.body.removeChild(textArea);
+					}
+					
+					const message = `✅ Ссылка скопирована!\n\n⚠️ Внимание: ссылка временная.\nОна станет некорректной при обновлении данных в базе.`;
+					
+					if (isMobile) {
+						Utils.showNotification('Ссылка скопирована! (Временная)', 'success');
+					} else {
+						alert(message);
+					}
+					
+				} catch (error) {
+					console.error('Ошибка копирования:', error);
+					Utils.showNotification('Ошибка копирования ссылки', 'error');
+				}
+			}
+		};
         // ============================================================================
         // ГЛОБАЛЬНЫЕ ОБРАБОТЧИКИ
         // ============================================================================
