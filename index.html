@@ -47,7 +47,7 @@
     .report-textarea{width:100%;flex:1;min-height:150px;padding:1rem;border:1px solid var(--color-border);border-radius:var(--radius-md);font-family:'Courier New',monospace;font-size:.875rem;line-height:1.4;resize:vertical;background:var(--color-background);color:var(--brand-dark);overflow-y:auto;word-wrap:break-word;white-space:pre-wrap;overflow-wrap:break-word;}
     .report-textarea:focus{outline:none;border-color:var(--brand-color);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
     .report-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;flex-shrink:0;}
-    .report-actions-extended{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;flex-shrink:0;padding-top:1rem;border-top:2px solid var(--color-border);}
+    .report-actions-extended{display:grid;grid-template-columns:1fr;gap:.75rem;flex-shrink:0;padding-top:1rem;border-top:2px solid var(--color-border);}
     .report-action-btn{padding:1rem;border:none;border-radius:var(--radius-md);font-size:1rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.75rem;transition:all .2s;-webkit-tap-highlight-color:transparent;}
     .report-action-btn.copy-btn{background:var(--color-primary);color:#fff;}
     .report-action-btn.copy-btn:hover{background:#2563eb;transform:translateY(-2px);box-shadow:0 4px 12px rgba(59,130,246,.3);}
@@ -57,8 +57,6 @@
     .report-action-btn.link-btn:hover{background:#d97706;transform:translateY(-2px);box-shadow:0 4px 12px rgba(245,158,11,.3);}
     .report-action-btn.telegram-btn{background:#0088cc;color:#fff;}
     .report-action-btn.telegram-btn:hover{background:#0077b5;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,136,204,.3);}
-    .report-action-btn.email-btn{background:#ea4335;color:#fff;}
-    .report-action-btn.email-btn:hover{background:#d33426;transform:translateY(-2px);box-shadow:0 4px 12px rgba(234,67,53,.3);}
     .report-action-btn:active{transform:translateY(0);}
     @media(max-width:768px){
         .report-modal{width:100%;height:100%;max-height:100vh;border-radius:0;margin:0;}
@@ -388,12 +386,10 @@
                 <div class="report-text-container">
                     <textarea class="report-textarea" id="report-textarea" readonly></textarea>
                 </div>
+                <!-- Только Telegram (email удалён) -->
                 <div class="report-actions-extended" id="report-share-actions" style="display: none;">
                     <button class="report-action-btn telegram-btn" id="report-telegram-btn">
                         <i class="fas fa-paper-plane"></i> Отправить в Telegram
-                    </button>
-                    <button class="report-action-btn email-btn" id="report-email-btn">
-                        <i class="fas fa-envelope"></i> Отправить на Email
                     </button>
                 </div>
                 <div class="report-actions">
@@ -905,22 +901,22 @@
                             delete window[callbackName];
                             document.getElementById('jsonp-contacts-script')?.remove();
                             const data = this.parseContactsResponse(response);
-                            if (!data.telegram && !data.email) {
-                                console.log('Контакты не найдены в Google Sheets');
-                                Utils.showNotification('Контакты не найдены в таблице', 'warning');
+                            if (!data.telegram) {
+                                console.log('Telegram контакт не найден');
+                                Utils.showNotification('Telegram контакт не найден в таблице', 'warning');
                             } else {
-                                Utils.showNotification('Контакты загружены', 'success');
+                                Utils.showNotification('Telegram контакт загружен', 'success');
                             }
                             resolve(data);
                         } catch (error) {
                             console.error('Ошибка обработки контактов:', error);
-                            resolve({ telegram: null, email: null });
+                            resolve({ telegram: null });
                         }
                     }.bind(this);
                     const script = document.createElement('script');
                     script.id = 'jsonp-contacts-script';
                     script.src = url;
-                    script.onerror = () => { script.remove(); console.log('Не удалось загрузить контакты из Google Sheets'); resolve({ telegram: null, email: null }); };
+                    script.onerror = () => { script.remove(); console.log('Не удалось загрузить контакты из Google Sheets'); resolve({ telegram: null }); };
                     document.head.appendChild(script);
                 });
             },
@@ -962,22 +958,23 @@
             parseContactsResponse(response) {
                 try {
                     const rows = response.table.rows || [];
-                    const contactsData = { telegram: null, email: null };
+                    const contactsData = { telegram: null };
                     rows.forEach(row => {
                         const cells = row.c;
                         if (cells && cells.length >= 2) {
                             const label = cells[0]?.v?.toString().toLowerCase().trim();
                             const value = cells[1]?.v?.toString().trim();
                             if (label && value) {
-                                if (label.includes('telegram') || label.includes('телеграм')) contactsData.telegram = value;
-                                else if (label.includes('email') || label.includes('почта') || label.includes('e-mail')) contactsData.email = value;
+                                if (label.includes('telegram') || label.includes('телеграм')) {
+                                    contactsData.telegram = value;
+                                }
                             }
                         }
                     });
                     return contactsData;
                 } catch (error) {
                     console.error('Ошибка парсинга контактов:', error);
-                    return { telegram: null, email: null };
+                    return { telegram: null };
                 }
             }
         };
@@ -2401,185 +2398,185 @@
         // ============================================================================
         // КЛАСС RANGESLIDER (без изменений)
         // ============================================================================
-		class RangeSlider {
-			constructor(container, minVal, maxVal, initialMin, initialMax, onChange) {
-				this.container = container;
-				this.minVal = minVal;
-				this.maxVal = maxVal;
-				this.currentMin = initialMin;
-				this.currentMax = initialMax;
-				this.onChange = onChange;
-				this.isDragging = false;
-				this.activeThumb = null;
-				this.track = container.querySelector('.track');
-				this.minThumb = container.querySelector('.thumb.min-thumb');
-				this.maxThumb = container.querySelector('.thumb.max-thumb');
-				this.thumbWidth = 20;
-				if (!this.track || !this.minThumb || !this.maxThumb) {
-					console.error('RangeSlider: не найдены элементы');
-					return;
-				}
-				// Привязываем методы для корректного удаления
-				this._onMove = this.onMove.bind(this);
-				this._onEnd = this.onEnd.bind(this);
-				this._onTouchMove = this.onTouchMove.bind(this);
-				this._onTouchEnd = this.onTouchEnd.bind(this);
-				this._onTouchCancel = this.onTouchCancel.bind(this);
-				this.setValues(initialMin, initialMax);
-				this.bindEvents();
-			}
+        class RangeSlider {
+            constructor(container, minVal, maxVal, initialMin, initialMax, onChange) {
+                this.container = container;
+                this.minVal = minVal;
+                this.maxVal = maxVal;
+                this.currentMin = initialMin;
+                this.currentMax = initialMax;
+                this.onChange = onChange;
+                this.isDragging = false;
+                this.activeThumb = null;
+                this.track = container.querySelector('.track');
+                this.minThumb = container.querySelector('.thumb.min-thumb');
+                this.maxThumb = container.querySelector('.thumb.max-thumb');
+                this.thumbWidth = 20;
+                if (!this.track || !this.minThumb || !this.maxThumb) {
+                    console.error('RangeSlider: не найдены элементы');
+                    return;
+                }
+                // Привязываем методы для корректного удаления
+                this._onMove = this.onMove.bind(this);
+                this._onEnd = this.onEnd.bind(this);
+                this._onTouchMove = this.onTouchMove.bind(this);
+                this._onTouchEnd = this.onTouchEnd.bind(this);
+                this._onTouchCancel = this.onTouchCancel.bind(this);
+                this.setValues(initialMin, initialMax);
+                this.bindEvents();
+            }
 
-			bindEvents() {
-				const onStart = (e, thumbType) => {
-					e.preventDefault();
-					this.isDragging = true;
-					this.activeThumb = thumbType;
-					const thumbEl = thumbType === 'min' ? this.minThumb : this.maxThumb;
-					if (thumbEl) thumbEl.style.cursor = 'grabbing';
-					document.addEventListener('mousemove', this._onMove);
-					document.addEventListener('mouseup', this._onEnd);
-					document.addEventListener('touchmove', this._onTouchMove, { passive: false });
-					document.addEventListener('touchend', this._onTouchEnd, { passive: false });
-					document.addEventListener('touchcancel', this._onTouchCancel, { passive: false });
-				};
+            bindEvents() {
+                const onStart = (e, thumbType) => {
+                    e.preventDefault();
+                    this.isDragging = true;
+                    this.activeThumb = thumbType;
+                    const thumbEl = thumbType === 'min' ? this.minThumb : this.maxThumb;
+                    if (thumbEl) thumbEl.style.cursor = 'grabbing';
+                    document.addEventListener('mousemove', this._onMove);
+                    document.addEventListener('mouseup', this._onEnd);
+                    document.addEventListener('touchmove', this._onTouchMove, { passive: false });
+                    document.addEventListener('touchend', this._onTouchEnd, { passive: false });
+                    document.addEventListener('touchcancel', this._onTouchCancel, { passive: false });
+                };
 
-				this.minThumb.addEventListener('mousedown', (e) => onStart(e, 'min'));
-				this.maxThumb.addEventListener('mousedown', (e) => onStart(e, 'max'));
+                this.minThumb.addEventListener('mousedown', (e) => onStart(e, 'min'));
+                this.maxThumb.addEventListener('mousedown', (e) => onStart(e, 'max'));
 
-				this.minThumb.addEventListener('touchstart', (e) => {
-					e.preventDefault();
-					const touch = e.touches[0];
-					const mouseEvent = new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY });
-					onStart(mouseEvent, 'min');
-				}, { passive: false });
+                this.minThumb.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY });
+                    onStart(mouseEvent, 'min');
+                }, { passive: false });
 
-				this.maxThumb.addEventListener('touchstart', (e) => {
-					e.preventDefault();
-					const touch = e.touches[0];
-					const mouseEvent = new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY });
-					onStart(mouseEvent, 'max');
-				}, { passive: false });
+                this.maxThumb.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY });
+                    onStart(mouseEvent, 'max');
+                }, { passive: false });
 
-				// Обработка колесика (без изменений)
-				this.container.addEventListener('wheel', (e) => {
-					e.preventDefault();
-					const delta = e.deltaY > 0 ? -1 : 1;
-					const step = (this.maxVal - this.minVal) > 50 ? 2 : 1;
-					if (e.shiftKey) {
-						let newMin = Math.max(this.minVal, this.currentMin + delta * step);
-						let newMax = Math.min(this.maxVal, this.currentMax + delta * step);
-						if (newMax - newMin < 0) {
-							if (delta > 0) newMax = Math.min(this.maxVal, newMin + 1);
-							else newMin = Math.max(this.minVal, newMax - 1);
-						}
-						this.setValues(newMin, newMax);
-						this.onChange(newMin, newMax);
-						return;
-					}
-					const rect = this.container.getBoundingClientRect();
-					const mouseX = e.clientX - rect.left;
-					const minLeft = this.minThumb.offsetLeft;
-					const maxLeft = this.maxThumb.offsetLeft;
-					const distMin = Math.abs(mouseX - minLeft);
-					const distMax = Math.abs(mouseX - maxLeft);
-					if (distMin < distMax) {
-						let newMin = Math.max(this.minVal, Math.min(this.currentMax - 1, this.currentMin + delta * step));
-						if (newMin > this.currentMax - 1) newMin = this.currentMax - 1;
-						this.setValues(newMin, this.currentMax);
-						this.onChange(newMin, this.currentMax);
-					} else {
-						let newMax = Math.min(this.maxVal, Math.max(this.currentMin + 1, this.currentMax + delta * step));
-						if (newMax < this.currentMin + 1) newMax = this.currentMin + 1;
-						this.setValues(this.currentMin, newMax);
-						this.onChange(this.currentMin, newMax);
-					}
-				}, { passive: false });
-			}
+                // Обработка колесика (без изменений)
+                this.container.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -1 : 1;
+                    const step = (this.maxVal - this.minVal) > 50 ? 2 : 1;
+                    if (e.shiftKey) {
+                        let newMin = Math.max(this.minVal, this.currentMin + delta * step);
+                        let newMax = Math.min(this.maxVal, this.currentMax + delta * step);
+                        if (newMax - newMin < 0) {
+                            if (delta > 0) newMax = Math.min(this.maxVal, newMin + 1);
+                            else newMin = Math.max(this.minVal, newMax - 1);
+                        }
+                        this.setValues(newMin, newMax);
+                        this.onChange(newMin, newMax);
+                        return;
+                    }
+                    const rect = this.container.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const minLeft = this.minThumb.offsetLeft;
+                    const maxLeft = this.maxThumb.offsetLeft;
+                    const distMin = Math.abs(mouseX - minLeft);
+                    const distMax = Math.abs(mouseX - maxLeft);
+                    if (distMin < distMax) {
+                        let newMin = Math.max(this.minVal, Math.min(this.currentMax - 1, this.currentMin + delta * step));
+                        if (newMin > this.currentMax - 1) newMin = this.currentMax - 1;
+                        this.setValues(newMin, this.currentMax);
+                        this.onChange(newMin, this.currentMax);
+                    } else {
+                        let newMax = Math.min(this.maxVal, Math.max(this.currentMin + 1, this.currentMax + delta * step));
+                        if (newMax < this.currentMin + 1) newMax = this.currentMin + 1;
+                        this.setValues(this.currentMin, newMax);
+                        this.onChange(this.currentMin, newMax);
+                    }
+                }, { passive: false });
+            }
 
-			onMove(e) {
-				if (!this.isDragging) return;
-				const rect = this.container.getBoundingClientRect();
-				const containerWidth = rect.width;
-				const x = e.clientX - rect.left;
-				const minX = 0;
-				const maxX = containerWidth - this.thumbWidth;
-				const clampedX = Math.max(minX, Math.min(maxX, x));
+            onMove(e) {
+                if (!this.isDragging) return;
+                const rect = this.container.getBoundingClientRect();
+                const containerWidth = rect.width;
+                const x = e.clientX - rect.left;
+                const minX = 0;
+                const maxX = containerWidth - this.thumbWidth;
+                const clampedX = Math.max(minX, Math.min(maxX, x));
 
-				const value = this.minVal + (clampedX / (containerWidth - this.thumbWidth)) * (this.maxVal - this.minVal);
-				const rounded = Math.round(value);
+                const value = this.minVal + (clampedX / (containerWidth - this.thumbWidth)) * (this.maxVal - this.minVal);
+                const rounded = Math.round(value);
 
-				if (this.activeThumb === 'min') {
-					const newMin = Math.max(this.minVal, Math.min(this.currentMax - 1, rounded));
-					this.setValues(newMin, this.currentMax);
-					this.onChange(newMin, this.currentMax);
-				} else if (this.activeThumb === 'max') {
-					const newMax = Math.min(this.maxVal, Math.max(this.currentMin + 1, rounded));
-					this.setValues(this.currentMin, newMax);
-					this.onChange(this.currentMin, newMax);
-				}
-			}
+                if (this.activeThumb === 'min') {
+                    const newMin = Math.max(this.minVal, Math.min(this.currentMax - 1, rounded));
+                    this.setValues(newMin, this.currentMax);
+                    this.onChange(newMin, this.currentMax);
+                } else if (this.activeThumb === 'max') {
+                    const newMax = Math.min(this.maxVal, Math.max(this.currentMin + 1, rounded));
+                    this.setValues(this.currentMin, newMax);
+                    this.onChange(this.currentMin, newMax);
+                }
+            }
 
-			onTouchMove(e) {
-				// Блокируем скролл ТОЛЬКО когда перетаскивание активно
-				if (!this.isDragging || !e.touches.length) return;
-				e.preventDefault();
-				const touch = e.touches[0];
-				const mouseEvent = new MouseEvent('mousemove', { clientX: touch.clientX, clientY: touch.clientY });
-				this.onMove(mouseEvent);
-			}
+            onTouchMove(e) {
+                // Блокируем скролл ТОЛЬКО когда перетаскивание активно
+                if (!this.isDragging || !e.touches.length) return;
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousemove', { clientX: touch.clientX, clientY: touch.clientY });
+                this.onMove(mouseEvent);
+            }
 
-			onEnd() {
-				if (this.isDragging) {
-					this.isDragging = false;
-					if (this.minThumb) this.minThumb.style.cursor = '';
-					if (this.maxThumb) this.maxThumb.style.cursor = '';
-					document.removeEventListener('mousemove', this._onMove);
-					document.removeEventListener('mouseup', this._onEnd);
-					document.removeEventListener('touchmove', this._onTouchMove);
-					document.removeEventListener('touchend', this._onTouchEnd);
-					document.removeEventListener('touchcancel', this._onTouchCancel);
-				}
-			}
+            onEnd() {
+                if (this.isDragging) {
+                    this.isDragging = false;
+                    if (this.minThumb) this.minThumb.style.cursor = '';
+                    if (this.maxThumb) this.maxThumb.style.cursor = '';
+                    document.removeEventListener('mousemove', this._onMove);
+                    document.removeEventListener('mouseup', this._onEnd);
+                    document.removeEventListener('touchmove', this._onTouchMove);
+                    document.removeEventListener('touchend', this._onTouchEnd);
+                    document.removeEventListener('touchcancel', this._onTouchCancel);
+                }
+            }
 
-			onTouchEnd(e) {
-				this.onEnd();
-			}
+            onTouchEnd(e) {
+                this.onEnd();
+            }
 
-			onTouchCancel(e) {
-				this.onEnd();
-			}
+            onTouchCancel(e) {
+                this.onEnd();
+            }
 
-			setValues(min, max) {
-				this.currentMin = Math.max(this.minVal, Math.min(max - 1, min));
-				this.currentMax = Math.min(this.maxVal, Math.max(min + 1, max));
-				this.updatePosition();
-			}
+            setValues(min, max) {
+                this.currentMin = Math.max(this.minVal, Math.min(max - 1, min));
+                this.currentMax = Math.min(this.maxVal, Math.max(min + 1, max));
+                this.updatePosition();
+            }
 
-			updatePosition() {
-				const container = this.container;
-				const containerWidth = container.clientWidth;
-				if (containerWidth === 0) {
-					requestAnimationFrame(() => this.updatePosition());
-					return;
-				}
-				const range = this.maxVal - this.minVal;
-				const thumbWidth = this.thumbWidth;
+            updatePosition() {
+                const container = this.container;
+                const containerWidth = container.clientWidth;
+                if (containerWidth === 0) {
+                    requestAnimationFrame(() => this.updatePosition());
+                    return;
+                }
+                const range = this.maxVal - this.minVal;
+                const thumbWidth = this.thumbWidth;
 
-				const minPercent = (this.currentMin - this.minVal) / range;
-				const maxPercent = (this.currentMax - this.minVal) / range;
+                const minPercent = (this.currentMin - this.minVal) / range;
+                const maxPercent = (this.currentMax - this.minVal) / range;
 
-				const minLeft = minPercent * (containerWidth - thumbWidth);
-				const maxLeft = maxPercent * (containerWidth - thumbWidth);
+                const minLeft = minPercent * (containerWidth - thumbWidth);
+                const maxLeft = maxPercent * (containerWidth - thumbWidth);
 
-				this.minThumb.style.left = minLeft + 'px';
-				this.maxThumb.style.left = maxLeft + 'px';
+                this.minThumb.style.left = minLeft + 'px';
+                this.maxThumb.style.left = maxLeft + 'px';
 
-				const trackLeft = minLeft + thumbWidth;
-				const trackRight = (containerWidth - (maxLeft + thumbWidth));
-				this.track.style.left = trackLeft + 'px';
-				this.track.style.right = trackRight + 'px';
-			}
-		}
+                const trackLeft = minLeft + thumbWidth;
+                const trackRight = (containerWidth - (maxLeft + thumbWidth));
+                this.track.style.left = trackLeft + 'px';
+                this.track.style.right = trackRight + 'px';
+            }
+        }
         // ============================================================================
         // ПРОЦЕНТНЫЙ ОТБОР (без изменений)
         // ============================================================================
@@ -2735,390 +2732,324 @@
             }
         };
 
-		// ============================================================================
-		// МОДУЛЬ ОТЧЁТА (полная версия с шапкой в CSV)
-		// ============================================================================
-		const ReportModule = {
-			currentReportText: null,
-			currentReportCSV: null,
+        // ============================================================================
+        // МОДУЛЬ ОТЧЁТА (без email)
+        // ============================================================================
+        const ReportModule = {
+            currentReportText: null,
+            currentReportCSV: null,
 
-			// Вспомогательные методы
-			getStandsText(count) {
-				const lastDigit = count % 10;
-				const lastTwo = count % 100;
-				if (lastTwo >= 11 && lastTwo <= 14) return 'стендов';
-				if (lastDigit === 1) return 'стенд';
-				if (lastDigit >= 2 && lastDigit <= 4) return 'стенда';
-				return 'стендов';
-			},
+            getStandsText(count) {
+                const lastDigit = count % 10;
+                const lastTwo = count % 100;
+                if (lastTwo >= 11 && lastTwo <= 14) return 'стендов';
+                if (lastDigit === 1) return 'стенд';
+                if (lastDigit >= 2 && lastDigit <= 4) return 'стенда';
+                return 'стендов';
+            },
 
-			getFlatsText(count) {
-				const lastDigit = count % 10;
-				const lastTwo = count % 100;
-				if (lastTwo >= 11 && lastTwo <= 14) return 'кв.';
-				if (lastDigit === 1) return 'кв.';
-				if (lastDigit >= 2 && lastDigit <= 4) return 'кв.';
-				return 'кв.';
-			},
+            getFlatsText(count) {
+                const lastDigit = count % 10;
+                const lastTwo = count % 100;
+                if (lastTwo >= 11 && lastTwo <= 14) return 'кв.';
+                if (lastDigit === 1) return 'кв.';
+                if (lastDigit >= 2 && lastDigit <= 4) return 'кв.';
+                return 'кв.';
+            },
 
-			getObjectsText(count) {
-				const lastDigit = count % 10;
-				const lastTwo = count % 100;
-				if (lastTwo >= 11 && lastTwo <= 14) return 'объектов';
-				if (lastDigit === 1) return 'объект';
-				if (lastDigit >= 2 && lastDigit <= 4) return 'объекта';
-				return 'объектов';
-			},
+            getObjectsText(count) {
+                const lastDigit = count % 10;
+                const lastTwo = count % 100;
+                if (lastTwo >= 11 && lastTwo <= 14) return 'объектов';
+                if (lastDigit === 1) return 'объект';
+                if (lastDigit >= 2 && lastDigit <= 4) return 'объекта';
+                return 'объектов';
+            },
 
-			// ----- ТЕКСТОВАЯ ВЕРСИЯ ДЛЯ ОТОБРАЖЕНИЯ (без изменений) -----
-			generateReportText() {
-				const filtered = allBuildings.filter(building => {
-					if (hiddenBuildings.has(building.originalIndex)) return false;
-					if (activeFilters.status.size && !activeFilters.status.has(building.status)) return false;
-					const district = building.district;
-					if (district && districtFilters[district]) {
-						const df = districtFilters[district];
-						if (!df.enabled) return false;
-						if (building.floors < df.floors.min || building.floors > df.floors.max) return false;
-						if (building.flatsPerEntrance < df.flatsPerEntrance.min || building.flatsPerEntrance > df.flatsPerEntrance.max) return false;
-					} else {
-						if (activeFilters.floors.min !== null && building.floors < activeFilters.floors.min) return false;
-						if (activeFilters.floors.max !== null && building.floors > activeFilters.floors.max) return false;
-						if (activeFilters.flatsPerEntrance.min !== null && building.flatsPerEntrance < activeFilters.flatsPerEntrance.min) return false;
-						if (activeFilters.flatsPerEntrance.max !== null && building.flatsPerEntrance > activeFilters.flatsPerEntrance.max) return false;
-					}
-					return true;
-				});
-				const selected = FilterModule.selectByPercentage(filtered, currentPercentage);
-				const now = new Date();
-				const dateStr = now.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-				const totalStands = selected.reduce((s,b) => s + (b.entrances||0), 0);
-				const totalFlats = selected.reduce((s,b) => s + (b.flats||0), 0);
-				let totalPrice = null;
-				if (totalStands >= 100) {
-					if (totalStands <= 299) totalPrice = totalStands * 160;
-					else if (totalStands <= 499) totalPrice = totalStands * 140;
-					else totalPrice = totalStands * 120;
-				}
-				const perFlatPrice = totalPrice && totalFlats > 0 ? totalPrice / totalFlats : null;
+            generateReportText() {
+                const filtered = allBuildings.filter(building => {
+                    if (hiddenBuildings.has(building.originalIndex)) return false;
+                    if (activeFilters.status.size && !activeFilters.status.has(building.status)) return false;
+                    const district = building.district;
+                    if (district && districtFilters[district]) {
+                        const df = districtFilters[district];
+                        if (!df.enabled) return false;
+                        if (building.floors < df.floors.min || building.floors > df.floors.max) return false;
+                        if (building.flatsPerEntrance < df.flatsPerEntrance.min || building.flatsPerEntrance > df.flatsPerEntrance.max) return false;
+                    } else {
+                        if (activeFilters.floors.min !== null && building.floors < activeFilters.floors.min) return false;
+                        if (activeFilters.floors.max !== null && building.floors > activeFilters.floors.max) return false;
+                        if (activeFilters.flatsPerEntrance.min !== null && building.flatsPerEntrance < activeFilters.flatsPerEntrance.min) return false;
+                        if (activeFilters.flatsPerEntrance.max !== null && building.flatsPerEntrance > activeFilters.flatsPerEntrance.max) return false;
+                    }
+                    return true;
+                });
+                const selected = FilterModule.selectByPercentage(filtered, currentPercentage);
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+                const totalStands = selected.reduce((s,b) => s + (b.entrances||0), 0);
+                const totalFlats = selected.reduce((s,b) => s + (b.flats||0), 0);
+                let totalPrice = null;
+                if (totalStands >= 100) {
+                    if (totalStands <= 299) totalPrice = totalStands * 160;
+                    else if (totalStands <= 499) totalPrice = totalStands * 140;
+                    else totalPrice = totalStands * 120;
+                }
+                const perFlatPrice = totalPrice && totalFlats > 0 ? totalPrice / totalFlats : null;
 
-				let report = `ОТЧЁТ ПО СТЕНДАМ У ДОМОФОНОВ\r\nДата: ${dateStr}\r\n========================================\r\n\r\n`;
-				report += `СТАТИСТИКА:\r\n• Выбрано ${this.getObjectsText(selected.length)}: ${selected.length}\r\n• Всего ${this.getStandsText(totalStands)}: ${totalStands}\r\n• Всего ${this.getFlatsText(totalFlats)}: ${totalFlats}\r\n`;
-				if (totalStands >= 100) {
-					report += `• Стоимость в месяц: ${Utils.formatPrice(totalPrice)}\r\n`;
-					if (totalFlats > 0) report += `• Стоимость на квартиру: ${Utils.formatPrice(totalPrice / totalFlats)}\r\n`;
-				} else report += `• Стоимость: требуется больше зданий для расчёта\r\n`;
-				report += `\r\nПАРАМЕТРЫ ФИЛЬТРАЦИИ:\r\n• Статусы: ${Array.from(activeFilters.status).join(', ') || 'Все'}\r\n• Районы (общие): ${Array.from(activeFilters.district).join(', ') || 'Все'}\r\n• Этажность: ${activeFilters.floors.min || 'мин'} - ${activeFilters.floors.max || 'макс'}\r\n• Квартир в подъезде: ${activeFilters.flatsPerEntrance.min || 'мин'} - ${activeFilters.flatsPerEntrance.max || 'макс'}\r\n• Процентный отбор: ${currentPercentage}%\r\n`;
+                let report = `ОТЧЁТ ПО СТЕНДАМ У ДОМОФОНОВ\r\nДата: ${dateStr}\r\n========================================\r\n\r\n`;
+                report += `СТАТИСТИКА:\r\n• Выбрано ${this.getObjectsText(selected.length)}: ${selected.length}\r\n• Всего ${this.getStandsText(totalStands)}: ${totalStands}\r\n• Всего ${this.getFlatsText(totalFlats)}: ${totalFlats}\r\n`;
+                if (totalStands >= 100) {
+                    report += `• Стоимость в месяц: ${Utils.formatPrice(totalPrice)}\r\n`;
+                    if (totalFlats > 0) report += `• Стоимость на квартиру: ${Utils.formatPrice(totalPrice / totalFlats)}\r\n`;
+                } else report += `• Стоимость: требуется больше зданий для расчёта\r\n`;
+                report += `\r\nПАРАМЕТРЫ ФИЛЬТРАЦИИ:\r\n• Статусы: ${Array.from(activeFilters.status).join(', ') || 'Все'}\r\n• Районы (общие): ${Array.from(activeFilters.district).join(', ') || 'Все'}\r\n• Этажность: ${activeFilters.floors.min || 'мин'} - ${activeFilters.floors.max || 'макс'}\r\n• Квартир в подъезде: ${activeFilters.flatsPerEntrance.min || 'мин'} - ${activeFilters.flatsPerEntrance.max || 'макс'}\r\n• Процентный отбор: ${currentPercentage}%\r\n`;
 
-				report += `\nРАЙОННЫЕ ФИЛЬТРЫ (подробно):\n`;
-				const districtKeys = Object.keys(districtFilters);
-				if (districtKeys.length) {
-					districtKeys.forEach(d => {
-						const df = districtFilters[d];
-						report += `• ${d}: ${df.enabled ? '✅ включен' : '❌ выключен'} | этажи: ${df.floors.min}–${df.floors.max} | кв/под: ${df.flatsPerEntrance.min}–${df.flatsPerEntrance.max}\n`;
-					});
-				} else {
-					report += `• нет фильтров по районам\n`;
-				}
+                report += `\nРАЙОННЫЕ ФИЛЬТРЫ (подробно):\n`;
+                const districtKeys = Object.keys(districtFilters);
+                if (districtKeys.length) {
+                    districtKeys.forEach(d => {
+                        const df = districtFilters[d];
+                        report += `• ${d}: ${df.enabled ? '✅ включен' : '❌ выключен'} | этажи: ${df.floors.min}–${df.floors.max} | кв/под: ${df.flatsPerEntrance.min}–${df.flatsPerEntrance.max}\n`;
+                    });
+                } else {
+                    report += `• нет фильтров по районам\n`;
+                }
 
-				const syncFloors = document.getElementById('sync-floors')?.checked ? 'включена' : 'выключена';
-				const syncFlats = document.getElementById('sync-flats')?.checked ? 'включена' : 'выключена';
-				report += `\nСИНХРОНИЗАЦИЯ:\n`;
-				report += `• Синхронизация этажей: ${syncFloors}\n`;
-				report += `• Синхронизация кв/подъезд: ${syncFlats}\n`;
+                const syncFloors = document.getElementById('sync-floors')?.checked ? 'включена' : 'выключена';
+                const syncFlats = document.getElementById('sync-flats')?.checked ? 'включена' : 'выключена';
+                report += `\nСИНХРОНИЗАЦИЯ:\n`;
+                report += `• Синхронизация этажей: ${syncFloors}\n`;
+                report += `• Синхронизация кв/подъезд: ${syncFlats}\n`;
 
-				report += `\r\nСПИСОК АДРЕСОВ:\r\n`;
-				selected.forEach((b,i) => {
-					const shortDistrict = Utils.shortenDistrictName(b.district);
-					const statusIcon = b.status === 'Свободно' ? '🟢' : '🔴';
-					report += `${i+1}. ${statusIcon} ${b.address} | ${shortDistrict} | ${b.status} | ${b.entrances} ${this.getStandsText(b.entrances)} | ${b.flats} ${this.getFlatsText(b.flats)}\r\n`;
-				});
-				const shareableURL = StateModule.generateShareableURL();
-				report += `\r\n\r\n🔗 ВРЕМЕННАЯ ССЫЛКА НА НАСТРОЙКИ:\r\n${shareableURL || 'Не удалось сгенерировать'}\r\n\r\n⚠️ Ссылка временная, актуальна пока данные не обновлены.\r\n`;
-				report += `\r\nПРИМЕЧАНИЕ:\r\n• Минимум для расчёта: 100 стендов\r\n• Отчёт сформирован автоматически в PR МАРКЕТ Рязань`;
-				return report;
-			},
+                report += `\r\nСПИСОК АДРЕСОВ:\r\n`;
+                selected.forEach((b,i) => {
+                    const shortDistrict = Utils.shortenDistrictName(b.district);
+                    const statusIcon = b.status === 'Свободно' ? '🟢' : '🔴';
+                    report += `${i+1}. ${statusIcon} ${b.address} | ${shortDistrict} | ${b.status} | ${b.entrances} ${this.getStandsText(b.entrances)} | ${b.flats} ${this.getFlatsText(b.flats)}\r\n`;
+                });
+                const shareableURL = StateModule.generateShareableURL();
+                report += `\r\n\r\n🔗 ВРЕМЕННАЯ ССЫЛКА НА НАСТРОЙКИ:\r\n${shareableURL || 'Не удалось сгенерировать'}\r\n\r\n⚠️ Ссылка временная, актуальна пока данные не обновлены.\r\n`;
+                report += `\r\nПРИМЕЧАНИЕ:\r\n• Минимум для расчёта: 100 стендов\r\n• Отчёт сформирован автоматически в PR МАРКЕТ Рязань`;
+                return report;
+            },
 
-			// ----- CSV-ВЕРСИЯ С ШАПКОЙ (с \t) -----
-			generateReportCSV() {
-				// Собираем данные
-				const filtered = allBuildings.filter(building => {
-					if (hiddenBuildings.has(building.originalIndex)) return false;
-					if (activeFilters.status.size && !activeFilters.status.has(building.status)) return false;
-					const district = building.district;
-					if (district && districtFilters[district]) {
-						const df = districtFilters[district];
-						if (!df.enabled) return false;
-						if (building.floors < df.floors.min || building.floors > df.floors.max) return false;
-						if (building.flatsPerEntrance < df.flatsPerEntrance.min || building.flatsPerEntrance > df.flatsPerEntrance.max) return false;
-					} else {
-						if (activeFilters.floors.min !== null && building.floors < activeFilters.floors.min) return false;
-						if (activeFilters.floors.max !== null && building.floors > activeFilters.floors.max) return false;
-						if (activeFilters.flatsPerEntrance.min !== null && building.flatsPerEntrance < activeFilters.flatsPerEntrance.min) return false;
-						if (activeFilters.flatsPerEntrance.max !== null && building.flatsPerEntrance > activeFilters.flatsPerEntrance.max) return false;
-					}
-					return true;
-				});
-				const selected = FilterModule.selectByPercentage(filtered, currentPercentage);
-				const now = new Date();
-				const dateStr = now.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-				const totalStands = selected.reduce((s,b) => s + (b.entrances||0), 0);
-				const totalFlats = selected.reduce((s,b) => s + (b.flats||0), 0);
-				let totalPrice = null;
-				if (totalStands >= 100) {
-					if (totalStands <= 299) totalPrice = totalStands * 160;
-					else if (totalStands <= 499) totalPrice = totalStands * 140;
-					else totalPrice = totalStands * 120;
-				}
-				const perFlatPrice = totalPrice && totalFlats > 0 ? totalPrice / totalFlats : null;
+            generateReportCSV() {
+                const filtered = allBuildings.filter(building => {
+                    if (hiddenBuildings.has(building.originalIndex)) return false;
+                    if (activeFilters.status.size && !activeFilters.status.has(building.status)) return false;
+                    const district = building.district;
+                    if (district && districtFilters[district]) {
+                        const df = districtFilters[district];
+                        if (!df.enabled) return false;
+                        if (building.floors < df.floors.min || building.floors > df.floors.max) return false;
+                        if (building.flatsPerEntrance < df.flatsPerEntrance.min || building.flatsPerEntrance > df.flatsPerEntrance.max) return false;
+                    } else {
+                        if (activeFilters.floors.min !== null && building.floors < activeFilters.floors.min) return false;
+                        if (activeFilters.floors.max !== null && building.floors > activeFilters.floors.max) return false;
+                        if (activeFilters.flatsPerEntrance.min !== null && building.flatsPerEntrance < activeFilters.flatsPerEntrance.min) return false;
+                        if (activeFilters.flatsPerEntrance.max !== null && building.flatsPerEntrance > activeFilters.flatsPerEntrance.max) return false;
+                    }
+                    return true;
+                });
+                const selected = FilterModule.selectByPercentage(filtered, currentPercentage);
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+                const totalStands = selected.reduce((s,b) => s + (b.entrances||0), 0);
+                const totalFlats = selected.reduce((s,b) => s + (b.flats||0), 0);
+                let totalPrice = null;
+                if (totalStands >= 100) {
+                    if (totalStands <= 299) totalPrice = totalStands * 160;
+                    else if (totalStands <= 499) totalPrice = totalStands * 140;
+                    else totalPrice = totalStands * 120;
+                }
+                const perFlatPrice = totalPrice && totalFlats > 0 ? totalPrice / totalFlats : null;
 
-				// Формируем строки CSV (каждая строка – массив значений, объединяем через \t)
-				const rows = [];
+                const rows = [];
+                rows.push(['ОТЧЁТ ПО СТЕНДАМ У ДОМОФОНОВ']);
+                rows.push(['Дата: ' + dateStr]);
+                rows.push([]);
+                rows.push([]);
 
-				// ---- ШАПКА ----
-				rows.push(['ОТЧЁТ ПО СТЕНДАМ У ДОМОФОНОВ']);        // только первая колонка
-				rows.push(['Дата: ' + dateStr]);                    // только первая колонка
-				rows.push([]); // пустая строка-разделитель
-				rows.push([]); // пустая строка-разделитель
+                rows.push(['Выбрано объекта', selected.length]);
+                rows.push(['Всего стендов', totalStands]);
+                rows.push(['Всего кв.', totalFlats]);
+                rows.push(['Стоимость в месяц', totalPrice ? Utils.formatPrice(totalPrice) : '—']);
+                rows.push(['Стоимость за квартиру', perFlatPrice ? Utils.formatPrice(perFlatPrice) : '—']);
+                rows.push([]);
+                rows.push([]);
+                rows.push(['Статусы', Array.from(activeFilters.status).join(', ') || 'Все']);
+                rows.push(['Районы (общие)', Array.from(activeFilters.district).join(', ') || 'Все']);
+                rows.push(['Этажность', `${activeFilters.floors.min || 'мин'} - ${activeFilters.floors.max || 'макс'}`]);
+                rows.push(['Квартир в подъезде', `${activeFilters.flatsPerEntrance.min || 'мин'} - ${activeFilters.flatsPerEntrance.max || 'макс'}`]);
+                rows.push(['Процентный отбор', `${currentPercentage}%`]);
+                rows.push([]);
+                rows.push([]);
+                const districtKeys = Object.keys(districtFilters);
+                if (districtKeys.length) {
+                    rows.push(['Районные фильтры (подробно)']);
+                    rows.push(['Район', 'Включен', 'Этажи мин', 'Этажи макс', 'Кв/под мин', 'Кв/под макс']);
+                    districtKeys.forEach(d => {
+                        const df = districtFilters[d];
+                        rows.push([
+                            d,
+                            df.enabled ? 'включен' : 'выключен',
+                            df.floors.min,
+                            df.floors.max,
+                            df.flatsPerEntrance.min,
+                            df.flatsPerEntrance.max
+                        ]);
+                    });
+                }
+                rows.push([]);
+                rows.push([]);
+                const syncFloors = document.getElementById('sync-floors')?.checked ? 'включена' : 'выключена';
+                const syncFlats = document.getElementById('sync-flats')?.checked ? 'включена' : 'выключена';
+                rows.push(['Синхронизация этажей', syncFloors]);
+                rows.push(['Синхронизация кв/подъезд', syncFlats]);
+                rows.push([]);
+                rows.push([]);
+                if (selected.length) {
+                    rows.push(['Список адресов']);
+                    rows.push(['Адрес', 'Район', 'Статус', 'Стендов', 'Квартир']);
+                    selected.forEach(b => {
+                        rows.push([
+                            b.address,
+                            Utils.shortenDistrictName(b.district),
+                            b.status,
+                            b.entrances,
+                            b.flats
+                        ]);
+                    });
+                }
+                rows.push([]);
+                rows.push([]);
+                const shareableURL = StateModule.generateShareableURL();
+                rows.push(['Временная ссылка на настройки', shareableURL || 'Не удалось сгенерировать']);
+                rows.push([]);
+                rows.push([]);
+                rows.push(['Примечание', 'Минимум для расчёта: 100 стендов; Отчёт сформирован автоматически в PR МАРКЕТ Рязань']);
+                rows.push([]);
+                rows.push([]);
+                return rows.map(row => row.join('\t')).join('\n');
+            },
 
-				// ---- ДАННЫЕ ----
-				// 1. Статистика
-				rows.push(['Выбрано объекта', selected.length]);
-				rows.push(['Всего стендов', totalStands]);
-				rows.push(['Всего кв.', totalFlats]);
-				rows.push(['Стоимость в месяц', totalPrice ? Utils.formatPrice(totalPrice) : '—']);
-				rows.push(['Стоимость за квартиру', perFlatPrice ? Utils.formatPrice(perFlatPrice) : '—']);
-				rows.push([]); // пустая строка-разделитель
-				rows.push([]); // пустая строка-разделитель
-				// 2. Параметры фильтрации
-				rows.push(['Статусы', Array.from(activeFilters.status).join(', ') || 'Все']);
-				rows.push(['Районы (общие)', Array.from(activeFilters.district).join(', ') || 'Все']);
-				rows.push(['Этажность', `${activeFilters.floors.min || 'мин'} - ${activeFilters.floors.max || 'макс'}`]);
-				rows.push(['Квартир в подъезде', `${activeFilters.flatsPerEntrance.min || 'мин'} - ${activeFilters.flatsPerEntrance.max || 'макс'}`]);
-				rows.push(['Процентный отбор', `${currentPercentage}%`]);
-				rows.push([]); // пустая строка-разделитель
-				rows.push([]); // пустая строка-разделитель
-				// 3. Районные фильтры (таблица)
-				const districtKeys = Object.keys(districtFilters);
-				if (districtKeys.length) {
-					rows.push(['Районные фильтры (подробно)']); // заголовок секции
-					rows.push(['Район', 'Включен', 'Этажи мин', 'Этажи макс', 'Кв/под мин', 'Кв/под макс']);
-					districtKeys.forEach(d => {
-						const df = districtFilters[d];
-						rows.push([
-							d,
-							df.enabled ? 'включен' : 'выключен',
-							df.floors.min,
-							df.floors.max,
-							df.flatsPerEntrance.min,
-							df.flatsPerEntrance.max
-						]);
-					});
-				}
-				rows.push([]); // пустая строка-разделитель
-				rows.push([]); // пустая строка-разделитель
-				// 4. Синхронизация
-				const syncFloors = document.getElementById('sync-floors')?.checked ? 'включена' : 'выключена';
-				const syncFlats = document.getElementById('sync-flats')?.checked ? 'включена' : 'выключена';
-				rows.push(['Синхронизация этажей', syncFloors]);
-				rows.push(['Синхронизация кв/подъезд', syncFlats]);
-				rows.push([]); // пустая строка-разделитель
-				rows.push([]); // пустая строка-разделитель
-				// 5. Список адресов (таблица)
-				if (selected.length) {
-					rows.push(['Список адресов']);
-					rows.push(['Адрес', 'Район', 'Статус', 'Стендов', 'Квартир']);
-					selected.forEach(b => {
-						rows.push([
-							b.address,
-							Utils.shortenDistrictName(b.district),
-							b.status,
-							b.entrances,
-							b.flats
-						]);
-					});
-				}
-				rows.push([]); // пустая строка-разделитель
-				rows.push([]); // пустая строка-разделитель
-				// 6. Временная ссылка
-				const shareableURL = StateModule.generateShareableURL();
-				rows.push(['Временная ссылка на настройки', shareableURL || 'Не удалось сгенерировать']);
-				rows.push([]); // пустая строка-разделитель
-				rows.push([]); // пустая строка-разделитель
-				// 7. Примечание
-				rows.push(['Примечание', 'Минимум для расчёта: 100 стендов; Отчёт сформирован автоматически в PR МАРКЕТ Рязань']);
-				rows.push([]); // пустая строка-разделитель
-				rows.push([]); // пустая строка-разделитель
-				// Преобразуем массив строк в строку с разделителями \t и \n
-				return rows.map(row => row.join('\t')).join('\n');
-			},
+            showReportModal() {
+                if (isGeneratingReport) return;
+                isGeneratingReport = true;
+                try {
+                    this.currentReportText = this.generateReportText();
+                    this.currentReportCSV = this.generateReportCSV();
+                    document.getElementById('report-textarea').value = this.currentReportText.replace(/\r\n/g, '\n');
+                    this.updateShareButtonsUI();
+                    document.getElementById('report-modal').classList.add('active');
+                    setTimeout(() => {
+                        document.getElementById('report-textarea').focus();
+                        document.getElementById('report-textarea').select();
+                    }, 300);
+                } catch(e) {
+                    console.error(e);
+                    Utils.showNotification('Ошибка формирования отчёта', 'error');
+                } finally {
+                    setTimeout(() => { isGeneratingReport = false; }, 1000);
+                }
+            },
 
-			// ----- ПОКАЗ МОДАЛЬНОГО ОКНА -----
-			showReportModal() {
-				if (isGeneratingReport) return;
-				isGeneratingReport = true;
-				try {
-					this.currentReportText = this.generateReportText();
-					this.currentReportCSV = this.generateReportCSV();
-					document.getElementById('report-textarea').value = this.currentReportText.replace(/\r\n/g, '\n');
-					this.updateShareButtonsUI();
-					document.getElementById('report-modal').classList.add('active');
-					setTimeout(() => {
-						document.getElementById('report-textarea').focus();
-						document.getElementById('report-textarea').select();
-					}, 300);
-				} catch(e) {
-					console.error(e);
-					Utils.showNotification('Ошибка формирования отчёта', 'error');
-				} finally {
-					setTimeout(() => { isGeneratingReport = false; }, 1000);
-				}
-			},
+            updateShareButtonsUI() {
+                const shareActions = document.getElementById('report-share-actions');
+                if (!shareActions) return;
+                const hasTelegram = contacts.telegram && contacts.telegram.trim() !== '';
+                if (hasTelegram) {
+                    shareActions.style.display = 'grid';
+                    const telBtn = document.getElementById('report-telegram-btn');
+                    if (telBtn) {
+                        telBtn.style.display = 'flex';
+                        telBtn.onclick = function(e) {
+                            e.stopPropagation();
+                            ReportModule.shareViaTelegram();
+                        };
+                    }
+                } else {
+                    shareActions.style.display = 'none';
+                }
+            },
 
-			// ----- ОБНОВЛЕНИЕ КНОПОК ОТПРАВКИ -----
-			updateShareButtonsUI() {
-				const shareActions = document.getElementById('report-share-actions');
-				if (!shareActions) return;
-				const hasTelegram = contacts.telegram && contacts.telegram.trim() !== '';
-				const hasEmail = contacts.email && contacts.email.trim() !== '';
-				if (hasTelegram || hasEmail) {
-					shareActions.style.display = 'grid';
-					const telBtn = document.getElementById('report-telegram-btn');
-					const emailBtn = document.getElementById('report-email-btn');
-					if (telBtn) {
-						telBtn.style.display = hasTelegram ? 'flex' : 'none';
-						// Назначаем обработчик напрямую через onclick
-						telBtn.onclick = function(e) {
-							e.stopPropagation();
-							ReportModule.shareViaTelegram();
-						};
-					}
-					if (emailBtn) {
-						emailBtn.style.display = hasEmail ? 'flex' : 'none';
-						// Назначаем обработчик напрямую через onclick
-						emailBtn.onclick = function(e) {
-							e.stopPropagation();
-							ReportModule.shareViaEmail();
-						};
-					}
-				} else {
-					shareActions.style.display = 'none';
-				}
-			},
-			// ----- КОПИРОВАНИЕ (CSV) -----
-			async copyToClipboard() {
-				const text = this.currentReportCSV || this.generateReportCSV();
-				try {
-					if (navigator.clipboard && window.isSecureContext) {
-						await navigator.clipboard.writeText(text);
-						Utils.showNotification('Отчёт скопирован (CSV)', 'success');
-						return;
-					}
-				} catch(e) {}
-				try {
-					const ta = document.createElement('textarea');
-					ta.value = text;
-					ta.style.position = 'fixed';
-					ta.style.left = '-999999px';
-					ta.style.top = '-999999px';
-					document.body.appendChild(ta);
-					ta.focus();
-					ta.select();
-					document.execCommand('copy');
-					document.body.removeChild(ta);
-					Utils.showNotification('Отчёт скопирован (CSV)', 'success');
-				} catch(e) {
-					Utils.showNotification('Ошибка копирования', 'error');
-				}
-			},
+            async copyToClipboard() {
+                const text = this.currentReportCSV || this.generateReportCSV();
+                try {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(text);
+                        Utils.showNotification('Отчёт скопирован (CSV)', 'success');
+                        return;
+                    }
+                } catch(e) {}
+                try {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.left = '-999999px';
+                    ta.style.top = '-999999px';
+                    document.body.appendChild(ta);
+                    ta.focus();
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    Utils.showNotification('Отчёт скопирован (CSV)', 'success');
+                } catch(e) {
+                    Utils.showNotification('Ошибка копирования', 'error');
+                }
+            },
 
-			// ----- СКАЧИВАНИЕ (CSV) -----
-			downloadReport() {
-				const text = this.currentReportCSV || this.generateReportCSV();
-				if (!text) {
-					Utils.showNotification('Нет данных', 'error');
-					return;
-				}
-				const now = new Date();
-				const filename = `otchet-stendy-${now.toISOString().slice(0,10).replace(/-/g,'')}_${now.toTimeString().slice(0,8).replace(/:/g,'')}.csv`;
-				const blob = new Blob([text], { type: 'text/csv;charset=utf-8' });
-				const url = URL.createObjectURL(blob);
-				const a = document.createElement('a');
-				a.href = url;
-				a.download = filename;
-				a.style.display = 'none';
-				document.body.appendChild(a);
-				a.click();
-				setTimeout(() => {
-					document.body.removeChild(a);
-					URL.revokeObjectURL(url);
-					Utils.showNotification('Отчёт скачан (CSV)', 'success');
-				}, 100);
-			},
+            downloadReport() {
+                const text = this.currentReportCSV || this.generateReportCSV();
+                if (!text) {
+                    Utils.showNotification('Нет данных', 'error');
+                    return;
+                }
+                const now = new Date();
+                const filename = `otchet-stendy-${now.toISOString().slice(0,10).replace(/-/g,'')}_${now.toTimeString().slice(0,8).replace(/:/g,'')}.csv`;
+                const blob = new Blob([text], { type: 'text/csv;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    Utils.showNotification('Отчёт скачан (CSV)', 'success');
+                }, 100);
+            },
 
-			// ----- ОТПРАВКА В TELEGRAM (используем текстовую версию) -----
-			shareViaTelegram() {
-				if (!contacts.telegram) {
-					Utils.showNotification('Telegram контакт не найден', 'error');
-					return;
-				}
-				const url = StateModule.generateShareableURL();
-				if (!url) {
-					Utils.showNotification('Не удалось создать ссылку', 'error');
-					return;
-				}
-				const username = this.extractTelegramUsername(contacts.telegram);
-				if (!username) {
-					Utils.showNotification('Не удалось распознать Telegram username', 'error');
-					return;
-				}
-				const message = `Отчёт по стендам у домофонов\n\n🔗 Ссылка на текущие настройки и фильтры:\n${url}\n\n⚠️ Ссылка временная.`;
-				window.open(`https://t.me/${username}?text=${encodeURIComponent(message)}`, '_blank');
-				Utils.showNotification(`Открываю чат с @${username}...`, 'info');
-			},
+            shareViaTelegram() {
+                if (!contacts.telegram) {
+                    Utils.showNotification('Telegram контакт не найден', 'error');
+                    return;
+                }
+                const url = StateModule.generateShareableURL();
+                if (!url) {
+                    Utils.showNotification('Не удалось создать ссылку', 'error');
+                    return;
+                }
+                const username = this.extractTelegramUsername(contacts.telegram);
+                if (!username) {
+                    Utils.showNotification('Не удалось распознать Telegram username', 'error');
+                    return;
+                }
+                const message = `Отчёт по стендам у домофонов\n\n🔗 Ссылка на текущие настройки и фильтры:\n${url}\n\n⚠️ Ссылка временная.`;
+                window.open(`https://t.me/${username}?text=${encodeURIComponent(message)}`, '_blank');
+                Utils.showNotification(`Открываю чат с @${username}...`, 'info');
+            },
 
-			extractTelegramUsername(input) {
-				if (!input || typeof input !== 'string') return null;
-				const match = input.trim().match(/(?:https?:\/\/)?(?:t\.me\/|@)?([a-zA-Z0-9_]+)/);
-				return match ? match[1] : null;
-			},
+            extractTelegramUsername(input) {
+                if (!input || typeof input !== 'string') return null;
+                const match = input.trim().match(/(?:https?:\/\/)?(?:t\.me\/|@)?([a-zA-Z0-9_]+)/);
+                return match ? match[1] : null;
+            }
+        };
 
-			// ----- ОТПРАВКА ПО EMAIL (используем текстовую версию) -----
-shareViaEmail() {
-    console.log('📧 email в момент вызова:', JSON.stringify(contacts.email));
-    if (!contacts || !contacts.email) {
-        Utils.showNotification('❌ Email не найден', 'error');
-        return;
-    }
-    const url = StateModule.generateShareableURL();
-    if (!url) {
-        Utils.showNotification('Не удалось создать ссылку', 'error');
-        return;
-    }
-    const mailto = `mailto:${contacts.email.trim()}?subject=${encodeURIComponent('Отчёт по стендам')}&body=${encodeURIComponent('Ссылка: ' + url)}`;
-    console.log('🔥 Переход по mailto:', mailto);
-    
-    // Создаём ссылку и кликаем
-    const a = document.createElement('a');
-    a.href = mailto;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    // Удаляем ссылку через 100 мс
-    setTimeout(() => {
-        document.body.removeChild(a);
-    }, 100);
-    
-    // Закрываем модалку через 500 мс
-    setTimeout(() => {
-        document.getElementById('report-modal').classList.remove('active');
-    }, 500);
-    
-    Utils.showNotification('📧 Открываю почтовый клиент...', 'info');
-}
-		};
         // ============================================================================
         // ПОЛНОЭКРАННЫЙ РЕЖИМ (без изменений)
         // ============================================================================
@@ -3200,7 +3131,7 @@ shareViaEmail() {
         };
 
         // ============================================================================
-        // СОСТОЯНИЕ (URL) – без изменений
+        // СОСТОЯНИЕ (URL)
         // ============================================================================
         const StateModule = {
             currentDataHash: null,
@@ -3543,7 +3474,7 @@ shareViaEmail() {
         }
 
         // ============================================================================
-        // ОБНОВЛЁННАЯ ФУНКЦИЯ setupResponsive (с visualViewport и ResizeObserver)
+        // ОБНОВЛЁННАЯ ФУНКЦИЯ setupResponsive
         // ============================================================================
         function setupResponsive() {
             let resizeTimeout;
