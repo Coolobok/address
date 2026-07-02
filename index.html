@@ -3084,27 +3084,40 @@
 			},
 
 			// ----- ОТПРАВКА ПО EMAIL (используем текстовую версию) -----
-			shareViaEmail() {
-				if (!contacts.email) {
-					Utils.showNotification('Email не найден', 'error');
-					return;
-				}
-				const url = StateModule.generateShareableURL();
-				if (!url) {
-					Utils.showNotification('Не удалось создать ссылку', 'error');
-					return;
-				}
-				const subject = `Отчёт по стендам у домофонов (${new Date().toLocaleDateString('ru-RU')})`;
-				const body = `Отчёт по стендам у домофонов\n\n🔗 Ссылка на текущие настройки и фильтры:\n${url}\n\n⚠️ Ссылка временная.\n\n---\nPR МАРКЕТ Рязань`;
-				const mailto = `mailto:${contacts.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-				// Закрываем модалку
-				document.getElementById('report-modal').classList.remove('active');
-
-				// Открываем почтовый клиент (на сервере должно работать)
-				window.location.href = mailto;
-				Utils.showNotification('Открываю почтовый клиент...', 'info');
-			}
+shareViaEmail() {
+    console.log('📧 email в момент вызова:', JSON.stringify(contacts.email));
+    if (!contacts || !contacts.email) {
+        Utils.showNotification('❌ Email не найден', 'error');
+        return;
+    }
+    const url = StateModule.generateShareableURL();
+    if (!url) {
+        Utils.showNotification('Не удалось создать ссылку', 'error');
+        return;
+    }
+    const mailto = `mailto:${contacts.email.trim()}?subject=${encodeURIComponent('Отчёт по стендам')}&body=${encodeURIComponent('Ссылка: ' + url)}`;
+    console.log('🔥 Переход по mailto:', mailto);
+    
+    // Создаём ссылку и кликаем
+    const a = document.createElement('a');
+    a.href = mailto;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    // Удаляем ссылку через 100 мс
+    setTimeout(() => {
+        document.body.removeChild(a);
+    }, 100);
+    
+    // Закрываем модалку через 500 мс
+    setTimeout(() => {
+        document.getElementById('report-modal').classList.remove('active');
+    }, 500);
+    
+    Utils.showNotification('📧 Открываю почтовый клиент...', 'info');
+}
 		};
         // ============================================================================
         // ПОЛНОЭКРАННЫЙ РЕЖИМ (без изменений)
