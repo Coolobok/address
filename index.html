@@ -374,7 +374,7 @@
         .district-filter-block{border:1px solid var(--color-border);border-radius:var(--radius-md);padding:.75rem;margin-bottom:.75rem;background:var(--color-surface);display:flex;flex-direction:column;gap:.25rem;transition:opacity .2s,filter .2s}.district-filter-block.disabled{opacity:.5;filter:grayscale(.5);pointer-events:none}.district-filter-block.disabled .thumb{pointer-events:none}.district-filter-block .district-header{display:flex;align-items:center;justify-content:space-between;gap:.5rem}.district-filter-block .district-name-wrap{display:flex;align-items:center;gap:.5rem;flex:1;min-width:0}.district-filter-block .district-name{font-weight:600;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.district-filter-block .district-stats{font-size:.8rem;color:var(--color-secondary);white-space:nowrap;display:flex;align-items:center;gap:.3rem;flex-shrink:0}.district-filter-block .district-stats i{margin-right:.2rem}.district-filter-block .district-stats .total-stands{font-weight:600;color:var(--brand-color)}.district-filter-block .district-stats .selected-stands{font-weight:600;color:var(--color-free)}.district-filter-block .district-enable{flex-shrink:0;width:1rem;height:1rem;accent-color:var(--brand-color);cursor:pointer;pointer-events:auto}.district-filter-block .range-slider-container{margin-bottom:.25rem}.district-filter-block .range-slider-container .slider-label{font-size:.8rem;color:var(--color-secondary);display:flex;justify-content:space-between;padding:0 .25rem}.district-filter-block .range-slider-container .slider-label span:first-child{font-weight:500;color:var(--brand-dark)}.district-filter-block .range-slider-container .slider-label span:last-child{font-weight:500;color:var(--brand-dark)}.district-filter-block .range-slider-container .slider-label .label-text{color:var(--color-secondary);font-weight:400}
         .range-values-display{display:none}
         .district-filter-block-mobile{border:1px solid var(--color-border);border-radius:var(--radius-md);padding:.75rem;margin-bottom:.75rem;background:var(--color-surface);display:flex;flex-direction:column;gap:.25rem;transition:opacity .2s,filter .2s}.district-filter-block-mobile.disabled{opacity:.5;filter:grayscale(.5);pointer-events:none}.district-filter-block-mobile.disabled .thumb{pointer-events:none}.district-filter-block-mobile .district-header{display:flex;align-items:center;justify-content:space-between;gap:.5rem}.district-filter-block-mobile .district-name-wrap{display:flex;align-items:center;gap:.5rem;flex:1;min-width:0}.district-filter-block-mobile .district-name{font-weight:600;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.district-filter-block-mobile .district-stats{font-size:.8rem;color:var(--color-secondary);white-space:nowrap;display:flex;align-items:center;gap:.3rem;flex-shrink:0}.district-filter-block-mobile .district-stats i{margin-right:.2rem}.district-filter-block-mobile .district-stats .total-stands{font-weight:600;color:var(--brand-color)}.district-filter-block-mobile .district-stats .selected-stands{font-weight:600;color:var(--color-free)}.district-filter-block-mobile .district-enable{flex-shrink:0;width:1rem;height:1rem;accent-color:var(--brand-color);cursor:pointer;pointer-events:auto}.district-filter-block-mobile .range-slider-container{margin-bottom:.25rem}.district-filter-block-mobile .range-slider-container .slider-label{font-size:.8rem;color:var(--color-secondary);display:flex;justify-content:space-between;padding:0 .25rem}.district-filter-block-mobile .range-slider-container .slider-label span:first-child{font-weight:500;color:var(--brand-dark)}.district-filter-block-mobile .range-slider-container .slider-label span:last-child{font-weight:500;color:var(--brand-dark)}.district-filter-block-mobile .range-slider-container .slider-label .label-text{color:var(--color-secondary);font-weight:400}
-    </style>
+	</style>
 </head>
 <body>
     <div id="loading-overlay">
@@ -538,22 +538,11 @@
 
     <script>
         // ================================================================
-        // ЛОГГЕР (закомментирован для публикации)
+        // ЛОГГЕР (ОТКЛЮЧЕН)
         // ================================================================
-        // function log(category, message, data) {
-        //     const prefix = `[${category}]`;
-        //     if (data !== undefined) {
-        //         console.log(`${prefix} ${message}`, data);
-        //     } else {
-        //         console.log(`${prefix} ${message}`);
-        //     }
-        // }
-        // function logError(category, message, error) {
-        //     console.error(`[${category}] ${message}`, error || '');
-        // }
-        // function logWarn(category, message, data) {
-        //     console.warn(`[${category}] ${message}`, data || '');
-        // }
+        function log(category, message, data) {}
+        function logError(category, message, error) {}
+        function logWarn(category, message, data) {}
 
         // ================================================================
         // КОНФИГУРАЦИЯ И ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
@@ -665,7 +654,6 @@
                 }
             },
             setMobileView(view) {
-                // log('UI', `setMobileView -> ${view} (was ${currentView})`);
                 if (!isMobile) return;
                 if (currentView === view && view !== 'map') view = 'map';
                 currentView = view;
@@ -714,7 +702,6 @@
                 }
             },
             setDesktopTab(tab) {
-                // log('UI', `setDesktopTab -> ${tab} (was ${currentDesktopTab})`);
                 currentDesktopTab = tab;
                 document.querySelectorAll('.sidebar-tab').forEach(el => {
                     el.classList.toggle('active', el.dataset.tab === tab);
@@ -817,7 +804,6 @@
         // ================================================================
         const DataModule = {
             async loadData() {
-                // log('Data', 'Начинаем загрузку данных из Google Sheets');
                 return new Promise((resolve, reject) => {
                     const { SHEET_ID, SHEET_NAME } = CONFIG.GOOGLE_SHEETS;
                     const callbackName = `handleSheetData_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -827,11 +813,9 @@
                             delete window[callbackName];
                             document.getElementById('jsonp-script')?.remove();
                             const data = this.parseGoogleSheetsResponse(response);
-                            // log('Data', `Данные загружены, количество зданий: ${data.length}`);
                             Utils.showNotification(`Загружено зданий: ${data.length}`, 'success');
                             resolve(data);
                         } catch (error) {
-                            // logError('Data', 'Ошибка обработки данных', error);
                             Utils.showNotification('Ошибка обработки данных', 'error');
                             reject(error);
                         }
@@ -841,16 +825,13 @@
                     script.src = url;
                     script.onerror = () => { 
                         script.remove(); 
-                        // logError('Data', 'Ошибка загрузки данных (script onerror)');
                         Utils.showNotification('Ошибка загрузки данных', 'error'); 
                         reject(new Error('Ошибка загрузки данных')); 
                     };
                     document.head.appendChild(script);
-                    // log('Data', 'JSONP скрипт добавлен в head');
                 });
             },
             async loadContacts() {
-                // log('Data', 'Начинаем загрузку контактов из Google Sheets');
                 return new Promise((resolve) => {
                     const { SHEET_ID, CONTACTS_SHEET_NAME } = CONFIG.GOOGLE_SHEETS;
                     const callbackName = `handleContactsData_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -860,16 +841,13 @@
                             delete window[callbackName];
                             document.getElementById('jsonp-contacts-script')?.remove();
                             const data = this.parseContactsResponse(response);
-                            // log('Data', 'Контакты загружены', data);
                             if (!data.telegram && !data.email) {
-                                // logWarn('Data', 'Контакты не найдены в таблице');
                                 Utils.showNotification('Контакты не найдены в таблице', 'warning');
                             } else {
                                 Utils.showNotification('Контакты загружены', 'success');
                             }
                             resolve(data);
                         } catch (error) {
-                            // logError('Data', 'Ошибка обработки контактов', error);
                             resolve({ telegram: null, email: null });
                         }
                     }.bind(this);
@@ -878,14 +856,12 @@
                     script.src = url;
                     script.onerror = () => { 
                         script.remove(); 
-                        // logWarn('Data', 'Не удалось загрузить контакты из Google Sheets (script onerror)');
                         resolve({ telegram: null, email: null }); 
                     };
                     document.head.appendChild(script);
                 });
             },
             parseGoogleSheetsResponse(response) {
-                // log('Data', 'Парсинг ответа Google Sheets');
                 try {
                     const rows = response.table.rows || [];
                     const buildings = [];
@@ -928,15 +904,12 @@
 
                     availableValues.floors = Array.from(floorsSet).sort((a,b) => a-b);
                     availableValues.flatsPerEntrance = Array.from(flatsSet).sort((a,b) => a-b);
-                    // log('Data', `Парсинг завершён: ${buildings.length} зданий, этажей: ${availableValues.floors.length}, кв/под: ${availableValues.flatsPerEntrance.length}`);
                     return buildings;
                 } catch (error) {
-                    // logError('Data', 'Ошибка в parseGoogleSheetsResponse', error);
                     throw error;
                 }
             },
             parseContactsResponse(response) {
-                // log('Data', 'Парсинг контактов');
                 try {
                     const rows = response.table.rows || [];
                     const contactsData = { telegram: null, email: null };
@@ -954,10 +927,8 @@
                             }
                         }
                     });
-                    // log('Data', 'Контакты распарсены', contactsData);
                     return contactsData;
                 } catch (error) {
-                    // logError('Data', 'Ошибка парсинга контактов', error);
                     return { telegram: null, email: null };
                 }
             }
@@ -975,7 +946,6 @@
             userMarkersCollection: null,
 
             switchContainer(isMobileMode) {
-                // log('Map', `switchContainer -> isMobileMode=${isMobileMode}`);
                 const container = document.getElementById('map-container');
                 if (!container) return;
                 let targetParent;
@@ -1013,7 +983,6 @@
             },
 
             initUserMarkers() {
-                // log('Map', 'initUserMarkers');
                 if (!map) return;
                 this.userMarkersCollection = new ymaps.GeoObjectCollection(null, {
                     preset: 'islands#redStretchyIcon',
@@ -1029,18 +998,13 @@
             },
 
             loadUserMarkers() {
-                // log('Map', 'loadUserMarkers');
                 try {
                     const saved = localStorage.getItem('pr-market-user-markers');
                     if (saved) {
                         this.userMarkers = JSON.parse(saved);
-                        // log('Map', `Загружено ${this.userMarkers.length} пользовательских меток из localStorage`);
                         this.renderUserMarkers();
-                    } else {
-                        // log('Map', 'Пользовательских меток в localStorage не найдено');
                     }
                 } catch(e) { 
-                    // logError('Map', 'Ошибка загрузки меток из localStorage', e); 
                     this.userMarkers = []; 
                 }
             },
@@ -1048,9 +1012,7 @@
             saveUserMarkers() {
                 try { 
                     localStorage.setItem('pr-market-user-markers', JSON.stringify(this.userMarkers)); 
-                    // log('Map', `Сохранено ${this.userMarkers.length} меток в localStorage`);
                 } catch(e) { 
-                    // logError('Map', 'Ошибка сохранения меток в localStorage', e); 
                 }
                 StateModule.updateURL();
             },
@@ -1058,12 +1020,10 @@
             closeCurrentMarkerBalloon() {
                 if (map && map.balloon && map.balloon.isOpen()) {
                     map.balloon.close();
-                    // log('Map', 'Закрыт текущий баллон');
                 }
             },
 
             renderUserMarkers() {
-                // log('Map', `renderUserMarkers: ${this.userMarkers.length} меток`);
                 if (!this.userMarkersCollection || !map) return;
                 this.userMarkersCollection.removeAll();
                 this.userMarkers.forEach((marker, index) => {
@@ -1071,7 +1031,6 @@
                     this.userMarkersCollection.add(placemark);
                 });
                 this.bringUserMarkersToFront();
-                StateModule.updateURL();
             },
 
             createPlacemark(marker, index) {
@@ -1102,18 +1061,15 @@
                 placemark.events.add('dragend', (e) => {
                     if (!this.dragModeActive) return;
                     const coords = placemark.geometry.getCoordinates();
-                    // log('Map', `Метка ${index} перемещена на [${coords[0]}, ${coords[1]}]`);
                     this.userMarkers[index] = { ...this.userMarkers[index], lat: coords[0], lng: coords[1] };
                     this.saveUserMarkers();
                     Utils.showNotification('Метка перемещена', 'info');
                     StateModule.updateURL();
                 });
                 placemark.events.add('balloonopen', () => {
-                    // log('Map', `Баллон метки ${index} открыт`);
                     placemark.options.set('zIndex', 3000);
                 });
                 placemark.events.add('balloonclose', () => {
-                    // log('Map', `Баллон метки ${index} закрыт`);
                     placemark.options.set('zIndex', 2000 + index);
                 });
                 return placemark;
@@ -1142,7 +1098,6 @@
             },
 
             editMarker(index) {
-                // log('Map', `editMarker index=${index}`);
                 const marker = this.userMarkers[index];
                 const newText = prompt('Введите новый текст для метки:', marker.text || '');
                 if (newText !== null) {
@@ -1156,7 +1111,6 @@
             },
 
             deleteMarker(index) {
-                // log('Map', `deleteMarker index=${index}`);
                 if (confirm('Удалить эту метку?')) {
                     this.userMarkers.splice(index, 1);
                     this.saveUserMarkers();
@@ -1168,7 +1122,6 @@
             },
 
             deleteAllMarkers() {
-                // log('Map', 'deleteAllMarkers');
                 if (!this.userMarkers.length) { Utils.showNotification('Нет меток для удаления', 'info'); return; }
                 if (confirm(`Удалить все метки (${this.userMarkers.length})?`)) {
                     this.userMarkers = [];
@@ -1180,7 +1133,6 @@
             },
 
             enterAddMarkerMode() {
-                // log('Map', 'enterAddMarkerMode');
                 if (this.markerModeActive || this.dragModeActive) return;
                 if (this.currentClickHandler) { map.events.remove('click', this.currentClickHandler); this.currentClickHandler = null; }
                 if (this.currentEscHandler) { document.removeEventListener('keydown', this.currentEscHandler); this.currentEscHandler = null; }
@@ -1195,7 +1147,6 @@
                 }, 100);
                 const clickHandler = (e) => {
                     const coords = e.get('coords');
-                    // log('Map', `Клик по карте для добавления метки: [${coords[0]}, ${coords[1]}]`);
                     this.createNewMarker(coords);
                     this.exitAddMarkerMode();
                 };
@@ -1203,7 +1154,6 @@
                 map.events.add('click', clickHandler);
                 const escHandler = (e) => {
                     if (e.keyCode === 27) { 
-                        // log('Map', 'Отмена режима добавления метки по ESC');
                         this.exitAddMarkerMode(); 
                         Utils.showNotification('Режим добавления метки отменен', 'info'); 
                     }
@@ -1214,7 +1164,6 @@
 
             exitAddMarkerMode() {
                 if (!this.markerModeActive) return;
-                // log('Map', 'exitAddMarkerMode');
                 this.markerModeActive = false;
                 const mapContainer = document.getElementById('map-container');
                 if (mapContainer) {
@@ -1227,7 +1176,6 @@
             },
 
             toggleDragMode() {
-                // log('Map', `toggleDragMode: ${!this.dragModeActive ? 'вкл' : 'выкл'}`);
                 this.dragModeActive = !this.dragModeActive;
                 if (this.dragModeActive) {
                     Utils.showNotification('Режим перетаскивания включен. Перетаскивайте метки мышью.', 'info');
@@ -1254,7 +1202,6 @@
             },
 
             createNewMarker(coords) {
-                // log('Map', `createNewMarker: [${coords[0]}, ${coords[1]}]`);
                 const markerText = prompt('Введите текст для метки:', 'Новая метка');
                 if (markerText === null) return;
                 const newMarker = {
@@ -1279,13 +1226,11 @@
             },
 
             showMarkersControlPanel() {
-                // log('Map', 'showMarkersControlPanel');
-                if (!map) { /* logError('Map', 'Карта не инициализирована'); */ return; }
+                if (!map) return;
                 let panel = document.getElementById('markers-floating-panel');
                 if (panel) {
                     const display = panel.style.display === 'none' ? 'flex' : 'none';
                     panel.style.display = display;
-                    // log('Map', `Панель уже существует, переключение display: ${display}`);
                     if (panel.style.display !== 'none') this.updateMarkersPanelContent(panel);
                     return;
                 }
@@ -1325,9 +1270,8 @@
                     </div>
                 `;
                 document.body.appendChild(panel);
-                // log('Map', 'Панель управления метками создана и добавлена в DOM');
                 const closeBtn = panel.querySelector('.markers-control-close-btn');
-                if (closeBtn) closeBtn.addEventListener('click', () => { panel.style.display = 'none'; /* log('Map', 'Панель закрыта'); */ });
+                if (closeBtn) closeBtn.addEventListener('click', () => { panel.style.display = 'none'; });
                 const addBtn = panel.querySelector('#markers-control-add-btn');
                 if (addBtn) addBtn.addEventListener('click', () => { this.enterAddMarkerMode(); panel.style.display = 'none'; });
                 const dragBtn = panel.querySelector('#markers-control-drag-btn');
@@ -1338,7 +1282,6 @@
             },
 
             updateMarkersPanelContent(panel) {
-                // log('Map', 'updateMarkersPanelContent');
                 const markerCount = this.userMarkers.length;
                 const totalCount = panel.querySelector('#marker-total-count');
                 const lastDate = panel.querySelector('#marker-last-date');
@@ -1442,11 +1385,9 @@
                     panel.style.cursor = 'move';
                     panel.style.userSelect = 'auto';
                 });
-                // log('Map', 'Панель управления метками стала перетаскиваемой');
             },
 
             focusOnMarker(index) {
-                // log('Map', `focusOnMarker ${index}`);
                 const marker = this.userMarkers[index];
                 if (!marker) return;
                 if (map) {
@@ -1460,9 +1401,7 @@
             },
 
             async initMap() {
-                // log('Map', 'initMap: начало инициализации карты');
                 if (map && map.destroy) { 
-                    // log('Map', 'Карта уже существует, уничтожаем');
                     try { map.destroy(); } catch(e) {} 
                     map = null; 
                     objectManager = null; 
@@ -1470,11 +1409,9 @@
                 }
                 return new Promise((resolve, reject) => {
                     ymaps.ready(() => {
-                        // log('Map', 'ymaps.ready вызван');
                         try {
                             const container = document.getElementById('map-container');
                             if (!container) { 
-                                // logError('Map', 'Контейнер карты не найден');
                                 reject(new Error('Контейнер карты не найден')); 
                                 return; 
                             }
@@ -1483,9 +1420,7 @@
                                 zoom: CONFIG.MAP.ZOOM,
                                 controls: ['zoomControl', 'trafficControl']
                             });
-                            // log('Map', 'Карта создана', { center: CONFIG.MAP.CENTER, zoom: CONFIG.MAP.ZOOM });
                             map.events.add('sizechange', () => {
-                                // log('Map', 'Событие sizechange карты');
                                 if (map.balloon && map.balloon.isOpen()) {
                                     const coords = map.balloon.getPosition();
                                     if (coords) {
@@ -1504,7 +1439,6 @@
                                         ClusterBalloonLayout.superclass.build.call(this);
                                         const cluster = this.getData().object;
                                         const geoObjects = cluster.properties.geoObjects || [];
-                                        // log('Map', 'Построение кластерного баллона', { count: geoObjects.length });
                                         const sorted = geoObjects.sort((a,b) => {
                                             if (a.properties.status === 'Свободно' && b.properties.status !== 'Свободно') return -1;
                                             if (a.properties.status !== 'Свободно' && b.properties.status === 'Свободно') return 1;
@@ -1539,7 +1473,6 @@
                                             if (hideBtn) hideBtn.addEventListener('click', (e) => {
                                                 e.stopPropagation(); e.preventDefault();
                                                 const ids = geoObjects.map(obj => obj.properties.id).join(',');
-                                                // log('Map', 'Скрытие кластера с ids:', ids);
                                                 handleHideCluster(ids);
                                                 if (map.balloon && map.balloon.isOpen()) map.balloon.close();
                                                 Utils.showNotification(`Скрыт кластер из ${geoObjects.length} объектов`, 'success');
@@ -1562,7 +1495,6 @@
                                 clusterBalloonMaxWidth: 400,
                                 zIndex: 100
                             });
-                            // log('Map', 'ObjectManager создан');
                             objectManager.clusters.options.set({
                                 preset: 'islands#invertedBlueClusterIcons',
                                 clusterNumbers: [10, 30, 100],
@@ -1588,7 +1520,6 @@
                                 const object = objectManager.objects.getById(objectId);
                                 if (object) {
                                     const building = object.properties;
-                                    // log('Map', `Клик по объекту ${building.id}: ${building.address}`);
                                     const statusClass = building.status === 'Свободно' ? 'status-free' : 'status-busy';
                                     const shortDistrict = Utils.shortenDistrictName(building.district);
                                     const balloonContent = `
@@ -1617,7 +1548,6 @@
                                 }
                             });
                             objectManager.clusters.events.add('balloonopen', (e) => {
-                                // log('Map', 'Баллон кластера открыт');
                                 const cluster = e.get('target');
                                 if (cluster && map) setTimeout(() => map.container.fitToViewport(), 50);
                             });
@@ -1626,7 +1556,6 @@
                                 options: { selectOnClick: false, maxWidth: 120, float: 'right', floatIndex: 200 }
                             });
                             markersControl.events.add('click', () => {
-                                // log('Map', 'Нажата кнопка "Метки" на карте');
                                 if (!map) return;
                                 if (map.balloon && map.balloon.isOpen()) map.balloon.close();
                                 this.showMarkersControlPanel();
@@ -1636,7 +1565,6 @@
                                 options: { selectOnClick: false, maxWidth: 100, float: 'right', floatIndex: 190, right: 120 }
                             });
                             addMarkerButton.events.add('click', () => { 
-                                // log('Map', 'Нажата кнопка "+ Метка" на карте');
                                 this.enterAddMarkerMode(); 
                             });
                             map.controls.add(markersControl);
@@ -1644,10 +1572,8 @@
                             map.geoObjects.add(objectManager);
                             this.initUserMarkers();
                             map.events.add('sizechange', () => { if (map.balloon && map.balloon.isOpen()) map.container.fitToViewport(); });
-                            // log('Map', 'Инициализация карты завершена успешно');
                             resolve(map);
                         } catch(error) { 
-                            // logError('Map', 'Ошибка при инициализации карты', error);
                             reject(error); 
                         }
                     });
@@ -1655,11 +1581,7 @@
             },
 
             renderBuildings(buildings) {
-                // log('Map', `renderBuildings: ${buildings.length} объектов`);
-                if (!objectManager) {
-                    // logWarn('Map', 'objectManager не инициализирован, пропускаем рендеринг');
-                    return;
-                }
+                if (!objectManager) return;
                 objectManager.removeAll();
                 const features = buildings.map(b => ({
                     id: b.id,
@@ -1675,7 +1597,6 @@
                     }
                 }));
                 objectManager.add(features);
-                // log('Map', `Добавлено ${features.length} объектов в ObjectManager`);
                 if (map && document.getElementById('map-container').style.display !== 'none') {
                     requestAnimationFrame(() => {
                         map.container.fitToViewport();
@@ -1703,7 +1624,6 @@
             },
 
             init() {
-                // log('History', 'init');
                 this.saveInitialState();
                 this.createUndoButton();
             },
@@ -1713,7 +1633,6 @@
                 this.history = [state];
                 this.currentIndex = 0;
                 this.updateUndoButton();
-                // log('History', 'Начальное состояние сохранено');
             },
 
             captureState(description, type) {
@@ -1740,19 +1659,16 @@
                 this.lastActionTime = now;
                 const state = this.captureState(description, filterType || this.ACTION_TYPES.FILTER_CHANGE);
                 this.addToHistory(state);
-                // log('History', `Сохранено действие: ${description} (${filterType})`);
             },
 
             saveHideBuilding(buildingId, buildingAddress) {
                 const state = this.captureState(`Скрыт: ${buildingAddress}`, this.ACTION_TYPES.HIDE_BUILDING);
                 this.addToHistory(state);
-                // log('History', `Сохранено скрытие здания ${buildingId}: ${buildingAddress}`);
             },
 
             saveHideCluster(buildingIds, count) {
                 const state = this.captureState(`Скрыт кластер (${count} зданий)`, this.ACTION_TYPES.HIDE_CLUSTER);
                 this.addToHistory(state);
-                // log('History', `Сохранено скрытие кластера из ${count} зданий`);
             },
 
             addToHistory(state) {
@@ -1765,13 +1681,11 @@
 
             undo() {
                 if (this.currentIndex <= 0) { 
-                    // log('History', 'Попытка отмены, но нет действий');
                     Utils.showNotification('Нет действий для отмены', 'info'); 
                     return false; 
                 }
                 const stateToUndo = this.history[this.currentIndex];
                 const previousState = this.history[this.currentIndex - 1];
-                // log('History', `Отмена действия: ${stateToUndo.description}`);
                 this.restoreState(previousState, stateToUndo);
                 this.currentIndex--;
                 this.updateUndoButton();
@@ -1780,7 +1694,6 @@
             },
 
             restoreState(targetState, stateToUndo) {
-                // log('History', 'Восстановление состояния', targetState);
                 if (targetState.data.filters) {
                     activeFilters.status = new Set(targetState.data.filters.status);
                     activeFilters.district = new Set(targetState.data.filters.district);
@@ -1794,7 +1707,6 @@
             },
 
             updateUIFromState(state) {
-                // log('History', 'Обновление UI из состояния');
                 this.updateFilterCheckboxes('status-filter', state.data.filters.status);
                 this.updateFilterCheckboxes('desktop-status-filter', state.data.filters.status);
                 this.updateFilterCheckboxes('district-filter', state.data.filters.district);
@@ -1838,7 +1750,6 @@
             },
 
             createUndoButton() {
-                // log('History', 'Создание кнопок Undo');
                 const mobileHeader = document.getElementById('compact-header');
                 if (mobileHeader) {
                     const btn = document.createElement('button');
@@ -1849,7 +1760,6 @@
                     btn.style.cssText = 'position:absolute;right:10px;top:10px;width:36px;height:36px;';
                     btn.addEventListener('click', () => this.undo());
                     mobileHeader.appendChild(btn);
-                    // log('History', 'Кнопка Undo добавлена в мобильный хедер');
                 }
                 const desktopSidebar = document.getElementById('desktop-sidebar');
                 if (desktopSidebar) {
@@ -1861,7 +1771,6 @@
                     btn.style.cssText = 'position:absolute;top:1.25rem;right:4.5rem;width:40px;height:40px;';
                     btn.addEventListener('click', () => this.undo());
                     desktopSidebar.querySelector('.sidebar-header').appendChild(btn);
-                    // log('History', 'Кнопка Undo добавлена в десктопный сайдбар');
                 }
                 const fullscreenHeader = document.getElementById('fullscreen-header');
                 if (fullscreenHeader) {
@@ -1873,7 +1782,6 @@
                     btn.style.cssText = 'position:absolute;top:1rem;right:4rem;width:32px;height:32px;';
                     btn.addEventListener('click', () => this.undo());
                     fullscreenHeader.querySelector('.fullscreen-header-title').appendChild(btn);
-                    // log('History', 'Кнопка Undo добавлена в полноэкранный хедер');
                 }
                 this.updateUndoButton();
             },
@@ -1888,14 +1796,13 @@
         };
 
         // ================================================================
-        // ФИЛЬТРЫ
+        // ФИЛЬТРЫ (с исправленной синхронизацией чекбоксов статусов)
         // ================================================================
         const FilterModule = {
             rangeSliders: {},
             rangeSlidersMobile: {},
 
             initFilters(buildings) {
-                // log('Filters', 'initFilters');
                 this.populateFilter('status-filter', buildings, 'status');
                 this.populateFilter('district-filter', buildings, 'district');
                 this.populateFilter('desktop-status-filter', buildings, 'status');
@@ -1905,16 +1812,12 @@
                 this.initDistrictFilters(buildings, 'district-filters-container', '', 'rangeSliders');
                 this.initDistrictFilters(buildings, 'mobile-district-filters', 'mobile-', 'rangeSlidersMobile');
                 this.setupMobileSync();
-                // log('Filters', 'Инициализация фильтров завершена');
             },
 
             populateFilter(containerId, buildings, type) {
                 const items = [...new Set(buildings.map(b => b[type]).filter(Boolean))];
                 const container = document.getElementById(containerId);
-                if (!container) {
-                    // logWarn('Filters', `Контейнер ${containerId} не найден для populateFilter`);
-                    return;
-                }
+                if (!container) return;
                 container.innerHTML = '';
                 items.forEach(item => {
                     const statusClass = type === 'status' && item === 'Свободно' ? 'status-free' : (type === 'status' ? 'status-busy' : '');
@@ -1925,11 +1828,9 @@
                     container.appendChild(label);
                     activeFilters[type].add(item);
                 });
-                // log('Filters', `Populated ${containerId} with ${items.length} items: ${items.join(', ')}`);
             },
 
             setupRangeControls() {
-                // log('Filters', 'setupRangeControls');
                 document.querySelectorAll('.range-control-button').forEach(button => {
                     button.addEventListener('click', (e) => {
                         const targetId = button.dataset.target;
@@ -1952,7 +1853,6 @@
                             }
                         }
                         input.value = newValue;
-                        // log('Filters', `Range button ${button.dataset.target} -> ${newValue}`);
                         this.updateFilterFromInput(input);
                         button.style.transform = 'scale(0.95)';
                         setTimeout(() => button.style.transform = '', 150);
@@ -1978,13 +1878,11 @@
                             }
                         }
                         input.value = newValue;
-                        // log('Filters', `Wheel на ${input.id} -> ${newValue}`);
                         this.updateFilterFromInput(input);
                         input.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.3)';
                         setTimeout(() => input.style.boxShadow = '', 300);
                     }, { passive: false });
                     input.addEventListener('input', Utils.debounce(() => {
-                        // log('Filters', `Input на ${input.id} -> ${input.value}`);
                         this.updateFilterFromInput(input);
                     }, 500));
                     input.addEventListener('change', () => {
@@ -2015,7 +1913,6 @@
                 if (!values.includes(value)) {
                     const nearest = Utils.getNearestValue(value, values);
                     input.value = nearest;
-                    // log('Filters', `Значение ${value} скорректировано до ${nearest}`);
                     this.updateFilterFromInput(input);
                     if (Math.abs(value - nearest) > 1) Utils.showNotification(`Значение ${value} не найдено. Установлено ${nearest}`, 'info');
                 }
@@ -2035,7 +1932,6 @@
                 const minValue = minInput.value ? parseInt(minInput.value) : null;
                 const maxValue = maxInput.value ? parseInt(maxInput.value) : null;
                 if (minValue !== null && maxValue !== null && minValue > maxValue) {
-                    // log('Filters', `Диапазон некорректен: min=${minValue} > max=${maxValue}, меняем местами`);
                     minInput.value = maxValue;
                     maxInput.value = minValue;
                     this.updateFilterFromInput(minInput);
@@ -2058,11 +1954,9 @@
                         el.max = placeholders[idx] || 1;
                     }
                 });
-                // log('Filters', 'Placeholders обновлены');
             },
 
             setupEventListeners() {
-                // log('Filters', 'setupEventListeners');
                 this.setupFilterListeners('status-filter', 'status');
                 this.setupFilterListeners('district-filter', 'district');
                 this.setupFilterListeners('desktop-status-filter', 'status');
@@ -2076,7 +1970,6 @@
                 container.addEventListener('change', (e) => {
                     if (e.target.type === 'checkbox') {
                         const value = e.target.value;
-                        // log('Filters', `Чекбокс ${filterType} ${value} = ${e.target.checked}`);
                         if (filterType === 'district') {
                             if (districtFilters[value]) {
                                 districtFilters[value].enabled = e.target.checked;
@@ -2113,13 +2006,9 @@
             },
 
             initDistrictFilters(buildings, containerId, prefix, sliderStorageKey) {
-                // log('Filters', `initDistrictFilters для ${containerId}`);
                 const districts = [...new Set(buildings.map(b => b.district).filter(Boolean))];
                 const container = document.getElementById(containerId);
-                if (!container) {
-                    // logWarn('Filters', `Контейнер ${containerId} не найден`);
-                    return;
-                }
+                if (!container) return;
                 const floorsValues = availableValues.floors;
                 const flatsValues = availableValues.flatsPerEntrance;
                 const globalFloorsMin = floorsValues.length ? floorsValues[0] : 1;
@@ -2282,11 +2171,9 @@
                         }
                     );
                 });
-                // log('Filters', `Инициализировано ${districts.length} районных фильтров для ${containerId}`);
             },
 
             syncDistrictFilter(type, sourceDistrict, min, max, prefix) {
-                // log('Filters', `syncDistrictFilter: ${type} для ${sourceDistrict} -> [${min}, ${max}]`);
                 const districts = Object.keys(districtFilters);
                 districts.forEach(d => {
                     if (d !== sourceDistrict) {
@@ -2312,7 +2199,6 @@
             },
 
             setupMobileSync() {
-                // log('Filters', 'setupMobileSync');
                 const syncFloors = document.getElementById('mobile-sync-floors');
                 const syncFlats = document.getElementById('mobile-sync-flats');
                 const desktopSyncFloors = document.getElementById('sync-floors');
@@ -2387,17 +2273,9 @@
                         StateModule.updateURL();
                     });
                 }
-                // log('Filters', 'Синхронизация мобильных/десктопных чекбоксов настроена');
             },
 
             applyFilters() {
-                // log('Filters', 'applyFilters: начало');
-                // log('Filters', 'activeFilters перед фильтрацией:', {
-                //     status: Array.from(activeFilters.status),
-                //     district: Array.from(activeFilters.district),
-                //     floors: activeFilters.floors,
-                //     flatsPerEntrance: activeFilters.flatsPerEntrance
-                // });
                 const before = filteredBuildings.length;
                 filteredBuildings = allBuildings.filter(building => {
                     if (hiddenBuildings.has(building.id)) return false;
@@ -2419,10 +2297,8 @@
                     }
                     return true;
                 });
-                // log('Filters', `applyFilters: ${before} -> ${filteredBuildings.length} (отфильтровано ${before - filteredBuildings.length})`);
 
                 displayedBuildings = this.selectByPercentage(filteredBuildings, currentPercentage);
-                // log('Filters', `displayedBuildings после процента: ${displayedBuildings.length} из ${filteredBuildings.length}`);
                 this.updateUI();
                 this.updateDistrictStats();
                 StateModule.updateURL();
@@ -2447,12 +2323,10 @@
             },
 
             updateUI() {
-                // log('Filters', 'updateUI: обновление карты и списков');
                 MapModule.renderBuildings(displayedBuildings);
                 ListModule.renderBuildingsList('building-list', displayedBuildings.slice(0, listLimit));
                 ListModule.renderBuildingsList('desktop-building-list', displayedBuildings.slice(0, listLimit));
                 this.updateStatistics();
-                // log('Filters', 'До обновления чекбоксов статусов, activeFilters.status:', Array.from(activeFilters.status));
                 this.updateFilterCheckboxesStates();
                 if (isMobile) Utils.updateMainContentHeight();
             },
@@ -2460,9 +2334,7 @@
             updateFilterCheckboxesStates() {
                 const visibleDistricts = [...new Set(displayedBuildings.map(b => b.district).filter(Boolean))];
                 const visibleStatuses = [...new Set(displayedBuildings.map(b => b.status).filter(Boolean))];
-                // log('Filters', `updateFilterCheckboxesStates: видимые статусы = ${visibleStatuses.join(', ')}`);
 
-                // Синхронизация чекбоксов статусов
                 ['status-filter', 'desktop-status-filter'].forEach(id => {
                     const container = document.getElementById(id);
                     if (!container) return;
@@ -2474,18 +2346,15 @@
                             cb.checked = true;
                             if (!isActive) {
                                 activeFilters.status.add(cb.value);
-                                // log('Filters', `Статус ${cb.value} добавлен в activeFilters, т.к. есть видимые здания`);
                             }
                         } else {
                             cb.checked = false;
                             if (isActive) {
                                 activeFilters.status.delete(cb.value);
-                                // log('Filters', `Статус ${cb.value} удалён из activeFilters, т.к. нет видимых зданий`);
                             }
                         }
                     });
                 });
-                // log('Filters', `После синхронизации activeFilters.status:`, Array.from(activeFilters.status));
             },
 
             updateStatistics() {
@@ -2510,7 +2379,6 @@
                 update('');
                 update('desktop-');
                 update('fullscreen-');
-                // log('Filters', `Статистика обновлена: стендов ${totalStands}, квартир ${totalFlats}, цена ${totalPrice}`);
             },
 
             updateDistrictStats() {
@@ -2534,7 +2402,6 @@
             },
 
             resetFilters() {
-                // log('Filters', 'resetFilters: сброс всех фильтров');
                 hiddenBuildings.clear();
                 activeFilters.status.clear();
                 document.querySelectorAll('#status-filter input[type="checkbox"]').forEach(cb => { cb.checked = true; activeFilters.status.add(cb.value); });
@@ -2614,7 +2481,6 @@
                 this.maxThumb = container.querySelector('.thumb.max-thumb');
                 this.thumbWidth = 20;
                 if (!this.track || !this.minThumb || !this.maxThumb) {
-                    // logError('RangeSlider', 'Не найдены элементы слайдера', { container });
                     return;
                 }
                 this._onMove = this.onMove.bind(this);
@@ -2624,7 +2490,6 @@
                 this._onTouchCancel = this.onTouchCancel.bind(this);
                 this.setValues(initialMin, initialMax);
                 this.bindEvents();
-                // log('RangeSlider', `Создан слайдер для ${container.dataset.type} диапазон [${minVal},${maxVal}]`);
             }
 
             bindEvents() {
@@ -2777,7 +2642,6 @@
         // ================================================================
         const PercentageModule = {
             initPercentageSelector() {
-                // log('Percentage', 'initPercentageSelector');
                 this.setupPercentageControls('desktop-percentage-slider','desktop-percentage-value','desktop-percentage-decrease','desktop-percentage-increase');
                 this.setupPercentageControls('mobile-percentage-slider','mobile-percentage-value','mobile-percentage-decrease','mobile-percentage-increase');
             },
@@ -2785,12 +2649,8 @@
             setupPercentageControls(sliderId, valueId, decreaseId, increaseId) {
                 const slider = document.getElementById(sliderId);
                 const valueDisplay = document.getElementById(valueId);
-                if (!slider || !valueDisplay) {
-                    // logWarn('Percentage', `Не найден слайдер или дисплей для ${sliderId}`);
-                    return;
-                }
+                if (!slider || !valueDisplay) return;
                 const updateSlider = Utils.debounce((value) => {
-                    // log('Percentage', `Изменение процента на ${value}%`);
                     currentPercentage = value;
                     valueDisplay.textContent = `${value}%`;
                     const targetSliderId = sliderId.includes('mobile') ? 'desktop-percentage-slider' : 'mobile-percentage-slider';
@@ -2833,7 +2693,6 @@
                     valueDisplay.textContent = `${newVal}%`;
                     updateSlider(newVal);
                 });
-                // log('Percentage', `Контролы процента для ${sliderId} настроены`);
             }
         };
 
@@ -2859,12 +2718,8 @@
             },
 
             renderBuildingsList(containerId, buildings, append = false) {
-                // log('List', `renderBuildingsList ${containerId}, ${buildings.length} объектов, append=${append}`);
                 const container = document.getElementById(containerId);
-                if (!container) {
-                    // logWarn('List', `Контейнер ${containerId} не найден`);
-                    return;
-                }
+                if (!container) return;
                 if (!append) container.innerHTML = '';
                 buildings.forEach(building => {
                     const item = document.createElement('div');
@@ -2919,7 +2774,6 @@
                     container.appendChild(item);
                 });
                 this.updateLoadMoreButton(containerId);
-                // log('List', `Добавлено ${buildings.length} элементов в ${containerId}, всего в контейнере ${container.children.length}`);
             },
 
             updateLoadMoreButton(containerId) {
@@ -2940,10 +2794,7 @@
                 const current = container.children.length;
                 const next = displayedBuildings.slice(current, current + 20);
                 if (next.length) {
-                    // log('List', `Загрузка еще ${next.length} зданий в ${containerId}`);
                     this.renderBuildingsList(containerId, next, true);
-                } else {
-                    // log('List', `Больше нет зданий для загрузки в ${containerId}`);
                 }
             }
         };
@@ -2983,7 +2834,6 @@
             },
 
             generateReportText() {
-                // log('Report', 'generateReportText: начало');
                 const filtered = allBuildings.filter(building => {
                     if (hiddenBuildings.has(building.id)) return false;
                     if (activeFilters.status.size && !activeFilters.status.has(building.status)) return false;
@@ -3002,7 +2852,6 @@
                     return true;
                 });
                 const selected = FilterModule.selectByPercentage(filtered, currentPercentage);
-                // log('Report', `Отфильтровано ${filtered.length}, выбрано ${selected.length}`);
                 const now = new Date();
                 const dateStr = now.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
                 const totalStands = selected.reduce((s,b) => s + (b.entrances||0), 0);
@@ -3049,12 +2898,10 @@
                 const shareableURL = StateModule.generateShareableURL();
                 report += `\r\n\r\n🔗 ВРЕМЕННАЯ ССЫЛКА НА НАСТРОЙКИ:\r\n${shareableURL || 'Не удалось сгенерировать'}\r\n\r\n⚠️ Ссылка временная, актуальна пока данные не обновлены.\r\n`;
                 report += `\r\nПРИМЕЧАНИЕ:\r\n• Минимум для расчёта: 100 стендов\r\n• Отчёт сформирован автоматически в PR МАРКЕТ Рязань`;
-                // log('Report', 'Текст отчёта сгенерирован');
                 return report;
             },
 
             generateReportCSV() {
-                // log('Report', 'generateReportCSV: начало');
                 const filtered = allBuildings.filter(building => {
                     if (hiddenBuildings.has(building.id)) return false;
                     if (activeFilters.status.size && !activeFilters.status.has(building.status)) return false;
@@ -3151,14 +2998,12 @@
                 rows.push(['Примечание', 'Минимум для расчёта: 100 стендов; Отчёт сформирован автоматически в PR МАРКЕТ Рязань']);
                 rows.push([]);
                 rows.push([]);
-                // log('Report', 'CSV отчёт сгенерирован, строк: ' + rows.length);
                 return rows.map(row => row.join('\t')).join('\n');
             },
 
             showReportModal() {
                 if (isGeneratingReport) return;
                 isGeneratingReport = true;
-                // log('Report', 'showReportModal');
                 try {
                     this.currentReportText = this.generateReportText();
                     this.currentReportCSV = this.generateReportCSV();
@@ -3170,7 +3015,6 @@
                         document.getElementById('report-textarea').select();
                     }, 300);
                 } catch(e) {
-                    // logError('Report', 'Ошибка генерации отчёта', e);
                     Utils.showNotification('Ошибка формирования отчёта', 'error');
                 } finally {
                     setTimeout(() => { isGeneratingReport = false; }, 1000);
@@ -3212,21 +3056,17 @@
                 } else {
                     shareActions.style.display = 'none';
                 }
-                // log('Report', 'Кнопки шаринга обновлены', { hasTelegram, hasEmail });
             },
 
             async copyToClipboard() {
-                // log('Report', 'copyToClipboard');
                 const text = this.currentReportCSV || this.generateReportCSV();
                 try {
                     if (navigator.clipboard && window.isSecureContext) {
                         await navigator.clipboard.writeText(text);
                         Utils.showNotification('Отчёт скопирован (CSV)', 'success');
-                        // log('Report', 'Копирование через Clipboard API успешно');
                         return;
                     }
                 } catch(e) {
-                    // logWarn('Report', 'Clipboard API не удался, пробуем fallback', e);
                 }
                 try {
                     const ta = document.createElement('textarea');
@@ -3240,15 +3080,12 @@
                     document.execCommand('copy');
                     document.body.removeChild(ta);
                     Utils.showNotification('Отчёт скопирован (CSV)', 'success');
-                    // log('Report', 'Копирование через execCommand успешно');
                 } catch(e) {
-                    // logError('Report', 'Ошибка копирования', e);
                     Utils.showNotification('Ошибка копирования', 'error');
                 }
             },
 
             downloadReport() {
-                // log('Report', 'downloadReport');
                 const text = this.currentReportCSV || this.generateReportCSV();
                 if (!text) {
                     Utils.showNotification('Нет данных', 'error');
@@ -3268,12 +3105,10 @@
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
                     Utils.showNotification('Отчёт скачан (CSV)', 'success');
-                    // log('Report', `Отчёт скачан как ${filename}`);
                 }, 100);
             },
 
             shareViaTelegram() {
-                // log('Report', 'shareViaTelegram');
                 if (!contacts.telegram) {
                     Utils.showNotification('Telegram контакт не найден', 'error');
                     return;
@@ -3291,11 +3126,9 @@
                 const message = `Отчёт по стендам у домофонов\n\n🔗 Ссылка на текущие настройки и фильтры:\n${url}\n\n⚠️ Ссылка временная.`;
                 window.open(`tg://resolve?domain=${username}&text=${encodeURIComponent(message)}`, '_blank');
                 Utils.showNotification(`Открываю Telegram...`, 'info');
-                // log('Report', `Открыт Telegram для @${username}`);
             },
 
             shareViaEmail() {
-                // log('Report', 'shareViaEmail');
                 if (!contacts.email) {
                     Utils.showNotification('Email контакт не найден', 'error');
                     return;
@@ -3325,7 +3158,6 @@
         // ================================================================
         const FullscreenModule = {
             init() {
-                // log('Fullscreen', 'init');
                 document.getElementById('sidebar-fullscreen-btn')?.addEventListener('click', () => this.toggleFullscreen());
                 document.getElementById('fullscreen-close-btn')?.addEventListener('click', () => this.toggleFullscreen());
                 this.initDragAndDrop();
@@ -3361,7 +3193,6 @@
                 };
                 header.style.cursor = 'grabbing';
                 header.style.transition = 'none';
-                // log('Fullscreen', 'Drag started');
             },
 
             drag(e) {
@@ -3377,7 +3208,6 @@
                 dragData.element.style.cursor = 'move';
                 dragData.element.style.transition = 'all 0.3s';
                 dragData = null;
-                // log('Fullscreen', 'Drag stopped');
             },
 
             toggleFullscreen() {
@@ -3395,7 +3225,6 @@
                     sidebarBtn.title = 'Вернуться к обычному виду';
                     fullscreenBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
                     Utils.showNotification('Включен полноэкранный режим', 'success');
-                    // log('Fullscreen', 'Полноэкранный режим включен');
                 } else {
                     isFullscreen = false;
                     sidebar.classList.remove('hidden');
@@ -3404,21 +3233,19 @@
                     sidebarBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
                     sidebarBtn.title = 'Развернуть на весь экран';
                     Utils.showNotification('Обычный режим', 'info');
-                    // log('Fullscreen', 'Полноэкранный режим выключен');
                 }
                 if (map) setTimeout(() => map.container.fitToViewport(), 100);
             }
         };
 
         // ================================================================
-        // МОДУЛЬ СОСТОЯНИЯ
+        // МОДУЛЬ СОСТОЯНИЯ (исправленный)
         // ================================================================
         const StateModule = {
             currentDataHash: null,
             stateVersion: 1,
 
             init(buildings) {
-                // log('State', 'init');
                 this.currentDataHash = this.computeDataHash(buildings);
                 this.checkAndApplyURLState();
             },
@@ -3432,7 +3259,6 @@
                     for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); hash = ((hash << 5) - hash) + c; hash = hash & hash; }
                     return Math.abs(hash).toString(36).substring(0,8);
                 } catch(e) { 
-                    // logError('State', 'Ошибка вычисления хеша данных', e);
                     return 'error'; 
                 }
             },
@@ -3527,7 +3353,6 @@
                     const json = JSON.stringify(state);
                     return LZString.compressToBase64(json);
                 } catch (e) {
-                    // logError('State', 'Ошибка кодирования состояния', e);
                     return null;
                 }
             },
@@ -3542,7 +3367,6 @@
                     const compact = JSON.parse(json);
                     return this.expandState(compact);
                 } catch (e) {
-                    // logWarn('State', 'Ошибка декодирования состояния', e.message);
                     return null;
                 }
             },
@@ -3553,7 +3377,6 @@
                 if (!encoded) return;
                 const newURL = window.location.pathname + '?state=' + encodeURIComponent(encoded);
                 window.history.replaceState({ state: encoded }, '', newURL);
-                // log('State', 'URL обновлён');
             },
 
             generateShareableURL() {
@@ -3566,17 +3389,12 @@
             checkAndApplyURLState() {
                 const params = new URLSearchParams(window.location.search);
                 const stateParam = params.get('state');
-                if (!stateParam) {
-                    // log('State', 'Параметр state в URL отсутствует');
-                    return;
-                }
-                // log('State', 'Обнаружен параметр state в URL, попытка загрузки');
+                if (!stateParam) return;
                 Utils.showNotification('Загрузка настроек из ссылки...', 'info');
                 setTimeout(() => this.applyStateFromURL(stateParam), 500);
             },
 
             applyStateFromURL(encoded) {
-                // log('State', 'applyStateFromURL');
                 try {
                     const state = this.decodeState(encoded);
                     if (!state) { 
@@ -3589,7 +3407,6 @@
                         return;
                     }
                     if (state.dataHash && state.dataHash !== this.currentDataHash) {
-                        // logWarn('State', 'Хеш данных не совпадает, предлагаем сброс');
                         if (!confirm('Данные в базе обновились. Настройки фильтров будут сброшены. Пользовательские метки восстановлены. Продолжить?')) {
                             Utils.showNotification('Загрузка отменена', 'info');
                             return;
@@ -3605,52 +3422,40 @@
                     }
                     this.applyState(state);
                     Utils.showNotification('Настройки восстановлены', 'success');
-                    window.history.replaceState({}, document.title, window.location.pathname);
                 } catch(e) { 
-                    // logError('State', 'Ошибка применения состояния из URL', e);
                     Utils.showNotification('Ошибка загрузки настроек', 'error'); 
                 }
             },
 
             applyState(state) {
-                // log('State', 'applyState: применение состояния из URL');
                 if (state.filters.status && state.filters.status.length) {
                     activeFilters.status = new Set(state.filters.status);
-                    // log('State', `Восстановлены статусы: ${state.filters.status.join(', ')}`);
-                } else {
-                    // logWarn('State', 'В состоянии нет статусов, оставляем текущие: ', Array.from(activeFilters.status));
                 }
                 if (state.filters.district && state.filters.district.length) {
                     activeFilters.district = new Set(state.filters.district);
-                    // log('State', `Восстановлены районы: ${state.filters.district.join(', ')}`);
                 }
                 if (state.filters.floors) {
                     activeFilters.floors = { 
                         min: state.filters.floors.min ?? null,
                         max: state.filters.floors.max ?? null
                     };
-                    // log('State', `Восстановлены этажи: min=${activeFilters.floors.min}, max=${activeFilters.floors.max}`);
                 }
                 if (state.filters.flatsPerEntrance) {
                     activeFilters.flatsPerEntrance = { 
                         min: state.filters.flatsPerEntrance.min ?? null,
                         max: state.filters.flatsPerEntrance.max ?? null
                     };
-                    // log('State', `Восстановлены кв/под: min=${activeFilters.flatsPerEntrance.min}, max=${activeFilters.flatsPerEntrance.max}`);
                 }
                 if (state.percentage !== undefined) {
                     currentPercentage = state.percentage;
-                    // log('State', `Восстановлен процент: ${currentPercentage}%`);
                 }
                 if (state.hiddenBuildings) {
                     hiddenBuildings = new Set(state.hiddenBuildings);
-                    // log('State', `Восстановлено скрытых зданий: ${hiddenBuildings.size}`);
                 }
                 if (state.userMarkers && state.userMarkers.length) {
                     MapModule.userMarkers = state.userMarkers;
                     MapModule.saveUserMarkers();
                     MapModule.renderUserMarkers();
-                    // log('State', `Восстановлено ${state.userMarkers.length} пользовательских меток`);
                 }
                 if (state.districtFilters) {
                     Object.keys(state.districtFilters).forEach(district => {
@@ -3665,47 +3470,36 @@
                             districtFilters[district].floors.max = Math.max(correctedFloorsMin, correctedFloorsMax);
                             districtFilters[district].flatsPerEntrance.min = Math.min(correctedFlatsMin, correctedFlatsMax);
                             districtFilters[district].flatsPerEntrance.max = Math.max(correctedFlatsMin, correctedFlatsMax);
-                            // log('State', `Восстановлен район ${district}: enabled=${df.enabled}, floors=[${districtFilters[district].floors.min}-${districtFilters[district].floors.max}], flats=[${districtFilters[district].flatsPerEntrance.min}-${districtFilters[district].flatsPerEntrance.max}]`);
                         }
                     });
                 }
                 if (state.syncFloors !== undefined) {
                     document.getElementById('sync-floors').checked = state.syncFloors;
                     document.getElementById('mobile-sync-floors').checked = state.syncFloors;
-                    // log('State', `Синхронизация этажей: ${state.syncFloors ? 'вкл' : 'выкл'}`);
                 }
                 if (state.syncFlats !== undefined) {
                     document.getElementById('sync-flats').checked = state.syncFlats;
                     document.getElementById('mobile-sync-flats').checked = state.syncFlats;
-                    // log('State', `Синхронизация кв/под: ${state.syncFlats ? 'вкл' : 'выкл'}`);
                 }
                 this.updateUIFromState(state);
                 FilterModule.applyFiltersDebounced();
                 if (state.districtFilters) {
                     setTimeout(() => {
-                        // log('State', 'Отложенное обновление UI слайдеров');
-                        let updatedCount = 0;
                         Object.keys(state.districtFilters).forEach(district => {
                             const hasDesktopSlider = FilterModule.rangeSliders && FilterModule.rangeSliders[district];
                             const hasMobileSlider = FilterModule.rangeSlidersMobile && FilterModule.rangeSlidersMobile[district];
                             if (hasDesktopSlider || hasMobileSlider) {
                                 this.updateDistrictSliderUI(district, 'floors');
                                 this.updateDistrictSliderUI(district, 'flatsPerEntrance');
-                                updatedCount++;
-                            } else {
-                                // log('State', `Слайдеры для района ${district} ещё не инициализированы, пропускаем обновление UI`);
                             }
                         });
-                        // log('State', `Обновлено UI слайдеров для ${updatedCount} районов`);
                         FilterModule.applyFiltersDebounced();
                     }, 150);
                 }
                 this.updateURL();
-                // log('State', 'Состояние успешно применено');
             },
 
             updateUIFromState(state) {
-                // log('State', 'updateUIFromState: обновление UI чекбоксов и полей');
                 this.updateFilterCheckboxes('status-filter', state.filters.status);
                 this.updateFilterCheckboxes('desktop-status-filter', state.filters.status);
                 this.updateFilterCheckboxes('district-filter', state.filters.district);
@@ -3730,7 +3524,6 @@
                 container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                     cb.checked = values.includes(cb.value);
                 });
-                // log('State', `Чекбоксы в ${containerId} обновлены значениями: ${values.join(', ')}`);
             },
 
             updateRangeInput(id, value) {
@@ -3759,25 +3552,18 @@
 
             updateDistrictSliderUI(district, type) {
                 const df = districtFilters[district];
-                if (!df) {
-                    // logWarn('State', `Район ${district} не найден в districtFilters`);
-                    return;
-                }
+                if (!df) return;
                 const minVal = type === 'floors' ? df.floors.min : df.flatsPerEntrance.min;
                 const maxVal = type === 'floors' ? df.floors.max : df.flatsPerEntrance.max;
                 if (FilterModule.rangeSliders && FilterModule.rangeSliders[district] && FilterModule.rangeSliders[district][type]) {
                     try {
                         FilterModule.rangeSliders[district][type].setValues(minVal, maxVal);
-                    } catch(e) {
-                        // logWarn('State', `Ошибка обновления десктопного слайдера для ${district} (${type})`, e.message);
-                    }
+                    } catch(e) {}
                 }
                 if (FilterModule.rangeSlidersMobile && FilterModule.rangeSlidersMobile[district] && FilterModule.rangeSlidersMobile[district][type]) {
                     try {
                         FilterModule.rangeSlidersMobile[district][type].setValues(minVal, maxVal);
-                    } catch(e) {
-                        // logWarn('State', `Ошибка обновления мобильного слайдера для ${district} (${type})`, e.message);
-                    }
+                    } catch(e) {}
                 }
                 const prefix = type === 'floors' ? 'floors' : 'flats';
                 const minEl = document.getElementById(`${prefix}-min-val-${district}`);
@@ -3804,9 +3590,7 @@
                         document.body.removeChild(ta);
                     }
                     Utils.showNotification('✅ Ссылка скопирована! ⚠️ Временная – будет неактуальна после обновления данных.', 'success');
-                    // log('State', 'Ссылка скопирована в буфер обмена');
                 } catch(e) {
-                    // logError('State', 'Ошибка копирования ссылки', e);
                     Utils.showNotification('Ошибка копирования ссылки', 'error');
                 }
             }
@@ -3817,7 +3601,6 @@
         // ================================================================
         function handleHideCluster(buildingIds) {
             const ids = buildingIds.split(',').map(id => parseInt(id.trim()));
-            // log('Global', `handleHideCluster: ids=${ids}`);
             ids.forEach(id => hiddenBuildings.add(id));
             HistoryModule.saveHideCluster(ids, ids.length);
             FilterModule.applyFiltersDebounced();
@@ -3829,15 +3612,12 @@
             if (event) event.stopPropagation();
             const building = allBuildings.find(b => b.id === buildingId);
             if (building) {
-                // log('Global', `handleHideBuilding: ${buildingId} (${building.address})`);
                 hiddenBuildings.add(buildingId);
                 HistoryModule.saveHideBuilding(buildingId, building.address);
                 FilterModule.applyFiltersDebounced();
                 StateModule.updateURL();
                 Utils.showNotification('Адрес скрыт', 'success');
                 if (map && map.balloon && map.balloon.isOpen()) map.balloon.close();
-            } else {
-                // logWarn('Global', `Здание с id ${buildingId} не найдено`);
             }
         }
 
@@ -3847,7 +3627,6 @@
         function updateResponsive() {
             const nowMobile = window.innerWidth <= 768;
             if (nowMobile !== isMobile) {
-                // log('Responsive', `Смена режима: ${nowMobile ? 'мобильный' : 'десктопный'}`);
                 isMobile = nowMobile;
                 MapModule.switchContainer(isMobile);
                 if (isMobile) {
@@ -3934,23 +3713,18 @@
                 });
             });
             updateResponsive();
-            // log('Responsive', 'Адаптивность настроена');
         }
 
         async function initApp() {
-            // log('App', 'Инициализация приложения');
             try {
                 Utils.updateMainContentHeight();
                 MapModule.switchContainer(isMobile);
                 await MapModule.initMap();
-                // log('App', 'Карта инициализирована');
 
                 Utils.showNotification('Загрузка данных...', 'info');
                 allBuildings = await DataModule.loadData();
-                // log('App', `Загружено ${allBuildings.length} зданий`);
                 Utils.showNotification('Загрузка контактов...', 'info');
                 contacts = await DataModule.loadContacts();
-                // log('App', 'Контакты загружены', contacts);
 
                 StateModule.init(allBuildings);
                 FilterModule.initFilters(allBuildings);
@@ -3971,9 +3745,7 @@
                 if (overlay) { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.display = 'none'; }, 300); }
                 appInitialized = true;
                 Utils.showNotification('Приложение готово', 'success');
-                // log('App', 'Инициализация завершена успешно');
             } catch (error) {
-                // logError('App', 'Ошибка инициализации приложения', error);
                 Utils.showNotification('Ошибка загрузки приложения', 'error');
                 const overlay = document.getElementById('loading-overlay');
                 if (overlay) overlay.style.display = 'none';
@@ -3981,7 +3753,6 @@
         }
 
         function setupUIEvents() {
-            // log('UI', 'setupUIEvents');
             document.querySelectorAll('.sidebar-tab').forEach(tab => {
                 tab.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -4004,7 +3775,7 @@
             });
 
             const modal = document.getElementById('report-modal');
-            const closeModal = () => { modal.classList.remove('active'); document.getElementById('report-textarea').value = ''; /* log('UI', 'Отчётное модальное окно закрыто'); */ };
+            const closeModal = () => { modal.classList.remove('active'); document.getElementById('report-textarea').value = ''; };
             document.getElementById('report-modal-close')?.addEventListener('click', closeModal);
             modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
             document.getElementById('report-copy-btn')?.addEventListener('click', (e) => { e.stopPropagation(); ReportModule.copyToClipboard(); });
@@ -4017,7 +3788,6 @@
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
             });
-            // log('UI', 'Обработчики UI событий настроены');
         }
 
         document.addEventListener('DOMContentLoaded', initApp);
