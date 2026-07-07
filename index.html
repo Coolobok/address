@@ -30,11 +30,11 @@
         .report-modal-title{font-size:1.25rem;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.2)}
         .report-modal-close{background:rgba(255,255,255,.2);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:1.25rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
         .report-modal-close:hover{background:rgba(255,255,255,.3);transform:scale(1.1)}.report-modal-close:active{transform:scale(.95)}
-        .report-modal-content{padding:1.5rem;display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;gap:1rem}
+        .report-modal-content{padding:1.75rem;display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;gap:1rem}
         .report-text-container{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
         .report-textarea{width:100%;flex:1;min-height:150px;padding:1rem;border:1px solid var(--color-border);border-radius:var(--radius-md);font-family:'Courier New',monospace;font-size:.875rem;line-height:1.4;resize:vertical;background:var(--color-background);color:var(--brand-dark);overflow-y:auto;word-wrap:break-word;white-space:pre-wrap;overflow-wrap:break-word}
         .report-textarea:focus{outline:none;border-color:var(--brand-color);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
-        .report-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;flex-shrink:0}
+        .report-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;flex-shrink:0}
         .report-actions-extended{display:grid;grid-template-columns:1fr;gap:.75rem;flex-shrink:0;padding-top:1rem;border-top:2px solid var(--color-border)}
         .report-action-btn{padding:1rem;border:none;border-radius:var(--radius-md);font-size:1rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.75rem;transition:all .2s;-webkit-tap-highlight-color:transparent}
         .report-action-btn.copy-btn{background:var(--color-primary);color:#fff}
@@ -77,7 +77,7 @@
         .address-text{flex:1;font-size:13px;line-height:1.4;color:#212529;word-break:break-word}
         .stands-cell{text-align:right;font-weight:700;color:#475493;font-size:13px;white-space:nowrap}
         .more-buildings{text-align:center;color:#6c757d;font-size:12px;font-style:italic;padding:8px 16px;background:#f8f9fa}
-        .cluster-footer,.single-balloon-content,.marker-balloon-content,.markers-control-content,.markers-list-content{padding:12px 16px;background:#f8f9fa;border-top:1px solid #dee2e6}
+        .cluster-footer,.single-balloon-content,.marker-balloon-content,.markers-control-content,.markers-list-content{padding:16px 20px;background:#f8f9fa;border-top:1px solid #dee2e6}
         .hide-cluster-btn,.single-balloon-hide-btn{background:#ef4444;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;width:100%}
         .hide-cluster-btn:hover,.single-balloon-hide-btn:hover{background:#dc2626;transform:translateY(-1px);box-shadow:0 2px 4px rgba(239,68,68,.25)}
         .hide-cluster-btn:active,.single-balloon-hide-btn:active{transform:translateY(0)}
@@ -127,8 +127,8 @@
         #compact-header{flex-shrink:0;background:var(--brand-color);box-shadow:var(--shadow-md);padding:.875rem 1rem;padding-top:calc(.875rem + var(--safe-area-inset-top));z-index:100;display:none;position:relative}
         .header-title{font-size:1.375rem;font-weight:700;color:var(--text-on-brand);text-align:left;margin-bottom:.25rem;text-shadow:0 1px 2px rgba(0,0,0,.2);letter-spacing:.3px;line-height:1.2}
         .header-subtitle{font-size:1rem;color:rgba(255,255,255,.9);text-align:left;margin-top:.25rem;font-weight:400}
-        .header-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.75rem}
-        .stat-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.375rem .25rem;background:rgba(255,255,255,.1);border-radius:var(--radius-md);backdrop-filter:blur(10px);text-align:center;min-height:40px}
+        .header-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-top:.75rem}
+        .stat-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.4rem .3rem;background:rgba(255,255,255,.1);border-radius:var(--radius-md);backdrop-filter:blur(10px);text-align:center;min-height:40px}
         .stat-value{font-size:.875rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;color:var(--text-on-brand);text-shadow:0 1px 1px rgba(0,0,0,.2);margin-top:.125rem}
         .stat-label{font-size:.65rem;color:rgba(255,255,255,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1;margin-bottom:.125rem}
         #main-content{flex:1;position:relative;overflow:hidden;min-height:0;display:none}
@@ -136,8 +136,8 @@
         #map-container>ymaps{width:100%!important;height:100%!important}
         #mobile-panel{position:absolute;top:0;left:0;right:0;bottom:0;background:var(--color-surface);display:none;flex-direction:column;z-index:50}
         .mobile-panel-inner{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
-        .mobile-panel-header{flex-shrink:0;background:var(--color-surface);border-bottom:1px solid var(--color-border);padding:1rem;z-index:10}
-        .mobile-panel-content{flex:1;overflow-y:auto;padding:1rem;padding-bottom:calc(1rem + var(--safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+        .mobile-panel-header{flex-shrink:0;background:var(--color-surface);border-bottom:1px solid var(--color-border);padding:1.25rem;z-index:10}
+        .mobile-panel-content{flex:1;overflow-y:auto;padding:1.25rem;padding-bottom:calc(1.25rem + var(--safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
         #mobile-nav{flex-shrink:0;background:var(--brand-color);box-shadow:0 -2px 10px rgba(0,0,0,.1);z-index:100;padding-bottom:var(--safe-area-inset-bottom);display:none}
         .nav-buttons{display:flex;justify-content:space-around;padding:.5rem 0}
         .nav-button{display:flex;flex-direction:column;align-items:center;background:none;border:none;padding:.5rem;color:rgba(255,255,255,.8);cursor:pointer;font-size:.75rem;gap:.25rem;flex:1;-webkit-tap-highlight-color:transparent;transition:all .2s;border-radius:6px;margin:0 .25rem}
@@ -147,54 +147,16 @@
         .nav-button:active{background:rgba(255,255,255,.15);transition:background .1s}
         .nav-icon{font-size:1.25rem;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
         .nav-button.active .nav-icon{filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))}
-        /* ===== ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ ДЕСКТОПА ===== */
-        #desktop-layout {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-            min-height: 0;
-        }
-        #desktop-sidebar {
-            flex-shrink: 0;
-            width: var(--sidebar-width, 400px);
-            background: var(--color-surface);
-            border-right: 1px solid var(--color-border);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 2px 0 10px rgba(0,0,0,.05);
-            z-index: 10;
-        }
-        #sidebar-resizer {
-            width: 6px;
-            cursor: col-resize;
-            background: var(--color-border);
-            flex-shrink: 0;
-            position: relative;
-            z-index: 10;
-            transition: background .2s;
-        }
-        #sidebar-resizer:hover,
-        #sidebar-resizer.active {
-            background: var(--brand-color);
-        }
-        #desktop-layout #map-container {
-            flex: 1 1 auto;
-            min-width: 0;
-            min-height: 0;
-            background: #e9ecef;
-            display: block;
-            position: relative;
-            height: 100%;
-        }
-        @media(max-width:768px){
-            #sidebar-resizer{display:none}
-            #desktop-layout{display:none!important}
-        }
+        #desktop-layout{display:flex;flex:1;overflow:hidden;position:relative;min-height:0}
+        #desktop-sidebar{flex-shrink:0;width:var(--sidebar-width, 400px);background:var(--color-surface);border-right:1px solid var(--color-border);display:flex;flex-direction:column;box-shadow:2px 0 10px rgba(0,0,0,.05);z-index:10}
+        #sidebar-resizer{width:6px;cursor:col-resize;background:var(--color-border);flex-shrink:0;position:relative;z-index:10;transition:background .2s}
+        #sidebar-resizer:hover,#sidebar-resizer.active{background:var(--brand-color)}
+        #desktop-layout #map-container{flex:1 1 auto;min-width:0;min-height:0;background:#e9ecef;display:block;position:relative;height:100%}
+        @media(max-width:768px){#sidebar-resizer{display:none}#desktop-layout{display:none!important}}
         .sidebar-header{background:linear-gradient(135deg,var(--brand-color),var(--brand-light));color:var(--text-on-brand);padding:1.25rem 1.5rem;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);position:relative}
         .sidebar-title{font-size:1.5rem;font-weight:700;text-align:left;text-shadow:0 1px 3px rgba(0,0,0,.2);line-height:1.2}
-        .sidebar-subtitle{font-size:.9rem;color:rgba(255,255,255,.9);text-align:left;margin:.5rem 0 1rem 0;font-weight:400}
-        .sidebar-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem}
+        .sidebar-subtitle{font-size:.9rem;color:rgba(255,255,255,.9);text-align:left;margin:.6rem 0 1.2rem 0;font-weight:400}
+        .sidebar-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
         .sidebar-stat-item{display:flex;flex-direction:column;align-items:center;padding:.375rem .25rem;background:rgba(255,255,255,.1);border-radius:var(--radius-md);backdrop-filter:blur(10px)}
         .sidebar-stat-value{font-weight:700;color:#fff;margin-top:.125rem;font-size:1rem}
         .sidebar-stat-label{font-size:.7rem;color:rgba(255,255,255,.9);text-align:center;line-height:1;margin-bottom:.125rem}
@@ -205,8 +167,8 @@
         .sidebar-content{flex:1;display:flex;flex-direction:column;overflow:hidden}
         .tab-content{flex:1;display:none;flex-direction:column;overflow:hidden}
         .tab-content.active{display:flex}
-        .tab-content-inner{flex:1;overflow-y:auto;padding:1.25rem;padding-bottom:0}
-        .tab-footer{flex-shrink:0;padding:1rem 1.25rem;padding-top:.75rem;border-top:1px solid var(--color-border);background:var(--color-surface)}
+        .tab-content-inner{flex:1;overflow-y:auto;padding:1.5rem;padding-bottom:0}
+        .tab-footer{flex-shrink:0;padding:1.25rem 1.5rem;padding-top:.75rem;border-top:1px solid var(--color-border);background:var(--color-surface)}
         #fullscreen-header{position:absolute;top:1rem;left:1rem;background:linear-gradient(135deg,var(--brand-color),var(--brand-light));color:var(--text-on-brand);padding:1rem 1.5rem;border-radius:var(--radius-lg);box-shadow:0 10px 25px rgba(0,0,0,.25);z-index:1000;display:none;min-width:600px;max-width:800px;backdrop-filter:blur(10px);cursor:move;user-select:none;border:1px solid rgba(255,255,255,.2)}
         .fullscreen-header-title{font-size:1.25rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;text-shadow:0 1px 3px rgba(0,0,0,.2)}
         .fullscreen-header-subtitle{font-size:.9rem;color:rgba(255,255,255,.9);margin-bottom:1rem;font-weight:400}
@@ -225,8 +187,10 @@
         .mobile-undo-button:active{transform:scale(.95)}
         .mobile-undo-button:disabled,.desktop-undo-button:disabled,.fullscreen-undo-button:disabled{opacity:.5;cursor:not-allowed}
         #desktop-sidebar.hidden{display:none}
-        #desktop-layout.fullscreen #map-container{width:100%!important}
-        .range-control{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;width:100%}
+        #desktop-layout.fullscreen #map-container{top:0!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;flex:none!important}
+        #desktop-layout.fullscreen{position:relative!important;width:100%!important;height:100%!important}
+        #desktop-layout.fullscreen #sidebar-resizer{display:none!important}
+        .range-control{display:flex;align-items:center;gap:.6rem;margin-top:.6rem;width:100%}
         .range-control-label{font-size:.875rem;color:var(--color-secondary);white-space:nowrap;min-width:30px;text-align:left}
         .range-control-input-wrapper{display:flex;align-items:center;gap:.25rem;flex:1;min-width:0}
         .range-control-button{width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-sm);color:var(--brand-color);font-size:1.125rem;font-weight:600;cursor:pointer;transition:all .2s;flex-shrink:0;-webkit-tap-highlight-color:transparent;user-select:none}
@@ -234,21 +198,21 @@
         .range-control-button:active{transform:scale(.95)}
         .range-control-button:disabled{opacity:.5;cursor:not-allowed;background:var(--color-background);color:var(--color-secondary)}
         .range-control-button:disabled:hover{background:var(--color-background);color:var(--color-secondary);border-color:var(--color-border)}
-        .range-control-input{flex:1;min-width:60px;padding:.5rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:.875rem;text-align:center;background:var(--color-surface);transition:border-color .2s;font-variant-numeric:tabular-nums;width:100%}
+        .range-control-input{flex:1;min-width:60px;padding:.6rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:.875rem;text-align:center;background:var(--color-surface);transition:border-color .2s;font-variant-numeric:tabular-nums;width:100%}
         .range-control-input:focus{outline:none;border-color:var(--brand-color);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
         .range-control-input::-webkit-inner-spin-button,.range-control-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
         .range-control-input[type=number]{-moz-appearance:textfield}
         .mobile-reset-button{padding:.75rem;background:#f3f4f6;color:var(--color-secondary);border:1px solid var(--color-border);border-radius:var(--radius-md);cursor:pointer;font-weight:500;transition:all .2s;width:100%;font-size:.9rem;-webkit-tap-highlight-color:transparent}
         .mobile-reset-button:hover{background:#e5e7eb;color:var(--brand-dark)}
         .mobile-reset-button:active{transform:scale(.98)}
-        .filter-section{margin-bottom:1.5rem}
+        .filter-section{margin-bottom:1.75rem}
         .filter-title{font-size:.875rem;font-weight:600;margin-bottom:.5rem;display:flex;justify-content:space-between;align-items:center;color:var(--brand-dark)}
         .filter-options{display:flex;flex-direction:column;gap:.375rem}
-        .checkbox-item{display:flex;align-items:center;gap:.5rem;cursor:pointer;padding:.25rem 0}
+        .checkbox-item{display:flex;align-items:center;gap:.6rem;cursor:pointer;padding:.3rem 0}
         .checkbox-item input[type="checkbox"]{width:1rem;height:1rem;accent-color:var(--brand-color)}
         .range-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.5rem}
         .range-input-group{display:flex;flex-direction:column}
-        .percentage-selector{background:var(--color-surface);border:1px solid #e9ecef;border-radius:var(--radius-md);padding:.75rem}
+        .percentage-selector{background:var(--color-surface);border:1px solid #e9ecef;border-radius:var(--radius-md);padding:1rem}
         .percentage-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
         .percentage-title{font-size:.9rem;font-weight:600;color:#495057;white-space:nowrap}
         .percentage-controls{display:flex;align-items:center;gap:.5rem}
@@ -267,14 +231,14 @@
         .slider::-moz-range-track{height:8px;background:#dee2e6;border-radius:4px}
         .slider::-moz-range-progress{height:8px;background:var(--brand-color);border-radius:4px}
         #building-list,#desktop-building-list{display:flex;flex-direction:column;gap:.5rem}
-        .building-item{padding:.75rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+        .building-item{padding:.875rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
         .building-item:hover{border-color:var(--brand-color);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
-        .building-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;min-height:32px;flex-wrap:nowrap;gap:6px}
+        .building-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;min-height:32px;flex-wrap:nowrap;gap:6px}
         .building-status{display:flex;align-items:center;margin-right:10px;flex-shrink:0}
         .building-address{font-weight:500;flex:1;margin:0 10px;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;text-align:left}
         .building-hide{color:var(--color-secondary);background:none;border:none;cursor:pointer;font-size:1.5rem;padding:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all .2s;flex-shrink:0;margin-left:5px}
         .building-hide:hover{background:rgba(239,68,68,.1);color:var(--color-busy);transform:scale(1.1)}
-        .building-details{display:flex;gap:.75rem;font-size:.875rem;color:var(--color-secondary);flex-wrap:wrap}
+        .building-details{display:flex;gap:1rem;font-size:.9rem;color:var(--color-secondary);flex-wrap:wrap}
         .reset-button{margin-top:.5rem;padding:.75rem;background:var(--brand-color);color:#fff;border:none;border-radius:var(--radius-md);cursor:pointer;font-weight:500;transition:all .2s;width:100%}
         .reset-button:hover{background:var(--brand-light);transform:translateY(-1px);box-shadow:var(--shadow-md)}
         .load-more{margin-top:1rem;padding:.75rem;background:var(--color-surface);color:var(--brand-color);border:1px solid var(--brand-color);border-radius:var(--radius-md);cursor:pointer;font-weight:500;transition:all .2s;width:100%;-webkit-tap-highlight-color:transparent}
@@ -303,8 +267,8 @@
         .mobile-bottom-notification .notification.info::before{background:var(--brand-color)}
         .mobile-bottom-notification .notification-icon{font-size:1.1rem;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
         .mobile-bottom-notification .notification-content{flex:1;font-size:.85rem;line-height:1.3}
-        @media(min-width:769px){#compact-header,#mobile-nav,#mobile-panel,#main-content{display:none!important}#desktop-layout{display:flex}.sidebar-content{padding:0}.filter-section{margin-bottom:1.25rem}.building-item{padding:.875rem}#desktop-list-tab{display:flex;flex-direction:column}#desktop-list-tab .percentage-selector{flex-shrink:0;border-bottom:1px solid var(--color-border);border-radius:0;padding:1rem 1.25rem;background:var(--color-surface);box-shadow:0 2px 4px rgba(0,0,0,.05)}#desktop-list-tab .tab-content-inner{flex:1;overflow-y:auto;padding:1.25rem;padding-bottom:0}#desktop-filters-tab{display:flex;flex-direction:column}#desktop-filters-tab .tab-content-inner{flex:1;overflow-y:auto;padding:1.25rem;padding-bottom:0}.tab-content{display:none!important}.tab-content.active{display:flex!important}.marker-balloon,.markers-control-panel,.markers-full-list{max-width:400px}.markers-table{font-size:13px}}
-        @media(max-width:768px){.notification-container{display:none!important}#desktop-layout{display:none!important}#compact-header,#mobile-nav,#main-content{display:block}#map-container{display:block;position:absolute;top:0;left:0;right:0;bottom:0;background:#e9ecef}.header-title{font-size:1.125rem;padding-right:50px}.header-subtitle{font-size:.875rem}.stat-value{font-size:.875rem}.stat-label{font-size:.65rem}.building-details{font-size:.8rem}#mobile-panel .panel-tabs{display:none}#mobile-filters-tab,#mobile-list-tab{display:none}#mobile-filters-tab.active,#mobile-list-tab.active{display:flex;flex-direction:column;flex:1;height:auto}button,.checkbox-item,.building-item{touch-action:manipulation}.nav-button{padding:.75rem .5rem;min-height:48px}.building-item{padding:1rem}.building-header{min-height:28px;margin-bottom:.4rem}.building-address{font-size:.9rem;margin:0 8px}.building-hide{width:22px;height:22px;font-size:1.4rem}.mobile-reset-button{padding:1rem;font-size:1rem}.percentage-button{width:36px;height:36px;font-size:1.1rem}.percentage-value-display{min-width:60px;font-size:1.2rem}.mobile-panel-header{padding:1rem;border-bottom:1px solid var(--color-border);background:var(--color-surface)}.mobile-panel-content{padding:1rem;overflow-y:auto;-webkit-overflow-scrolling:touch}#mobile-list-tab{display:flex;flex-direction:column}#mobile-list-tab .percentage-selector{flex-shrink:0;border-bottom:1px solid var(--color-border);border-radius:0;padding:1rem;background:var(--color-surface);box-shadow:0 2px 4px rgba(0,0,0,.05)}#mobile-list-tab .mobile-panel-content{flex:1;overflow-y:auto;padding:1rem;padding-bottom:calc(1rem + var(--safe-area-inset-bottom))}.range-row{grid-template-columns:1fr;gap:.75rem}.report-actions{grid-template-columns:1fr!important}.mobile-undo-button{top:10px;right:10px!important;left:auto!important;width:32px;height:32px;font-size:18px;z-index:1001!important}.marker-balloon,.markers-control-panel,.markers-full-list{max-width:320px;min-width:280px}.marker-actions{flex-direction:column}.markers-control-actions{flex-direction:column}.markers-table{font-size:12px}.markers-table th,.markers-table td{padding:8px}.marker-action-small{font-size:10px;padding:3px 6px;margin-right:3px}}
+        @media(min-width:769px){#compact-header,#mobile-nav,#mobile-panel,#main-content{display:none!important}#desktop-layout{display:flex}.sidebar-content{padding:0}.filter-section{margin-bottom:1.25rem}.building-item{padding:.875rem}#desktop-list-tab{display:flex;flex-direction:column}#desktop-list-tab .percentage-selector{flex-shrink:0;border-bottom:1px solid var(--color-border);border-radius:0;padding:1rem 1.25rem;background:var(--color-surface);box-shadow:0 2px 4px rgba(0,0,0,.05)}#desktop-list-tab .tab-content-inner{flex:1;overflow-y:auto;padding:1.5rem;padding-bottom:0}#desktop-filters-tab{display:flex;flex-direction:column}#desktop-filters-tab .tab-content-inner{flex:1;overflow-y:auto;padding:1.5rem;padding-bottom:0}.tab-content{display:none!important}.tab-content.active{display:flex!important}.marker-balloon,.markers-control-panel,.markers-full-list{max-width:400px}.markers-table{font-size:13px}}
+        @media(max-width:768px){.notification-container{display:none!important}#desktop-layout{display:none!important}#compact-header,#mobile-nav,#main-content{display:block}#map-container{display:block;position:absolute;top:0;left:0;right:0;bottom:0;background:#e9ecef}.header-title{font-size:1.125rem;padding-right:50px}.header-subtitle{font-size:.875rem}.stat-value{font-size:.875rem}.stat-label{font-size:.65rem}.building-details{font-size:.8rem}#mobile-panel .panel-tabs{display:none}#mobile-filters-tab,#mobile-list-tab{display:none}#mobile-filters-tab.active,#mobile-list-tab.active{display:flex;flex-direction:column;flex:1;height:auto}button,.checkbox-item,.building-item{touch-action:manipulation}.nav-button{padding:.75rem .5rem;min-height:48px}.building-item{padding:1.2rem}.building-header{min-height:28px;margin-bottom:.4rem}.building-address{font-size:.9rem;margin:0 8px}.building-hide{width:22px;height:22px;font-size:1.4rem}.mobile-reset-button{padding:1rem;font-size:1rem}.percentage-button{width:36px;height:36px;font-size:1.1rem}.percentage-value-display{min-width:60px;font-size:1.2rem}.mobile-panel-header{padding:1.25rem;border-bottom:1px solid var(--color-border);background:var(--color-surface)}.mobile-panel-content{padding:1.25rem;overflow-y:auto;-webkit-overflow-scrolling:touch}#mobile-list-tab{display:flex;flex-direction:column}#mobile-list-tab .percentage-selector{flex-shrink:0;border-bottom:1px solid var(--color-border);border-radius:0;padding:1rem;background:var(--color-surface);box-shadow:0 2px 4px rgba(0,0,0,.05)}#mobile-list-tab .mobile-panel-content{flex:1;overflow-y:auto;padding:1.25rem;padding-bottom:calc(1.25rem + var(--safe-area-inset-bottom))}.range-row{grid-template-columns:1fr;gap:.75rem}.report-actions{grid-template-columns:1fr!important}.mobile-undo-button{top:10px;right:10px!important;left:auto!important;width:32px;height:32px;font-size:18px;z-index:1001!important}.marker-balloon,.markers-control-panel,.markers-full-list{max-width:320px;min-width:280px}.marker-actions{flex-direction:column}.markers-control-actions{flex-direction:column}.markers-table{font-size:12px}.markers-table th,.markers-table td{padding:8px}.marker-action-small{font-size:10px;padding:3px 6px;margin-right:3px}}
         @media(max-width:360px){.mobile-bottom-notification{bottom:calc(55px + var(--safe-area-inset-bottom) + 10px);left:.5rem;right:.5rem;width:calc(100% - 1rem)}.mobile-bottom-notification .notification{max-width:100%;min-width:180px;padding:.6rem .8rem}.header-title{font-size:1rem}.header-subtitle{font-size:.8rem}.stat-value{font-size:.8rem}.stat-label{font-size:.6rem}.header-stats{gap:.375rem}.stat-item{padding:.25rem .125rem;min-height:36px}.nav-button span:not(.nav-icon){font-size:.7rem}.range-control-button{width:1.75rem;height:1.75rem;font-size:1rem}.range-control-input{min-width:50px;padding:.375rem;font-size:.8rem}.building-address{font-size:.85rem;margin:0 6px}.building-hide{width:20px;height:20px;font-size:1.3rem}.mobile-undo-button{top:8px;right:8px!important;left:auto!important;width:28px;height:28px;font-size:16px}.marker-balloon,.markers-control-panel,.markers-full-list{max-width:280px;min-width:250px}.marker-balloon-header,.markers-control-header,.markers-list-header{padding:10px 12px;padding-right:40px}.marker-balloon-close-btn,.markers-control-close-btn,.markers-list-close-btn{width:26px;height:26px;font-size:16px;top:6px;right:6px}.marker-balloon-content,.markers-control-content,.markers-list-content{padding:12px}.marker-action-btn{padding:8px 12px;font-size:12px}}
         .sync-controls{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;padding:.5rem 1rem;background:#e9ecef;border-bottom:2px solid var(--brand-color);border-top:2px solid var(--brand-color);margin-bottom:.75rem;position:sticky;top:-1.25rem;z-index:5;box-shadow:0 2px 4px rgba(0,0,0,.08)}
         .sync-label{font-size:.9rem;font-weight:600;color:var(--brand-dark);margin-right:.25rem}
@@ -356,10 +320,6 @@
         .range-control .range-control-input{display:none}
         .range-control .range-control-button{display:none}
         .range-control .range-control-label{display:none}
-		/* Полноэкранный режим: скрываем ресайзер */
-#desktop-layout.fullscreen #sidebar-resizer {
-    display: none !important;
-}
         .district-filter-block.low-stands .filter-range-group,.district-filter-block-mobile.low-stands .filter-range-group{opacity:.55;filter:grayscale(.3)}
         .district-filter-block.low-stands .district-stats,.district-filter-block-mobile.low-stands .district-stats,.district-filter-block.low-stands .district-name,.district-filter-block-mobile.low-stands .district-name{opacity:.6}
         .district-filter-block,.district-filter-block-mobile{border:1px solid var(--color-border);border-radius:var(--radius-md);padding:.75rem;margin-bottom:.75rem;background:var(--color-surface);display:flex;flex-direction:column;gap:.25rem;transition:opacity .2s,filter .2s}
@@ -374,25 +334,16 @@
         .district-filter-block .district-enable,.district-filter-block-mobile .district-enable{flex-shrink:0;width:1rem;height:1rem;accent-color:var(--brand-color);cursor:pointer;pointer-events:auto}
         @media(max-width:768px){.filter-range-group .filter-range-controls{gap:.3rem}.filter-range-group .range-control-pair{min-width:70px;padding:.05rem .25rem .05rem .15rem}.filter-range-group .range-btn{width:2.2rem;height:1.9rem;font-size:1.1rem}.filter-range-group .range-value-display{min-width:2rem;width:2.6rem;font-size:.8rem}.global-range-group .filter-range-controls{gap:.3rem}.global-range-group .range-control-pair{min-width:60px;padding:.05rem .2rem .05rem .1rem}.global-range-group .range-btn{width:2rem;height:1.7rem;font-size:1rem}.global-range-group .range-value-display{min-width:1.8rem;width:2.2rem;font-size:.75rem}.filter-range-group .range-visual-line{height:28px}.global-range-group .range-visual-line{height:24px}}
         @media(max-width:360px){.filter-range-group .range-control-pair{min-width:55px}.filter-range-group .range-btn{width:2rem;height:1.7rem;font-size:1rem}.filter-range-group .range-value-display{min-width:1.8rem;width:2.2rem;font-size:.75rem}.global-range-group .range-control-pair{min-width:50px}.global-range-group .range-btn{width:1.8rem;height:1.5rem;font-size:.9rem}.global-range-group .range-value-display{min-width:1.6rem;width:2rem;font-size:.7rem}}
-/* Полноэкранный режим: карта занимает всю площадь */
-#desktop-layout.fullscreen #map-container {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    flex: none !important;
-}
-#desktop-layout.fullscreen {
-    position: relative !important;
-    width: 100% !important;
-    height: 100% !important;
-}
-#desktop-layout.fullscreen #sidebar-resizer {
-    display: none !important;
-}
+		.filter-range-group,.global-range-group{display:flex;flex-direction:column;gap:.25rem}
+		.filter-range-group .filter-range-label,.global-range-group .filter-range-label{order:1}
+		.filter-range-group .range-visual-line,.global-range-group .range-visual-line{order:2;margin:.1rem 0}
+		.filter-range-group .filter-range-controls,.global-range-group .filter-range-controls{order:3;display:flex;flex-direction:row;gap:.5rem;align-items:center;flex-wrap:wrap}
+		@media(max-width:480px){.filter-range-group .filter-range-controls,.global-range-group .filter-range-controls{flex-direction:column;gap:.5rem}.filter-range-group .range-control-pair,.global-range-group .range-control-pair{flex:1 1 auto;width:100%}}
+		@media(min-width:481px){.filter-range-group .filter-range-controls,.global-range-group .filter-range-controls{flex-wrap:nowrap;gap:.5rem}.filter-range-group .range-control-pair,.global-range-group .range-control-pair{flex:1 1 0;min-width:0;padding:.1rem .1rem;gap:.1rem}.filter-range-group .range-control-pair .range-btn,.global-range-group .range-control-pair .range-btn,.filter-range-group .range-control-pair .range-value-display,.global-range-group .range-control-pair .range-value-display{flex:1 1 0;min-width:0;width:auto}.filter-range-group .range-control-pair .range-btn,.global-range-group .range-control-pair .range-btn{min-width:1.8rem;max-width:3rem;height:1.8rem;font-size:.9rem}.filter-range-group .range-control-pair .range-value-display,.global-range-group .range-control-pair .range-value-display{flex:2 1 0;min-width:2rem;padding:.1rem;font-size:.85rem}}
+		@media(min-width:481px){.filter-range-group .range-control-pair .range-btn,.global-range-group .range-control-pair .range-btn{min-width:2.8rem;max-width:4rem;height:2rem;font-size:1rem;flex:1 1 0}.filter-range-group .range-control-pair .range-value-display,.global-range-group .range-control-pair .range-value-display{min-width:1.8rem;flex:1 1 0;font-size:.8rem;padding:.1rem}}
+		.district-filter-block.district-empty .district-name,.district-filter-block-mobile.district-empty .district-name{opacity:.4;transition:opacity .2s}
+		.district-filter-block.district-empty .district-stats,.district-filter-block-mobile.district-empty .district-stats{opacity:.5}
+
     </style>
 </head>
 <body>
@@ -938,43 +889,39 @@
             currentEscHandler: null,
             userMarkers: [],
             userMarkersCollection: null,
-switchContainer(isMobileMode) {
-    const container = document.getElementById('map-container');
-    if (!container) return;
-    let targetParent;
-    if (isMobileMode) {
-        targetParent = document.getElementById('main-content');
-        const panel = document.getElementById('mobile-panel');
-        if (panel && targetParent) {
-            targetParent.insertBefore(container, panel);
-        } else {
-            targetParent.appendChild(container);
-        }
-    } else {
-        targetParent = document.getElementById('desktop-layout');
-        const resizer = document.getElementById('sidebar-resizer');
-        if (resizer && targetParent) {
-            targetParent.insertBefore(container, resizer.nextSibling);
-        } else {
-            targetParent.appendChild(container);
-        }
-    }
-    // Убедимся, что контейнер видим и занимает всё пространство
-    container.style.display = 'block';
-    container.style.width = '100%';
-    container.style.height = '100%';
-    
-    if (map) {
-        // Даём браузеру время перестроить DOM, затем обновляем карту
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                map.container.fitToViewport();
-                // Дополнительно посылаем событие resize для надёжности
-                window.dispatchEvent(new Event('resize'));
-            });
-        });
-    }
-},
+            switchContainer(isMobileMode) {
+                const container = document.getElementById('map-container');
+                if (!container) return;
+                let targetParent;
+                if (isMobileMode) {
+                    targetParent = document.getElementById('main-content');
+                    const panel = document.getElementById('mobile-panel');
+                    if (panel && targetParent) {
+                        targetParent.insertBefore(container, panel);
+                    } else {
+                        targetParent.appendChild(container);
+                    }
+                } else {
+                    targetParent = document.getElementById('desktop-layout');
+                    const resizer = document.getElementById('sidebar-resizer');
+                    if (resizer && targetParent) {
+                        targetParent.insertBefore(container, resizer.nextSibling);
+                    } else {
+                        targetParent.appendChild(container);
+                    }
+                }
+                container.style.display = 'block';
+                container.style.width = '100%';
+                container.style.height = '100%';
+                if (map) {
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            map.container.fitToViewport();
+                            window.dispatchEvent(new Event('resize'));
+                        });
+                    });
+                }
+            },
             initUserMarkers() {
                 if (!map) return;
                 this.userMarkersCollection = new ymaps.GeoObjectCollection(null, {
@@ -1016,47 +963,48 @@ switchContainer(isMobileMode) {
                 });
                 this.bringUserMarkersToFront();
             },
-            createPlacemark(marker, index) {
-                const iconText = marker.text ? (marker.text.length > 6 ? marker.text.substring(0, 6) + '..' : marker.text) : '★';
-                const placemark = new ymaps.Placemark(
-                    [marker.lat, marker.lng],
-                    {
-                        iconContent: iconText,
-                        hintContent: `Метка: ${marker.text || 'Без названия'}`,
-                        balloonContent: this.createMarkerBalloonContent(marker, index)
-                    },
-                    {
-                        preset: "islands#redStretchyIcon",
-                        draggable: this.dragModeActive,
-                        openBalloonOnClick: true,
-                        hideIconOnBalloonOpen: false,
-                        balloonOffset: [0, -40],
-                        zIndex: 2000 + index,
-                        cursor: this.dragModeActive ? 'move' : 'pointer',
-                        hasBalloon: true,
-                        hasHint: true,
-                        balloonAutoPan: true,
-                        balloonPanelMaxMapArea: 0,
-                        balloonCloseButton: false
-                    }
-                );
-                placemark.options.set({ className: 'user-marker' });
-                placemark.events.add('dragend', (e) => {
-                    if (!this.dragModeActive) return;
-                    const coords = placemark.geometry.getCoordinates();
-                    this.userMarkers[index] = { ...this.userMarkers[index], lat: coords[0], lng: coords[1] };
-                    this.saveUserMarkers();
-                    Utils.showNotification('Метка перемещена', 'info');
-                    StateModule.updateURL();
-                });
-                placemark.events.add('balloonopen', () => {
-                    placemark.options.set('zIndex', 3000);
-                });
-                placemark.events.add('balloonclose', () => {
-                    placemark.options.set('zIndex', 2000 + index);
-                });
-                return placemark;
-            },
+			createPlacemark(marker, index) {
+				const safeText = Utils.escapeHtml(marker.text || '★');
+				const iconText = safeText.length > 6 ? safeText.substring(0, 6) + '..' : safeText;
+				const placemark = new ymaps.Placemark(
+					[marker.lat, marker.lng],
+					{
+						iconContent: iconText,
+						hintContent: `Метка: ${safeText}`,
+						balloonContent: this.createMarkerBalloonContent(marker, index)
+					},
+					{
+						preset: "islands#redStretchyIcon",
+						draggable: this.dragModeActive,
+						openBalloonOnClick: true,
+						hideIconOnBalloonOpen: false,
+						balloonOffset: [0, -40],
+						zIndex: 2000 + index,
+						cursor: this.dragModeActive ? 'move' : 'pointer',
+						hasBalloon: true,
+						hasHint: true,
+						balloonAutoPan: true,
+						balloonPanelMaxMapArea: 0,
+						balloonCloseButton: false
+					}
+				);
+				placemark.options.set({ className: 'user-marker' });
+				placemark.events.add('dragend', (e) => {
+					if (!this.dragModeActive) return;
+					const coords = placemark.geometry.getCoordinates();
+					this.userMarkers[index] = { ...this.userMarkers[index], lat: coords[0], lng: coords[1] };
+					this.saveUserMarkers();
+					Utils.showNotification('Метка перемещена', 'info');
+					StateModule.updateURL();
+				});
+				placemark.events.add('balloonopen', () => {
+					placemark.options.set('zIndex', 3000);
+				});
+				placemark.events.add('balloonclose', () => {
+					placemark.options.set('zIndex', 2000 + index);
+				});
+				return placemark;
+			},
             createMarkerBalloonContent(marker, index) {
                 return `
                     <div class="marker-balloon">
@@ -1541,17 +1489,16 @@ switchContainer(isMobileMode) {
                             map.geoObjects.add(objectManager);
                             this.initUserMarkers();
                             map.events.add('sizechange', () => { if (map.balloon && map.balloon.isOpen()) map.container.fitToViewport(); });
-                            // Автоматическое обновление карты при изменении размеров родителя
-							const layout = document.getElementById('desktop-layout');
-							if (layout && window.ResizeObserver) {
-								const resizeObserver = new ResizeObserver(() => {
-									if (map && document.getElementById('map-container').style.display !== 'none') {
-										map.container.fitToViewport();
-									}
-								});
-								resizeObserver.observe(layout);
-							}
-							resolve(map);
+                            const layout = document.getElementById('desktop-layout');
+                            if (layout && window.ResizeObserver) {
+                                const resizeObserver = new ResizeObserver(() => {
+                                    if (map && document.getElementById('map-container').style.display !== 'none') {
+                                        map.container.fitToViewport();
+                                    }
+                                });
+                                resizeObserver.observe(layout);
+                            }
+                            resolve(map);
                         } catch (error) {
                             reject(error);
                         }
@@ -1754,7 +1701,7 @@ switchContainer(isMobileMode) {
         };
 
         // ================================================================
-        // КЛАСС RANGESLIDER — с инпутами и валидацией
+        // КЛАСС RANGESLIDER — с инпутами и валидацией (ИСПРАВЛЕННЫЙ)
         // ================================================================
         class RangeSlider {
             constructor(container, minVal, maxVal, initialMin, initialMax, onChange, allowedValues = null, opts = {}) {
@@ -1916,14 +1863,21 @@ switchContainer(isMobileMode) {
                 const rightPct = ((this.maxVal - this.currentMax) / range) * 100;
                 this._highlightEl.style.left = `${leftPct}%`;
                 this._highlightEl.style.right = `${rightPct}%`;
+                // Обновить активность тиков после изменения highlight
+                this._updateTicksActiveState();
+            }
 
+            // FIX: новый метод для обновления состояния тиков без пересоздания
+            _updateTicksActiveState() {
+                if (!this._ticksContainer) return;
+                const range = this.maxVal - this.minVal;
+                if (range === 0) return;
                 const ticks = this._ticksContainer.querySelectorAll('.tick');
                 ticks.forEach(tick => {
                     const left = parseFloat(tick.style.left);
                     if (isNaN(left)) return;
                     const val = this.minVal + (left / 100) * range;
-                    const isActive = val >= this.currentMin && val <= this.currentMax;
-                    tick.classList.toggle('active', isActive);
+                    tick.classList.toggle('active', val >= this.currentMin && val <= this.currentMax);
                 });
             }
 
@@ -2033,32 +1987,29 @@ switchContainer(isMobileMode) {
                 this.onChange(this.currentMin, this.currentMax);
             }
 
-setValues(min, max) {
-    const values = this.allowedValues;
-    if (values && values.length) {
-        min = Utils.getNearestValue(min, values);
-        max = Utils.getNearestValue(max, values);
-    }
-    min = Math.max(this.minVal, Math.min(this.maxVal, min));
-    max = Math.min(this.maxVal, Math.max(this.minVal, max));
-    if (min > max) { const t = min; min = max; max = t; }
-    this.currentMin = min;
-    this.currentMax = max;
-    this._updateDisplay();
-    this._updateHighlight();
-    this._updateButtonsState();
-    // Перерисовываем метки, чтобы активные обновились
-    if (this._ticksContainer) {
-        this._renderTicks(this._ticksContainer);
-    }
-}
+            setValues(min, max) {
+                const values = this.allowedValues;
+                if (values && values.length) {
+                    min = Utils.getNearestValue(min, values);
+                    max = Utils.getNearestValue(max, values);
+                }
+                min = Math.max(this.minVal, Math.min(this.maxVal, min));
+                max = Math.min(this.maxVal, Math.max(this.minVal, max));
+                if (min > max) { const t = min; min = max; max = t; }
+                this.currentMin = min;
+                this.currentMax = max;
+                this._updateDisplay();
+                this._updateHighlight(); // внутри вызывает _updateTicksActiveState
+                this._updateButtonsState();
+                // FIX: не пересоздаём тики, они обновляются в _updateHighlight
+            }
 
-refresh() {
-    if (this._ticksContainer) {
-        this._renderTicks(this._ticksContainer);
-    }
-    this._updateHighlight();
-}
+            refresh() {
+                if (this._ticksContainer) {
+                    this._renderTicks(this._ticksContainer);
+                }
+                this._updateHighlight();
+            }
         }
 
         // ================================================================
@@ -2600,26 +2551,47 @@ refresh() {
                 });
             },
 
-            updateDistrictStats() {
-                const districts = Object.keys(districtFilters);
-                districts.forEach(district => {
-                    const totalInDistrict = allBuildings
-                        .filter(b => b.district === district)
-                        .reduce((sum, b) => sum + (b.entrances || 0), 0);
-                    const selectedInDistrict = displayedBuildings
-                        .filter(b => b.district === district)
-                        .reduce((sum, b) => sum + (b.entrances || 0), 0);
-                    const statsEl = document.getElementById(`district-stats-${district}`);
-                    if (statsEl) {
-                        statsEl.innerHTML = `<i class="fas fa-building"></i> <span class="selected-stands">${selectedInDistrict}</span> из <span class="total-stands">${totalInDistrict}</span>`;
-                    }
-                    const statsElMobile = document.getElementById(`mobile-district-stats-${district}`);
-                    if (statsElMobile) {
-                        statsElMobile.innerHTML = `<i class="fas fa-building"></i> <span class="selected-stands">${selectedInDistrict}</span> из <span class="total-stands">${totalInDistrict}</span>`;
-                    }
-                });
-            },
+			updateDistrictStats() {
+				const districts = Object.keys(districtFilters);
+				districts.forEach(district => {
+					const totalInDistrict = allBuildings
+						.filter(b => b.district === district)
+						.reduce((sum, b) => sum + (b.entrances || 0), 0);
+					const selectedInDistrict = displayedBuildings
+						.filter(b => b.district === district)
+						.reduce((sum, b) => sum + (b.entrances || 0), 0);
 
+					// Обновляем текст статистики
+					const statsEl = document.getElementById(`district-stats-${district}`);
+					if (statsEl) {
+						statsEl.innerHTML = `<i class="fas fa-building"></i> <span class="selected-stands">${selectedInDistrict}</span> из <span class="total-stands">${totalInDistrict}</span>`;
+						// Находим родительский блок и управляем классом "district-empty"
+						const block = statsEl.closest('.district-filter-block');
+						if (block) {
+							if (selectedInDistrict === 0) {
+								block.classList.add('district-empty');
+							} else {
+								block.classList.remove('district-empty');
+							}
+						}
+					}
+
+					// Аналогично для мобильной версии
+					const statsElMobile = document.getElementById(`mobile-district-stats-${district}`);
+					if (statsElMobile) {
+						statsElMobile.innerHTML = `<i class="fas fa-building"></i> <span class="selected-stands">${selectedInDistrict}</span> из <span class="total-stands">${totalInDistrict}</span>`;
+						const blockMobile = statsElMobile.closest('.district-filter-block-mobile');
+						if (blockMobile) {
+							if (selectedInDistrict === 0) {
+								blockMobile.classList.add('district-empty');
+							} else {
+								blockMobile.classList.remove('district-empty');
+							}
+						}
+					}
+				});
+			},
+			
             resetFilters() {
                 hiddenBuildings.clear();
                 activeFilters.status.clear();
@@ -3177,7 +3149,7 @@ refresh() {
         };
 
         // ================================================================
-        // МОДУЛЬ ПОЛНОЭКРАННОГО РЕЖИМА
+        // МОДУЛЬ ПОЛНОЭКРАННОГО РЕЖИМА (ИСПРАВЛЕННЫЙ)
         // ================================================================
         const FullscreenModule = {
             init() {
@@ -3228,63 +3200,57 @@ refresh() {
                 dragData.element.style.transition = 'all 0.3s';
                 dragData = null;
             },
-toggleFullscreen() {
-    const sidebar = document.getElementById('desktop-sidebar');
-    const header = document.getElementById('fullscreen-header');
-    const sidebarBtn = document.getElementById('sidebar-fullscreen-btn');
-    const fullscreenBtn = document.getElementById('fullscreen-close-btn');
-    const layout = document.getElementById('desktop-layout');
-    const mapContainer = document.getElementById('map-container');
+            toggleFullscreen() {
+                const sidebar = document.getElementById('desktop-sidebar');
+                const header = document.getElementById('fullscreen-header');
+                const sidebarBtn = document.getElementById('sidebar-fullscreen-btn');
+                const fullscreenBtn = document.getElementById('fullscreen-close-btn');
+                const layout = document.getElementById('desktop-layout');
+                const mapContainer = document.getElementById('map-container');
 
-    if (!isFullscreen) {
-        isFullscreen = true;
-        sidebar.classList.add('hidden');
-        layout.classList.add('fullscreen');
-        header.style.display = 'block';
-        sidebarBtn.innerHTML = '<i class="fas fa-arrow-right"></i>';
-        sidebarBtn.title = 'Вернуться к обычному виду';
-        fullscreenBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
-        Utils.showNotification('Включен полноэкранный режим', 'success');
-    } else {
-        isFullscreen = false;
-        sidebar.classList.remove('hidden');
-        layout.classList.remove('fullscreen');
-        header.style.display = 'none';
-        sidebarBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
-        sidebarBtn.title = 'Развернуть на весь экран';
-        Utils.showNotification('Обычный режим', 'info');
-    }
+                if (!isFullscreen) {
+                    isFullscreen = true;
+                    sidebar.classList.add('hidden');
+                    layout.classList.add('fullscreen');
+                    header.style.display = 'block';
+                    sidebarBtn.innerHTML = '<i class="fas fa-arrow-right"></i>';
+                    sidebarBtn.title = 'Вернуться к обычному виду';
+                    fullscreenBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
+                    Utils.showNotification('Включен полноэкранный режим', 'success');
+                } else {
+                    isFullscreen = false;
+                    sidebar.classList.remove('hidden');
+                    layout.classList.remove('fullscreen');
+                    header.style.display = 'none';
+                    sidebarBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
+                    sidebarBtn.title = 'Развернуть на весь экран';
+                    Utils.showNotification('Обычный режим', 'info');
+                }
 
-    // === УЛУЧШЕННОЕ ОБНОВЛЕНИЕ С БОЛЬШИМИ ЗАДЕРЖКАМИ ===
-    if (map && mapContainer) {
-        // Сначала даём браузеру перестроить DOM
-        setTimeout(() => {
-            // Принудительно задаём размеры контейнера по родителю
-            const rect = layout.getBoundingClientRect();
-            mapContainer.style.width = rect.width + 'px';
-            mapContainer.style.height = rect.height + 'px';
-
-            // Тройной вызов с задержками для гарантии
-            const updateMap = () => {
-                map.container.fitToViewport();
-                window.dispatchEvent(new Event('resize'));
-            };
-            requestAnimationFrame(() => {
-                updateMap();
-                setTimeout(() => {
-                    requestAnimationFrame(updateMap);
+                // FIX: обновляем карту без принудительной установки размеров
+                if (map && mapContainer) {
                     setTimeout(() => {
-                        requestAnimationFrame(updateMap);
-                    }, 200);
-                }, 200);
-            });
-        }, 300);
-    }
-}
+                        // Многократный вызов fitToViewport для надёжности
+                        const update = () => {
+                            map.container.fitToViewport();
+                            window.dispatchEvent(new Event('resize'));
+                        };
+                        requestAnimationFrame(() => {
+                            update();
+                            setTimeout(() => {
+                                requestAnimationFrame(update);
+                                setTimeout(() => {
+                                    requestAnimationFrame(update);
+                                }, 150);
+                            }, 150);
+                        });
+                    }, 300);
+                }
+            }
         };
 
         // ================================================================
-        // МОДУЛЬ СОСТОЯНИЯ
+        // МОДУЛЬ СОСТОЯНИЯ (ИСПРАВЛЕННЫЙ)
         // ================================================================
         const StateModule = {
             currentDataHash: null,
@@ -3514,10 +3480,11 @@ toggleFullscreen() {
                     document.getElementById('mobile-sync-flats').checked = state.syncFlats;
                 }
                 this.updateUIFromState(state);
-				FilterModule.updateVisibility();
-                FilterModule.applyFiltersDebounced();
-                if (state.districtFilters) {
-                    setTimeout(() => {
+                FilterModule.updateVisibility();
+
+                // FIX: отложенное обновление слайдеров районов с проверкой существования
+                setTimeout(() => {
+                    if (state.districtFilters) {
                         Object.keys(state.districtFilters).forEach(district => {
                             const hasDesktopSlider = FilterModule.rangeSliders && FilterModule.rangeSliders[district];
                             const hasMobileSlider = FilterModule.rangeSlidersMobile && FilterModule.rangeSlidersMobile[district];
@@ -3527,43 +3494,41 @@ toggleFullscreen() {
                             }
                         });
                         FilterModule.applyFiltersDebounced();
-                    }, 150);
-                }
+                    }
+                }, 200);
+
                 this.updateURL();
             },
-updateUIFromState(state) {
-    this.updateFilterCheckboxes('status-filter', state.filters.status);
-    this.updateFilterCheckboxes('desktop-status-filter', state.filters.status);
-    this.updateFilterCheckboxes('district-filter', state.filters.district);
+            updateUIFromState(state) {
+                this.updateFilterCheckboxes('status-filter', state.filters.status);
+                this.updateFilterCheckboxes('desktop-status-filter', state.filters.status);
+                this.updateFilterCheckboxes('district-filter', state.filters.district);
 
-    // Определяем значения для общих слайдеров
-    const minFloors = state.filters.floors.min !== null ? state.filters.floors.min : (availableValues.floors[0] || 1);
-    const maxFloors = state.filters.floors.max !== null ? state.filters.floors.max : (availableValues.floors[availableValues.floors.length - 1] || 1);
-    const minFlats = state.filters.flatsPerEntrance.min !== null ? state.filters.flatsPerEntrance.min : (availableValues.flatsPerEntrance[0] || 1);
-    const maxFlats = state.filters.flatsPerEntrance.max !== null ? state.filters.flatsPerEntrance.max : (availableValues.flatsPerEntrance[availableValues.flatsPerEntrance.length - 1] || 1);
+                const minFloors = state.filters.floors.min !== null ? state.filters.floors.min : (availableValues.floors[0] || 1);
+                const maxFloors = state.filters.floors.max !== null ? state.filters.floors.max : (availableValues.floors[availableValues.floors.length - 1] || 1);
+                const minFlats = state.filters.flatsPerEntrance.min !== null ? state.filters.flatsPerEntrance.min : (availableValues.flatsPerEntrance[0] || 1);
+                const maxFlats = state.filters.flatsPerEntrance.max !== null ? state.filters.flatsPerEntrance.max : (availableValues.flatsPerEntrance[availableValues.flatsPerEntrance.length - 1] || 1);
 
-    // Обновляем оба набора слайдеров – десктопный и мобильный
-    if (FilterModule._globalRangeControls) {
-        const desktop = FilterModule._globalRangeControls.desktop;
-        const mobile  = FilterModule._globalRangeControls.mobile;
+                if (FilterModule._globalRangeControls) {
+                    const desktop = FilterModule._globalRangeControls.desktop;
+                    const mobile  = FilterModule._globalRangeControls.mobile;
 
-        if (desktop && desktop.floors) desktop.floors.setValues(minFloors, maxFloors);
-        if (mobile  && mobile.floors)  mobile.floors.setValues(minFloors, maxFloors);
+                    if (desktop && desktop.floors) desktop.floors.setValues(minFloors, maxFloors);
+                    if (mobile  && mobile.floors)  mobile.floors.setValues(minFloors, maxFloors);
 
-        if (desktop && desktop.flatsPerEntrance) desktop.flatsPerEntrance.setValues(minFlats, maxFlats);
-        if (mobile  && mobile.flatsPerEntrance)  mobile.flatsPerEntrance.setValues(minFlats, maxFlats);
-    }
+                    if (desktop && desktop.flatsPerEntrance) desktop.flatsPerEntrance.setValues(minFlats, maxFlats);
+                    if (mobile  && mobile.flatsPerEntrance)  mobile.flatsPerEntrance.setValues(minFlats, maxFlats);
+                }
 
-    // Восстанавливаем процент показа
-    ['mobile-percentage-slider', 'desktop-percentage-slider'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = state.percentage;
-    });
-    ['mobile-percentage-value', 'desktop-percentage-value'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = `${state.percentage}%`;
-    });
-},
+                ['mobile-percentage-slider', 'desktop-percentage-slider'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = state.percentage;
+                });
+                ['mobile-percentage-value', 'desktop-percentage-value'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = `${state.percentage}%`;
+                });
+            },
             updateFilterCheckboxes(containerId, values) {
                 const container = document.getElementById(containerId);
                 if (!container) return;
@@ -3611,7 +3576,7 @@ updateUIFromState(state) {
         // ГЛОБАЛЬНЫЕ ОБРАБОТЧИКИ
         // ================================================================
         function handleHideCluster(buildingIds) {
-            const ids = buildingIds.split(',').map(id => parseInt(id.trim()));
+            const ids = buildingIds.split(',').map(id => parseInt(id, 10));
             ids.forEach(id => hiddenBuildings.add(id));
             HistoryModule.saveHideCluster(ids, ids.length);
             FilterModule.applyFiltersDebounced();
@@ -3633,7 +3598,7 @@ updateUIFromState(state) {
         }
 
         // ================================================================
-        // РЕСАЙЗЕР ЛЕВОЙ ПАНЕЛИ (ИСПРАВЛЕННЫЙ)
+        // РЕСАЙЗЕР ЛЕВОЙ ПАНЕЛИ
         // ================================================================
         function initResizableSidebar() {
             const resizer = document.getElementById('sidebar-resizer');
@@ -3667,17 +3632,15 @@ updateUIFromState(state) {
                 if (!isResizing) return;
                 const delta = e.clientX - startX;
                 let newWidth = startWidth + delta;
-                const minWidth = 300;
-                const maxWidth = 600;
+                const minWidth = 400;
+                const maxWidth = 700;
                 newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
                 sidebar.style.width = newWidth + 'px';
 
-                // Принудительно обновляем карту
                 if (map) {
                     requestAnimationFrame(() => {
                         map.container.fitToViewport();
                     });
-                    // дополнительно генерируем resize для надёжности
                     window.dispatchEvent(new Event('resize'));
                 }
             }
@@ -3699,30 +3662,30 @@ updateUIFromState(state) {
         // ================================================================
         // АДАПТИВНОСТЬ И ИНИЦИАЛИЗАЦИЯ
         // ================================================================
-function updateResponsive() {
-    const nowMobile = window.innerWidth <= 768;
-    if (nowMobile !== isMobile) {
-        isMobile = nowMobile;
-        MapModule.switchContainer(isMobile);
-        if (isMobile) {
-            if (!currentView) currentView = 'map';
-            Utils.setMobileView(currentView);
-        } else {
-            Utils.setDesktopTab(currentDesktopTab);
-            FullscreenModule.init();
+        function updateResponsive() {
+            const nowMobile = window.innerWidth <= 768;
+            if (nowMobile !== isMobile) {
+                isMobile = nowMobile;
+                MapModule.switchContainer(isMobile);
+                if (isMobile) {
+                    if (!currentView) currentView = 'map';
+                    Utils.setMobileView(currentView);
+                } else {
+                    Utils.setDesktopTab(currentDesktopTab);
+                    FullscreenModule.init();
+                }
+                if (map) {
+                    setTimeout(() => {
+                        map.container.fitToViewport();
+                        window.dispatchEvent(new Event('resize'));
+                    }, 200);
+                }
+            }
+            if (isMobile) {
+                Utils.updateMainContentHeight();
+            }
         }
-        // Принудительно обновляем карту после переключения (дополнительная страховка)
-        if (map) {
-            setTimeout(() => {
-                map.container.fitToViewport();
-                window.dispatchEvent(new Event('resize'));
-            }, 200);
-        }
-    }
-    if (isMobile) {
-        Utils.updateMainContentHeight();
-    }
-}
+
         function setupResponsive() {
             let resizeTimeout;
             const handleResize = () => {
@@ -3790,49 +3753,48 @@ function updateResponsive() {
         // ================================================================
         // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
         // ================================================================
-async function initApp() {
-    try {
-        Utils.updateMainContentHeight();
-        MapModule.switchContainer(isMobile);
-        await MapModule.initMap();
+        async function initApp() {
+            try {
+                Utils.updateMainContentHeight();
+                MapModule.switchContainer(isMobile);
+                await MapModule.initMap();
 
-        Utils.showNotification('Загрузка данных...', 'info');
-        allBuildings = await DataModule.loadData();
-        Utils.showNotification('Загрузка контактов...', 'info');
-        contacts = await DataModule.loadContacts();
+                Utils.showNotification('Загрузка данных...', 'info');
+                allBuildings = await DataModule.loadData();
+                Utils.showNotification('Загрузка контактов...', 'info');
+                contacts = await DataModule.loadContacts();
 
-        // Сначала создаём фильтры (включая слайдеры)
-        FilterModule.initFilters(allBuildings);
-        PercentageModule.initPercentageSelector();
-        HistoryModule.init();
+                FilterModule.initFilters(allBuildings);
+                PercentageModule.initPercentageSelector();
+                HistoryModule.init();
 
-        // Теперь восстанавливаем состояние (слайдеры уже есть)
-        StateModule.init(allBuildings);
+                StateModule.init(allBuildings);
 
-        FilterModule.applyFilters();
-        setupUIEvents();
-        setupResponsive();
+                FilterModule.applyFilters();
+                setupUIEvents();
+                setupResponsive();
 
-        initResizableSidebar();
+                initResizableSidebar();
 
-        if (!isMobile) {
-            Utils.setDesktopTab('filters');
-            FullscreenModule.init();
-        } else {
-            Utils.setMobileView('map');
+                if (!isMobile) {
+                    Utils.setDesktopTab('filters');
+                    FullscreenModule.init();
+                } else {
+                    Utils.setMobileView('map');
+                }
+
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.display = 'none'; }, 300); }
+                appInitialized = true;
+                Utils.showNotification('Приложение готово', 'success');
+            } catch (error) {
+                Utils.showNotification('Ошибка загрузки приложения', 'error');
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) overlay.style.display = 'none';
+                console.error(error);
+            }
         }
 
-        const overlay = document.getElementById('loading-overlay');
-        if (overlay) { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.display = 'none'; }, 300); }
-        appInitialized = true;
-        Utils.showNotification('Приложение готово', 'success');
-    } catch (error) {
-        Utils.showNotification('Ошибка загрузки приложения', 'error');
-        const overlay = document.getElementById('loading-overlay');
-        if (overlay) overlay.style.display = 'none';
-        console.error(error);
-    }
-}
         function setupUIEvents() {
             document.querySelectorAll('.sidebar-tab').forEach(tab => {
                 tab.addEventListener('click', (e) => {
