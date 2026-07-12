@@ -651,148 +651,148 @@
         // ================================================================
         // ЗАГРУЗКА ДАННЫХ ИЗ GOOGLE SHEETS (новый модуль)
         // ================================================================
-const DataModule = {
-    async loadData() {
-        console.time('[DataModule] loadData - total');
+		const DataModule = {
+			async loadData() {
+				console.time('[DataModule] loadData - total');
 
-        const cacheKey = 'pr_market_data_google';
-        const cacheModifiedKey = 'pr_market_data_modified_google';
-        const localData = localStorage.getItem(cacheKey);
-        const localModified = parseInt(localStorage.getItem(cacheModifiedKey) || '0', 10);
+				const cacheKey = 'pr_market_data_google';
+				const cacheModifiedKey = 'pr_market_data_modified_google';
+				const localData = localStorage.getItem(cacheKey);
+				const localModified = parseInt(localStorage.getItem(cacheModifiedKey) || '0', 10);
 
-        // Функция загрузки CSV с листа
-        const fetchSheetCSV = async (sheetName) => {
-            const url =
-                `https://docs.google.com/spreadsheets/d/${CONFIG.GOOGLE_SHEETS.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Ошибка загрузки листа ${sheetName}`);
-            return await response.text();
-        };
+				// Функция загрузки CSV с листа
+				const fetchSheetCSV = async (sheetName) => {
+					const url =
+						`https://docs.google.com/spreadsheets/d/${CONFIG.GOOGLE_SHEETS.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+					const response = await fetch(url);
+					if (!response.ok) throw new Error(`Ошибка загрузки листа ${sheetName}`);
+					return await response.text();
+				};
 
-        // Простой парсер CSV с учётом кавычек
-        const parseCSVLine = (line) => {
-            const result = [];
-            let current = '';
-            let inQuotes = false;
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    result.push(current.trim());
-                    current = '';
-                } else {
-                    current += char;
-                }
-            }
-            result.push(current.trim());
-            return result;
-        };
+				// Простой парсер CSV с учётом кавычек
+				const parseCSVLine = (line) => {
+					const result = [];
+					let current = '';
+					let inQuotes = false;
+					for (let i = 0; i < line.length; i++) {
+						const char = line[i];
+						if (char === '"') {
+							inQuotes = !inQuotes;
+						} else if (char === ',' && !inQuotes) {
+							result.push(current.trim());
+							current = '';
+						} else {
+							current += char;
+						}
+					}
+					result.push(current.trim());
+					return result;
+				};
 
-        try {
-            console.time('[DataModule] fetch main sheet');
-            const csvData = await fetchSheetCSV(CONFIG.GOOGLE_SHEETS.SHEET_NAME);
-            console.timeEnd('[DataModule] fetch main sheet');
+				try {
+					console.time('[DataModule] fetch main sheet');
+					const csvData = await fetchSheetCSV(CONFIG.GOOGLE_SHEETS.SHEET_NAME);
+					console.timeEnd('[DataModule] fetch main sheet');
 
-            const lines = csvData.split('\n').filter(line => line.trim() !== '');
-            if (lines.length < 1) throw new Error('CSV не содержит данных');
+					const lines = csvData.split('\n').filter(line => line.trim() !== '');
+					if (lines.length < 1) throw new Error('CSV не содержит данных');
 
-            const buildings = [];
-            // Индексы колонок: 0-id, 1-address, 2-lat, 3-lng, 4-status, 5-district, 6-entrances, 7-floors, 8-flats, 9-flatsPerEntrance
-            for (let i = 0; i < lines.length; i++) {
-                const row = parseCSVLine(lines[i]);
-                if (row.length < 10) continue;
+					const buildings = [];
+					// Индексы колонок: 0-id, 1-address, 2-lat, 3-lng, 4-status, 5-district, 6-entrances, 7-floors, 8-flats, 9-flatsPerEntrance
+					for (let i = 0; i < lines.length; i++) {
+						const row = parseCSVLine(lines[i]);
+						if (row.length < 10) continue;
 
-                const id = parseInt(row[0]);
-                if (isNaN(id)) continue; // пропускаем строки с нечисловым id (например, заголовки)
+						const id = parseInt(row[0]);
+						if (isNaN(id)) continue; // пропускаем строки с нечисловым id (например, заголовки)
 
-                const address = row[1] || '';
-                // Заменяем запятую на точку для десятичных координат
-                const lat = parseFloat(row[2].replace(',', '.')) || 0;
-                const lng = parseFloat(row[3].replace(',', '.')) || 0;
-                const status = row[4] || '';
-                const district = row[5] || '';
-                const entrances = parseInt(row[6]) || 0;
-                const floors = parseInt(row[7]) || 0;
-                const flats = parseInt(row[8]) || 0;
-                const flatsPerEntrance = parseInt(row[9]) || 0;
+						const address = row[1] || '';
+						// Заменяем запятую на точку для десятичных координат
+						const lat = parseFloat(row[2].replace(',', '.')) || 0;
+						const lng = parseFloat(row[3].replace(',', '.')) || 0;
+						const status = row[4] || '';
+						const district = row[5] || '';
+						const entrances = parseInt(row[6]) || 0;
+						const floors = parseInt(row[7]) || 0;
+						const flats = parseInt(row[8]) || 0;
+						const flatsPerEntrance = parseInt(row[9]) || 0;
 
-                if (lat && lng) {
-                    buildings.push({ id, address, lat, lng, status, district, entrances, floors, flats, flatsPerEntrance });
-                }
-            }
+						if (lat && lng) {
+							buildings.push({ id, address, lat, lng, status, district, entrances, floors, flats, flatsPerEntrance });
+						}
+					}
 
-            console.log(`Загружено ${buildings.length} объектов с координатами`);
+					console.log(`Загружено ${buildings.length} объектов с координатами`);
 
-            // Загружаем контакты из второго листа (Contacts)
-            try {
-                console.time('[DataModule] fetch contacts');
-                const contactsCSV = await fetchSheetCSV(CONFIG.GOOGLE_SHEETS.CONTACTS_SHEET_NAME);
-                const contactLines = contactsCSV.split('\n').filter(line => line.trim() !== '');
-                for (let line of contactLines) {
-                    const row = parseCSVLine(line);
-                    const lowerLine = line.toLowerCase();
-                    if (lowerLine.includes('telegram') || lowerLine.includes('@') && !lowerLine.includes('email')) {
-                        for (let val of row) {
-                            if (val.includes('@') || val.includes('t.me')) {
-                                contacts.telegram = val;
-                                break;
-                            }
-                        }
-                    }
-                    if (lowerLine.includes('email') || lowerLine.includes('@') && !lowerLine.includes('t.me')) {
-                        for (let val of row) {
-                            if (val.includes('@') && !val.includes('t.me')) {
-                                contacts.email = val;
-                                break;
-                            }
-                        }
-                    }
-                }
-                console.timeEnd('[DataModule] fetch contacts');
-            } catch (e) {
-                console.warn('Не удалось загрузить контакты:', e);
-            }
+					// Загружаем контакты из второго листа (Contacts)
+					try {
+						console.time('[DataModule] fetch contacts');
+						const contactsCSV = await fetchSheetCSV(CONFIG.GOOGLE_SHEETS.CONTACTS_SHEET_NAME);
+						const contactLines = contactsCSV.split('\n').filter(line => line.trim() !== '');
+						for (let line of contactLines) {
+							const row = parseCSVLine(line);
+							const lowerLine = line.toLowerCase();
+							if (lowerLine.includes('telegram') || lowerLine.includes('@') && !lowerLine.includes('email')) {
+								for (let val of row) {
+									if (val.includes('@') || val.includes('t.me')) {
+										contacts.telegram = val;
+										break;
+									}
+								}
+							}
+							if (lowerLine.includes('email') || lowerLine.includes('@') && !lowerLine.includes('t.me')) {
+								for (let val of row) {
+									if (val.includes('@') && !val.includes('t.me')) {
+										contacts.email = val;
+										break;
+									}
+								}
+							}
+						}
+						console.timeEnd('[DataModule] fetch contacts');
+					} catch (e) {
+						console.warn('Не удалось загрузить контакты:', e);
+					}
 
-            // Сохраняем в кеш
-            localStorage.setItem(cacheKey, JSON.stringify(buildings));
-            localStorage.setItem(cacheModifiedKey, String(Date.now()));
+					// Сохраняем в кеш
+					localStorage.setItem(cacheKey, JSON.stringify(buildings));
+					localStorage.setItem(cacheModifiedKey, String(Date.now()));
 
-            // Обновляем доступные значения для слайдеров
-            const floorsSet = new Set();
-            const flatsSet = new Set();
-            buildings.forEach(b => {
-                if (b.floors > 0) floorsSet.add(b.floors);
-                if (b.flatsPerEntrance > 0) flatsSet.add(b.flatsPerEntrance);
-            });
-            availableValues.floors = Array.from(floorsSet).sort((a, b) => a - b);
-            availableValues.flatsPerEntrance = Array.from(flatsSet).sort((a, b) => a - b);
+					// Обновляем доступные значения для слайдеров
+					const floorsSet = new Set();
+					const flatsSet = new Set();
+					buildings.forEach(b => {
+						if (b.floors > 0) floorsSet.add(b.floors);
+						if (b.flatsPerEntrance > 0) flatsSet.add(b.flatsPerEntrance);
+					});
+					availableValues.floors = Array.from(floorsSet).sort((a, b) => a - b);
+					availableValues.flatsPerEntrance = Array.from(flatsSet).sort((a, b) => a - b);
 
-            Utils.showNotification(`Данные загружены: ${buildings.length} объектов`, 'success');
-            console.timeEnd('[DataModule] loadData - total');
-            return buildings;
-        } catch (error) {
-            console.error('Ошибка загрузки данных из Google Sheets:', error);
-            if (localData) {
-                const cached = JSON.parse(localData);
-                Utils.showNotification('Загружены кешированные данные (офлайн-режим)', 'warning');
-                const floorsSet = new Set();
-                const flatsSet = new Set();
-                cached.forEach(b => {
-                    if (b.floors > 0) floorsSet.add(b.floors);
-                    if (b.flatsPerEntrance > 0) flatsSet.add(b.flatsPerEntrance);
-                });
-                availableValues.floors = Array.from(floorsSet).sort((a, b) => a - b);
-                availableValues.flatsPerEntrance = Array.from(flatsSet).sort((a, b) => a - b);
-                console.timeEnd('[DataModule] loadData - total');
-                return cached;
-            } else {
-                Utils.showNotification('Не удалось загрузить данные. Проверьте интернет.', 'error');
-                throw new Error('Нет данных и не удалось загрузить из Google Sheets');
-            }
-        }
-    }
-};
+					Utils.showNotification(`Данные загружены: ${buildings.length} объектов`, 'success');
+					console.timeEnd('[DataModule] loadData - total');
+					return buildings;
+				} catch (error) {
+					console.error('Ошибка загрузки данных из Google Sheets:', error);
+					if (localData) {
+						const cached = JSON.parse(localData);
+						Utils.showNotification('Загружены кешированные данные (офлайн-режим)', 'warning');
+						const floorsSet = new Set();
+						const flatsSet = new Set();
+						cached.forEach(b => {
+							if (b.floors > 0) floorsSet.add(b.floors);
+							if (b.flatsPerEntrance > 0) flatsSet.add(b.flatsPerEntrance);
+						});
+						availableValues.floors = Array.from(floorsSet).sort((a, b) => a - b);
+						availableValues.flatsPerEntrance = Array.from(flatsSet).sort((a, b) => a - b);
+						console.timeEnd('[DataModule] loadData - total');
+						return cached;
+					} else {
+						Utils.showNotification('Не удалось загрузить данные. Проверьте интернет.', 'error');
+						throw new Error('Нет данных и не удалось загрузить из Google Sheets');
+					}
+				}
+			}
+		};
         // ================================================================
         // МОДУЛЬ КАРТЫ (без изменений, но функция switchContainer оставлена)
         // ================================================================
@@ -1267,17 +1267,6 @@ const DataModule = {
                             });
                             console.timeEnd('[MapModule] map creation');
                             console.time('[MapModule] events & objectManager');
-                            map.events.add('sizechange', () => {
-                                if (map.balloon && map.balloon.isOpen()) {
-                                    const coords = map.balloon.getPosition();
-                                    if (coords) {
-                                        map.balloon.open(coords, map.balloon.getData(), {
-                                            autoPan: true,
-                                            autoPanMargin: [80, 80, 80, 80]
-                                        });
-                                    }
-                                }
-                            });
 
                             const ClusterBalloonLayout = ymaps.templateLayoutFactory.createClass(
                                 '<div class="cluster-balloon"><div class="cluster-balloon__content"></div></div>', {
@@ -2816,33 +2805,33 @@ const DataModule = {
                 StateModule.updateURL();
             },
 
-copyGlobalToDistricts(param) {
-    const districts = Object.keys(this.rangeSliders);
-    if (!districts.length) return;
+			copyGlobalToDistricts(param) {
+				const districts = Object.keys(this.rangeSliders);
+				if (!districts.length) return;
 
-    const globalCtrl = this._globalRangeControls.desktop[param];
-    if (!globalCtrl) return;
+				const globalCtrl = this._globalRangeControls.desktop[param];
+				if (!globalCtrl) return;
 
-    const min = globalCtrl.currentMin;
-    const max = globalCtrl.currentMax;
+				const min = globalCtrl.currentMin;
+				const max = globalCtrl.currentMax;
 
-    districts.forEach(district => {
-        if (districtFilters[district]) {
-            districtFilters[district][param].min = min;
-            districtFilters[district][param].max = max;
-        }
+				districts.forEach(district => {
+					if (districtFilters[district]) {
+						districtFilters[district][param].min = min;
+						districtFilters[district][param].max = max;
+					}
 
-        // Обновляем десктопные слайдеры
-        const ctrl = this.rangeSliders[district] && this.rangeSliders[district][param];
-        if (ctrl) ctrl.setValues(min, max);
+				// Обновляем десктопные слайдеры
+					const ctrl = this.rangeSliders[district] && this.rangeSliders[district][param];
+					if (ctrl) ctrl.setValues(min, max);
 
-        // Обновляем мобильные слайдеры
-        const mobileCtrl = this.rangeSlidersMobile[district] && this.rangeSlidersMobile[district][param];
-        if (mobileCtrl) mobileCtrl.setValues(min, max);
-    });
+					// Обновляем мобильные слайдеры
+					const mobileCtrl = this.rangeSlidersMobile[district] && this.rangeSlidersMobile[district][param];
+					if (mobileCtrl) mobileCtrl.setValues(min, max);
+				});
 
-    this.applyFiltersDebounced();
-},
+				this.applyFiltersDebounced();
+			},
             applyFiltersDebounced: Utils.debounce(function() { FilterModule.applyFilters(); }, 500),
 
             // Обработчики для ⚙️ кнопок
@@ -3483,51 +3472,63 @@ copyGlobalToDistricts(param) {
                 dragData.element.style.transition = 'all 0.3s';
                 dragData = null;
             },
-            toggleFullscreen() {
-                const sidebar = document.getElementById('desktop-sidebar');
-                const header = document.getElementById('fullscreen-header');
-                const sidebarBtn = document.getElementById('sidebar-fullscreen-btn');
-                const fullscreenBtn = document.getElementById('fullscreen-close-btn');
-                const layout = document.getElementById('desktop-layout');
-                const mapContainer = document.getElementById('map-container');
+			
+			toggleFullscreen() {
+				const sidebar = document.getElementById('desktop-sidebar');
+				const header = document.getElementById('fullscreen-header');
+				const sidebarBtn = document.getElementById('sidebar-fullscreen-btn');
+				const fullscreenBtn = document.getElementById('fullscreen-close-btn');
+				const layout = document.getElementById('desktop-layout');
+				const mapContainer = document.getElementById('map-container');
 
-                if (!isFullscreen) {
-                    isFullscreen = true;
-                    sidebar.classList.add('hidden');
-                    layout.classList.add('fullscreen');
-                    header.style.display = 'block';
-                    sidebarBtn.innerHTML = '<i class="fas fa-arrow-right"></i>';
-                    sidebarBtn.title = 'Вернуться к обычному виду';
-                    fullscreenBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
-                    Utils.showNotification('Включен полноэкранный режим', 'success');
-                } else {
-                    isFullscreen = false;
-                    sidebar.classList.remove('hidden');
-                    layout.classList.remove('fullscreen');
-                    header.style.display = 'none';
-                    sidebarBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
-                    sidebarBtn.title = 'Развернуть на весь экран';
-                    Utils.showNotification('Обычный режим', 'info');
-                }
+				// 1. Сохраняем состояние балуна, если открыт
+				let balloonPos = null, balloonData = null;
+				if (map && map.balloon && map.balloon.isOpen()) {
+					balloonPos = map.balloon.getPosition();
+					balloonData = map.balloon.getData();
+					map.balloon.close(); // закрываем
+				}
 
-                if (map && mapContainer) {
-                    setTimeout(() => {
-                        const update = () => {
-                            map.container.fitToViewport();
-                            window.dispatchEvent(new Event('resize'));
-                        };
-                        requestAnimationFrame(() => {
-                            update();
-                            setTimeout(() => {
-                                requestAnimationFrame(update);
-                                setTimeout(() => {
-                                    requestAnimationFrame(update);
-                                }, 150);
-                            }, 150);
-                        });
-                    }, 300);
-                }
-            }
+				// 2. Переключаем режим
+				if (!isFullscreen) {
+					isFullscreen = true;
+					sidebar.classList.add('hidden');
+					layout.classList.add('fullscreen');
+					header.style.display = 'block';
+					sidebarBtn.innerHTML = '<i class="fas fa-arrow-right"></i>';
+					sidebarBtn.title = 'Вернуться к обычному виду';
+					fullscreenBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
+					Utils.showNotification('Включен полноэкранный режим', 'success');
+				} else {
+					isFullscreen = false;
+					sidebar.classList.remove('hidden');
+					layout.classList.remove('fullscreen');
+					header.style.display = 'none';
+					sidebarBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
+					sidebarBtn.title = 'Развернуть на весь экран';
+					Utils.showNotification('Обычный режим', 'info');
+				}
+
+				// 3. Обновляем карту ровно один раз с задержкой
+				if (map && mapContainer) {
+					setTimeout(() => {
+						map.container.fitToViewport();
+						// Принудительно сбрасываем размеры
+						window.dispatchEvent(new Event('resize'));
+
+						// 4. Восстанавливаем балун, если он был, через 400 мс (после того как карта успокоится)
+						setTimeout(() => {
+							if (balloonPos && balloonData && map) {
+								// Открываем без autoPan, чтобы не вызывать новых sizechange
+								map.balloon.open(balloonPos, balloonData, {
+									autoPan: false,
+									offset: [0, -15] // сохраняем тот же оффсет, что и обычно
+								});
+							}
+						}, 400);
+					}, 300);
+				}
+			}
         };
 
         // ================================================================
